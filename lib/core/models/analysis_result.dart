@@ -26,12 +26,17 @@ enum SafetyRating {
   final String apiValue;
   final String label;
 
+  /// Accepts both API vocabularies: `/api/analyze` uses
+  /// safe|moderate|concerning|harmful; `/api/scans` and `/api/products` use
+  /// LOW|MEDIUM|HIGH|CRITICAL (higher = worse).
   static SafetyRating fromApi(String? value) {
-    final normalized = (value ?? '').trim().toLowerCase();
-    for (final rating in SafetyRating.values) {
-      if (rating.apiValue == normalized) return rating;
-    }
-    return SafetyRating.moderate;
+    return switch ((value ?? '').trim().toLowerCase()) {
+      'safe' || 'low' => SafetyRating.safe,
+      'moderate' || 'medium' => SafetyRating.moderate,
+      'concerning' || 'high' => SafetyRating.concerning,
+      'harmful' || 'critical' => SafetyRating.harmful,
+      _ => SafetyRating.moderate,
+    };
   }
 }
 

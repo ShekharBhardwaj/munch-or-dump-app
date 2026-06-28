@@ -8,10 +8,13 @@ import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_screen.dart';
 import 'package:munch_or_dump/features/auth/forgot_password_screen.dart';
 import 'package:munch_or_dump/features/auth/verify_email_screen.dart';
+import 'package:munch_or_dump/features/history/history_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
+import 'package:munch_or_dump/features/product/product_screen.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
 import 'package:munch_or_dump/features/scan/scan_screen.dart';
+import 'package:munch_or_dump/features/watchlist/watchlist_screen.dart';
 
 const Set<String> _authRoutes = <String>{
   Routes.loginPath,
@@ -21,11 +24,14 @@ const Set<String> _authRoutes = <String>{
 const Set<String> _gatedRoutes = <String>{
   Routes.accountPath,
   Routes.onboardingPath,
+  Routes.historyPath,
+  Routes.watchlistPath,
 };
 
 /// The app router. Redirect rules:
-///  * gated routes (`/account`, `/onboarding`) require a session → home if not
-///    (the app allows anonymous browsing; login is reached via the account icon)
+///  * gated routes (`_gatedRoutes`: `/account`, `/onboarding`, `/history`,
+///    `/watchlist`) require a session → home if not (the app allows anonymous
+///    browsing; login is reached via the account icon)
 ///  * auth routes redirect to home once signed in
 ///  * onboarding itself is navigated to imperatively after login (not forced
 ///    globally) so a signed-in user is never trapped.
@@ -69,6 +75,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           final extra = state.extra;
           return ResultScreen(result: extra is AnalysisResult ? extra : null);
         },
+      ),
+      GoRoute(
+        path: '/product/:slug',
+        name: Routes.product,
+        builder: (context, state) =>
+            ProductScreen(slug: state.pathParameters['slug'] ?? ''),
+      ),
+      GoRoute(
+        path: '/history',
+        name: Routes.history,
+        builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/watchlist',
+        name: Routes.watchlist,
+        builder: (context, state) => const WatchlistScreen(),
       ),
       GoRoute(
         path: '/login',

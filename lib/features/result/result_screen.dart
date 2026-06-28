@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/features/result/result_actions.dart';
 
 /// The verdict result — the app's headline screen. Renders the analysis from
 /// `/api/analyze`: verdict + score, reasons, ingredient breakdown, marketing
@@ -84,6 +85,7 @@ class ResultScreen extends StatelessWidget {
                       title: 'Bottom line',
                       child: Text(data.consumptionContext!),
                     ),
+                  ResultActions(result: data),
                 ],
               ),
             ),

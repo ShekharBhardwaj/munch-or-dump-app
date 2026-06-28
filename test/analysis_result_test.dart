@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
+import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
+import 'package:munch_or_dump/features/result/result_actions.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
 
 Map<String, dynamic> _sampleJson() => <String, dynamic>{
@@ -111,7 +114,17 @@ void main() {
 
   testWidgets('Result screen renders the verdict and score', (tester) async {
     final result = AnalysisResult.fromJson(_sampleJson());
-    await tester.pumpWidget(MaterialApp(home: ResultScreen(result: result)));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: <Override>[
+          // Avoid a real /api/votes call from the community widget.
+          voteSummaryProvider(
+            'Test Granola',
+          ).overrideWith((ref) => const VoteSummary()),
+        ],
+        child: MaterialApp(home: ResultScreen(result: result)),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('OKAY'), findsOneWidget);

@@ -7,6 +7,7 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
 import 'package:munch_or_dump/core/models/scan_draft.dart';
 import 'package:munch_or_dump/core/models/user.dart';
+import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/models/user_profile.dart';
 
 /// Typed client over the Munch or Dump API.
@@ -182,6 +183,72 @@ class MunchApi {
     return ScanDraft.fromJson(res);
   }
 
+  // ── User content (Phase 3: history / lists / watches / votes) ────────────────
+
+  /// GET `/api/scans` — the signed-in user's scan history (auth).
+  Future<List<ScanHistoryItem>> listScans({
+    String sort = '-created_at',
+    int limit = 50,
+  }) => _getList(
+    '/api/scans',
+    ScanHistoryItem.fromJson,
+    query: <String, dynamic>{'sort': sort, 'limit': limit},
+  );
+
+  /// GET `/api/lists` — saved products grouped by list name (auth).
+  Future<SavedLists> getSavedLists() => _get('/api/lists', SavedLists.fromJson);
+
+  /// POST `/api/lists` — save a product to a list (auth).
+  Future<void> saveProduct(String productSlug, {String listName = 'saved'}) =>
+      _post('/api/lists', <String, dynamic>{
+        'product_slug': productSlug,
+        'list_name': listName,
+      });
+
+  /// DELETE `/api/lists` — remove a product from a list (auth).
+  Future<void> unsaveProduct(String productSlug, {String listName = 'saved'}) =>
+      _delete('/api/lists', <String, dynamic>{
+        'product_slug': productSlug,
+        'list_name': listName,
+      });
+
+  /// GET `/api/watches` — watched products + brands (auth).
+  Future<Watches> getWatches() => _get('/api/watches', Watches.fromJson);
+
+  /// POST `/api/watches` — watch a product or brand (auth).
+  Future<void> addWatch({String? productSlug, String? brandSlug}) {
+    final body = <String, dynamic>{};
+    if (productSlug != null) body['product_slug'] = productSlug;
+    if (brandSlug != null) body['brand_slug'] = brandSlug;
+    return _post('/api/watches', body);
+  }
+
+  /// DELETE `/api/watches` — stop watching a product or brand (auth).
+  Future<void> removeWatch({String? productSlug, String? brandSlug}) {
+    final body = <String, dynamic>{};
+    if (productSlug != null) body['product_slug'] = productSlug;
+    if (brandSlug != null) body['brand_slug'] = brandSlug;
+    return _delete('/api/watches', body);
+  }
+
+  /// GET `/api/votes` — community munch/dump split for a product (anonymous OK).
+  Future<VoteSummary> getVoteSummary(String productName) => _get(
+    '/api/votes',
+    VoteSummary.fromJson,
+    query: <String, dynamic>{'product_name': productName, 'summary': 'true'},
+  );
+
+  /// POST `/api/votes` — cast/change the user's vote on a product (auth).
+  Future<void> castVote(String productName, VoteChoice vote) => _post(
+    '/api/votes',
+    <String, dynamic>{'product_name': productName, 'vote': vote.apiValue},
+  );
+
+  /// GET `/api/products/:slug` — canonical product detail. Same verdict fields as
+  /// `/api/analyze`, so it parses straight into [AnalysisResult] (anonymous OK).
+  Future<AnalysisResult> getProduct(String slug) =>
+      _get('/api/products/$slug', AnalysisResult.fromJson);
+
   // ── helpers ─────────────────────────────────────────────────────────────────
 
   /// Extract the JWT from an auth response, turning a missing/empty token (a
@@ -195,10 +262,45 @@ class MunchApi {
     return token;
   }
 
-  Future<T> _get<T>(String path, T Function(Map<String, dynamic>) parse) async {
+  Future<T> _get<T>(
+    String path,
+    T Function(Map<String, dynamic>) parse, {
+    Map<String, dynamic>? query,
+  }) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>(path);
+      final res = await _dio.get<Map<String, dynamic>>(
+        path,
+        queryParameters: query,
+      );
       return parse(res.data ?? const <String, dynamic>{});
+    } on DioException catch (error) {
+      throw mapDioError(error);
+    }
+  }
+
+  Future<List<T>> _getList<T>(
+    String path,
+    T Function(Map<String, dynamic>) parse, {
+    Map<String, dynamic>? query,
+  }) async {
+    try {
+      final res = await _dio.get<List<dynamic>>(path, queryParameters: query);
+      return (res.data ?? const <dynamic>[])
+          .whereType<Map<String, dynamic>>()
+          .map(parse)
+          .toList();
+    } on DioException catch (error) {
+      throw mapDioError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> _delete(
+    String path,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final res = await _dio.delete<Map<String, dynamic>>(path, data: body);
+      return res.data ?? const <String, dynamic>{};
     } on DioException catch (error) {
       throw mapDioError(error);
     }

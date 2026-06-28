@@ -33,4 +33,15 @@ enum Verdict {
     if (normalized.startsWith('ULTRA')) return engineered;
     return okay;
   }
+
+  /// Like [fromApi] but returns null for an empty/unknown verdict — for places
+  /// (e.g. scan history) where a record may not have been analyzed yet.
+  static Verdict? tryParse(String? value) {
+    final normalized = (value ?? '').trim().toUpperCase();
+    if (normalized.isEmpty) return null;
+    for (final verdict in Verdict.values) {
+      if (verdict.apiValue == normalized) return verdict;
+    }
+    return null;
+  }
 }
