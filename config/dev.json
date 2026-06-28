@@ -1,0 +1,5 @@
+{
+  "ENV": "dev",
+  "API_BASE_URL": "https://1406mo0ze0.execute-api.us-east-1.amazonaws.com/Prod",
+  "GOOGLE_SERVER_CLIENT_ID": ""
+}

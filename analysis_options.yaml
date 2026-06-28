@@ -1,0 +1,28 @@
+# Lint + analysis config for the Munch or Dump app.
+# Base rules from flutter_lints; tightened a notch for a production codebase.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"        # json_serializable output
+    - "**/*.freezed.dart"  # freezed output (Phase 1)
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # Generated code sometimes targets fields with annotations the analyzer can't see.
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_locals
+    - directives_ordering
+    - unawaited_futures
+    - avoid_print          # use debugPrint / a logger instead
+    - always_declare_return_types
+    - sort_pub_dependencies
