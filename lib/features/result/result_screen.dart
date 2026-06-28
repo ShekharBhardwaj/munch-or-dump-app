@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
+import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
 import 'package:munch_or_dump/features/result/result_actions.dart';
 
 /// The verdict result — the app's headline screen. Renders the analysis from
@@ -84,6 +87,16 @@ class ResultScreen extends StatelessWidget {
                     _Section(
                       title: 'Bottom line',
                       child: Text(data.consumptionContext!),
+                    ),
+                  if (data.alternatives.isNotEmpty)
+                    _Section(
+                      title: 'Better alternatives',
+                      child: Column(
+                        children: <Widget>[
+                          for (final alt in data.alternatives)
+                            _AlternativeRow(alt: alt),
+                        ],
+                      ),
                     ),
                   ResultActions(result: data),
                 ],
@@ -368,6 +381,54 @@ class _DietaryTags extends StatelessWidget {
         runSpacing: 8,
         children: <Widget>[for (final tag in tags) Chip(label: Text(tag))],
       ),
+    );
+  }
+}
+
+class _AlternativeRow extends StatelessWidget {
+  const _AlternativeRow({required this.alt});
+
+  final Alternative alt;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final verdict = alt.verdict;
+    final delta = alt.scoreDelta;
+    final brand = alt.brandName;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        alt.name.trim().isEmpty ? alt.slug : alt.name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: brand != null && brand.isNotEmpty
+          ? Text(brand, maxLines: 1, overflow: TextOverflow.ellipsis)
+          : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (delta != null && delta > 0)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(
+                '+$delta',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          if (verdict != null) VerdictBadge(verdict: verdict, score: alt.score),
+        ],
+      ),
+      onTap: alt.slug.isEmpty
+          ? null
+          : () => context.pushNamed(
+              Routes.product,
+              pathParameters: <String, String>{'slug': alt.slug},
+            ),
     );
   }
 }

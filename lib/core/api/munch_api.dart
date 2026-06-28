@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:munch_or_dump/core/api/api_client.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
+import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
 import 'package:munch_or_dump/core/models/scan_draft.dart';
 import 'package:munch_or_dump/core/models/user.dart';
@@ -249,7 +250,93 @@ class MunchApi {
   Future<AnalysisResult> getProduct(String slug) =>
       _get('/api/products/$slug', AnalysisResult.fromJson);
 
+  // ── Browse (Phase 4: search / brands / categories / ingredients) ─────────────
+
+  /// GET `/api/products` — search/filter. Anonymous-OK (soft `gated`).
+  Future<ProductSearchResult> searchProducts({
+    String? search,
+    String? category,
+    String? verdict,
+    List<String> dietary = const <String>[],
+    int limit = 30,
+  }) {
+    final query = <String, dynamic>{'limit': limit};
+    if (search != null && search.isNotEmpty) query['search'] = search;
+    if (category != null && category.isNotEmpty) query['category'] = category;
+    if (verdict != null && verdict.isNotEmpty) query['verdict'] = verdict;
+    for (final flag in dietary) {
+      query[flag] = '1';
+    }
+    return _get('/api/products', parseProductSearch, query: query);
+  }
+
+  /// GET `/api/brands` — brand list (soft `gated`).
+  Future<({List<BrandSummary> items, bool gated})> getBrands() => _get(
+    '/api/brands',
+    (json) => (
+      items:
+          (json['items'] as List?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(BrandSummary.fromJson)
+              .toList() ??
+          const <BrandSummary>[],
+      gated: json['gated'] == true,
+    ),
+  );
+
+  /// GET `/api/brands/:slug` — brand detail (returns `[]` when not found).
+  Future<BrandDetail> getBrand(String slug) async {
+    final data = await _getDynamic('/api/brands/$slug');
+    if (data is Map<String, dynamic>) return BrandDetail.fromJson(data);
+    throw const ApiException('Brand not found.');
+  }
+
+  /// GET `/api/categories` — category list (soft `gated`).
+  Future<({List<CategorySummary> items, bool gated})> getCategories() => _get(
+    '/api/categories',
+    (json) => (
+      items:
+          (json['items'] as List?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CategorySummary.fromJson)
+              .toList() ??
+          const <CategorySummary>[],
+      gated: json['gated'] == true,
+    ),
+  );
+
+  /// GET `/api/categories/:slug` — category detail (returns `[]` when not found).
+  Future<CategoryDetail> getCategory(String slug) async {
+    final data = await _getDynamic('/api/categories/$slug');
+    if (data is Map<String, dynamic>) return CategoryDetail.fromJson(data);
+    throw const ApiException('Category not found.');
+  }
+
+  /// GET `/api/ingredients/:slug` — ingredient detail (single-item array, or
+  /// `[]` when not found → null).
+  Future<IngredientDetail?> getIngredient(String slug) async {
+    final data = await _getDynamic('/api/ingredients/$slug');
+    if (data is List && data.isNotEmpty && data.first is Map<String, dynamic>) {
+      return IngredientDetail.fromJson(data.first as Map<String, dynamic>);
+    }
+    return null;
+  }
+
   // ── helpers ─────────────────────────────────────────────────────────────────
+
+  /// GET returning the raw decoded body (Map or List) — for endpoints that
+  /// return `[]` to mean "not found".
+  Future<dynamic> _getDynamic(
+    String path, {
+    Map<String, dynamic>? query,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(path, queryParameters: query);
+      return res.data;
+    } on DioException catch (error) {
+      throw mapDioError(error);
+    }
+  }
 
   /// Extract the JWT from an auth response, turning a missing/empty token (a
   /// 2xx with no `token` — backend contract drift) into a clean [ApiException]

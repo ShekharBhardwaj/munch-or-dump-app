@@ -8,6 +8,12 @@ abstract final class Routes {
   static const String product = 'product';
   static const String history = 'history';
   static const String watchlist = 'watchlist';
+  static const String search = 'search';
+  static const String brands = 'brands';
+  static const String brand = 'brand';
+  static const String categories = 'categories';
+  static const String category = 'category';
+  static const String ingredient = 'ingredient';
   static const String login = 'login';
   static const String verify = 'verify';
   static const String forgot = 'forgot';
@@ -20,6 +26,12 @@ abstract final class Routes {
   static const String productPath = '/product/:slug';
   static const String historyPath = '/history';
   static const String watchlistPath = '/watchlist';
+  static const String searchPath = '/search';
+  static const String brandsPath = '/brands';
+  static const String brandPath = '/brand/:slug';
+  static const String categoriesPath = '/categories';
+  static const String categoryPath = '/category/:slug';
+  static const String ingredientPath = '/ingredient/:slug';
   static const String loginPath = '/login';
   static const String verifyPath = '/verify';
   static const String forgotPath = '/forgot';

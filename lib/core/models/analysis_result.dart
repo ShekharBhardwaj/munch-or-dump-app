@@ -26,14 +26,14 @@ enum SafetyRating {
   final String apiValue;
   final String label;
 
-  /// Accepts both API vocabularies: `/api/analyze` uses
-  /// safe|moderate|concerning|harmful; `/api/scans` and `/api/products` use
-  /// LOW|MEDIUM|HIGH|CRITICAL (higher = worse).
+  /// Accepts every API vocabulary (higher = worse): analyze uses
+  /// safe|moderate|concerning|harmful; products/scans use LOW|MEDIUM|HIGH|
+  /// CRITICAL; ingredients use safe|caution|concern|harmful.
   static SafetyRating fromApi(String? value) {
     return switch ((value ?? '').trim().toLowerCase()) {
       'safe' || 'low' => SafetyRating.safe,
-      'moderate' || 'medium' => SafetyRating.moderate,
-      'concerning' || 'high' => SafetyRating.concerning,
+      'moderate' || 'medium' || 'caution' => SafetyRating.moderate,
+      'concerning' || 'high' || 'concern' => SafetyRating.concerning,
       'harmful' || 'critical' => SafetyRating.harmful,
       _ => SafetyRating.moderate,
     };
@@ -73,6 +73,7 @@ class AnalysisResult {
     this.containsNuts = false,
     this.containsSoy = false,
     this.containsEggs = false,
+    this.alternatives = const <Alternative>[],
   });
 
   factory AnalysisResult.fromJson(Map<String, dynamic> json) =>
@@ -111,6 +112,10 @@ class AnalysisResult {
   final bool containsNuts;
   final bool containsSoy;
   final bool containsEggs;
+
+  /// Healthier products in the same category (`/api/products/:slug` only).
+  @JsonKey(name: 'better_alternatives')
+  final List<Alternative> alternatives;
 
   Map<String, dynamic> toJson() => _$AnalysisResultToJson(this);
 
@@ -177,6 +182,36 @@ class MarketingClaim {
   final bool isMisleading;
 
   Map<String, dynamic> toJson() => _$MarketingClaimToJson(this);
+}
+
+/// A healthier alternative product (from `better_alternatives`).
+@JsonSerializable(fieldRename: FieldRename.snake)
+class Alternative {
+  const Alternative({
+    required this.name,
+    required this.slug,
+    this.verdictRaw,
+    this.score,
+    this.scoreDelta,
+    this.brandName,
+    this.shortExplanation,
+  });
+
+  factory Alternative.fromJson(Map<String, dynamic> json) =>
+      _$AlternativeFromJson(json);
+
+  final String name;
+  final String slug;
+  @JsonKey(name: 'verdict')
+  final String? verdictRaw;
+  final int? score;
+  final int? scoreDelta;
+  final String? brandName;
+  final String? shortExplanation;
+
+  Map<String, dynamic> toJson() => _$AlternativeToJson(this);
+
+  Verdict? get verdict => Verdict.tryParse(verdictRaw);
 }
 
 /// Outcome of an analyze call. The verdict result, "not found" (barcode missing

@@ -24,6 +24,11 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: <Widget>[
           IconButton(
+            tooltip: 'Search',
+            icon: const Icon(Icons.search),
+            onPressed: () => context.pushNamed(Routes.search),
+          ),
+          IconButton(
             tooltip: loggedIn ? 'Account' : 'Sign in',
             icon: Icon(
               loggedIn ? Icons.account_circle : Icons.account_circle_outlined,
@@ -63,6 +68,33 @@ class HomeScreen extends ConsumerWidget {
                     _VerdictChip(verdict: verdict),
                 ],
               ),
+              const SizedBox(height: 24),
+              Text(
+                'Browse',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.pushNamed(Routes.categories),
+                      icon: const Icon(Icons.category_outlined),
+                      label: const Text('Categories'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.pushNamed(Routes.brands),
+                      icon: const Icon(Icons.storefront_outlined),
+                      label: const Text('Brands'),
+                    ),
+                  ),
+                ],
+              ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
@@ -78,7 +110,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               Center(
                 child: Text(
-                  'Phase 1 · v0.1.0',
+                  'v0.1.0',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.outline,
                   ),

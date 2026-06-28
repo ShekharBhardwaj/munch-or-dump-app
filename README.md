@@ -7,9 +7,9 @@ Flutter (Dart) client of the existing [Munch or Dump API](../munch-or-dump-api).
 logic of its own — the backend is the source of truth. See [`PLAN.md`](PLAN.md) for the full
 architecture and the phased build order.
 
-> **Status:** Phase 3 (user surface) complete — scan history, saved lists + watchlist, product detail,
-> and save/watch/community-vote actions on the Result screen. Phase 2 shipped the scan loop, Phase 1
-> the auth spine. Google sign-in is gated pending an iOS OAuth client ID.
+> **Status:** Phase 4 (browse) complete — search with filters, category/brand browse, ingredient
+> pages, and "better alternatives" on the Result screen. Phase 3 added history/watchlist/voting,
+> Phase 2 the scan loop, Phase 1 the auth spine. Google sign-in is gated pending an iOS OAuth client ID.
 
 ## Stack
 
@@ -78,6 +78,7 @@ lib/
     product/                 product detail by slug (reuses the Result screen)
     history/                 past scans (GET /api/scans)
     watchlist/               saved lists + watched products/brands
+    browse/                  search (+filters), categories, brands, ingredient pages
 test/                        unit + widget tests
 config/                      dart-define environment files
 ```

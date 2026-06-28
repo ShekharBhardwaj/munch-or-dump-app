@@ -8,6 +8,10 @@ import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_screen.dart';
 import 'package:munch_or_dump/features/auth/forgot_password_screen.dart';
 import 'package:munch_or_dump/features/auth/verify_email_screen.dart';
+import 'package:munch_or_dump/features/browse/brands_screen.dart';
+import 'package:munch_or_dump/features/browse/categories_screen.dart';
+import 'package:munch_or_dump/features/browse/ingredient_screen.dart';
+import 'package:munch_or_dump/features/browse/search_screen.dart';
 import 'package:munch_or_dump/features/history/history_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
@@ -91,6 +95,39 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/watchlist',
         name: Routes.watchlist,
         builder: (context, state) => const WatchlistScreen(),
+      ),
+      GoRoute(
+        path: '/search',
+        name: Routes.search,
+        builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        path: '/brands',
+        name: Routes.brands,
+        builder: (context, state) => const BrandsScreen(),
+      ),
+      GoRoute(
+        path: '/brand/:slug',
+        name: Routes.brand,
+        builder: (context, state) =>
+            BrandScreen(slug: state.pathParameters['slug'] ?? ''),
+      ),
+      GoRoute(
+        path: '/categories',
+        name: Routes.categories,
+        builder: (context, state) => const CategoriesScreen(),
+      ),
+      GoRoute(
+        path: '/category/:slug',
+        name: Routes.category,
+        builder: (context, state) =>
+            CategoryScreen(slug: state.pathParameters['slug'] ?? ''),
+      ),
+      GoRoute(
+        path: '/ingredient/:slug',
+        name: Routes.ingredient,
+        builder: (context, state) =>
+            IngredientScreen(slug: state.pathParameters['slug'] ?? ''),
       ),
       GoRoute(
         path: '/login',
