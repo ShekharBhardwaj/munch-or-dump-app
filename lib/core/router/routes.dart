@@ -4,6 +4,7 @@
 abstract final class Routes {
   static const String home = 'home';
   static const String scan = 'scan';
+  static const String result = 'result';
   static const String login = 'login';
   static const String verify = 'verify';
   static const String forgot = 'forgot';
@@ -12,6 +13,7 @@ abstract final class Routes {
 
   static const String homePath = '/';
   static const String scanPath = '/scan';
+  static const String resultPath = '/result';
   static const String loginPath = '/login';
   static const String verifyPath = '/verify';
   static const String forgotPath = '/forgot';

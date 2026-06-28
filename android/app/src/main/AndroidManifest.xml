@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Barcode scanning (mobile_scanner). image_picker uses the system photo picker. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="Munch or Dump"
         android:name="${applicationName}"

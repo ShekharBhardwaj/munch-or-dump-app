@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:munch_or_dump/core/api/api_client.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
+import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
+import 'package:munch_or_dump/core/models/scan_draft.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/models/user_profile.dart';
 
@@ -81,12 +85,102 @@ class MunchApi {
     return UserProfile.fromJson(res['profile'] as Map<String, dynamic>);
   }
 
-  // ── Scan (Phase 2 will build on this) ────────────────────────────────────────
+  // ── Scan pipeline ─────────────────────────────────────────────────────────────
 
-  /// POST `/api/analyze` with a barcode only — the no-image fast path.
-  /// `{ "found": false }` means the barcode isn't in the Open Food Facts cache.
-  Future<Map<String, dynamic>> analyzeBarcode(String barcode) =>
-      _post('/api/analyze', <String, dynamic>{'barcode': barcode});
+  /// POST `/api/analyze` — the verdict. Pass a barcode (anonymous-friendly fast
+  /// path) and/or OCR `ingredients` + `fileUrls`. Returns [AnalyzeNotFound] when
+  /// a barcode isn't in Open Food Facts, or [AnalyzeUnsupported] for non-food.
+  Future<AnalyzeOutcome> analyze({
+    String? barcode,
+    List<String>? ingredients,
+    String? scanId,
+    String? productName,
+    String? brand,
+    String? category,
+    List<String>? fileUrls,
+    String? servingSize,
+  }) async {
+    final body = <String, dynamic>{};
+    if (barcode != null && barcode.isNotEmpty) body['barcode'] = barcode;
+    if (ingredients != null) body['ingredients'] = ingredients;
+    if (scanId != null) body['scan_id'] = scanId;
+    if (productName != null) body['product_name'] = productName;
+    if (brand != null) body['brand'] = brand;
+    if (category != null) body['category'] = category;
+    if (fileUrls != null) body['file_urls'] = fileUrls;
+    if (servingSize != null) body['serving_size'] = servingSize;
+    final res = await _post('/api/analyze', body);
+    if (res['found'] == false) {
+      return AnalyzeNotFound(res['barcode'] as String?);
+    }
+    if (res['unsupported'] == true) {
+      return AnalyzeUnsupported(
+        (res['message'] ?? 'This isn’t something you eat or drink.').toString(),
+      );
+    }
+    try {
+      return AnalyzeSuccess(AnalysisResult.fromJson(res));
+    } on Object catch (_) {
+      // Defense in depth: a malformed/unexpected analyze body becomes a clean
+      // error the scan screen already handles, never an uncaught crash.
+      throw const ApiException(
+        'We couldn’t read the analysis for this product. Please try again.',
+      );
+    }
+  }
+
+  /// POST `/api/upload-url` → a presigned S3 PUT target. Requires auth.
+  Future<({String uploadUrl, String fileUrl})> createUploadUrl({
+    required String filename,
+    required String contentType,
+  }) async {
+    final res = await _post('/api/upload-url', <String, dynamic>{
+      'filename': filename,
+      'content_type': contentType,
+    });
+    return (
+      uploadUrl: res['upload_url'] as String,
+      fileUrl: res['file_url'] as String,
+    );
+  }
+
+  /// PUT raw image bytes straight to S3 via the presigned URL. Uses a bare Dio
+  /// so our Bearer interceptor never touches the S3 request; the Content-Type
+  /// must match what [createUploadUrl] was called with.
+  Future<void> uploadImage({
+    required String uploadUrl,
+    required Uint8List bytes,
+    required String contentType,
+  }) async {
+    final s3 = Dio();
+    try {
+      await s3.put<void>(
+        uploadUrl,
+        data: Stream<List<int>>.value(bytes),
+        options: Options(
+          headers: <String, dynamic>{
+            Headers.contentTypeHeader: contentType,
+            Headers.contentLengthHeader: bytes.length,
+          },
+        ),
+      );
+    } on DioException catch (error) {
+      throw mapDioError(error);
+    } finally {
+      s3.close();
+    }
+  }
+
+  /// POST `/api/scans` — fast OCR ingest of uploaded images.
+  Future<ScanDraft> createScan({
+    required List<String> fileUrls,
+    Map<String, dynamic>? identity,
+  }) async {
+    final body = <String, dynamic>{'file_urls': fileUrls};
+    if (identity != null) body['identity'] = identity;
+    final res = await _post('/api/scans', body);
+    return ScanDraft.fromJson(res);
+  }
 
   // ── helpers ─────────────────────────────────────────────────────────────────
 

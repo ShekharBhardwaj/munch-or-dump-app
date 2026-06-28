@@ -7,9 +7,10 @@ Flutter (Dart) client of the existing [Munch or Dump API](../munch-or-dump-api).
 logic of its own — the backend is the source of truth. See [`PLAN.md`](PLAN.md) for the full
 architecture and the phased build order.
 
-> **Status:** Phase 1 (API + auth spine) complete — email/password sign-in, verify/reset,
-> onboarding, account, 401→sign-out. Google sign-in is gated pending an iOS OAuth client ID. The
-> core scan → analyze → verdict loop lands in Phase 2.
+> **Status:** Phase 2 (core scan loop) complete — barcode scan (camera + manual) and auth-gated
+> label-photo scan → `/api/analyze` → a rich Result screen (verdict, score, ingredient breakdown,
+> marketing claims, dietary tags, "For You" note). Phase 1 shipped the auth spine. Google sign-in is
+> gated pending an iOS OAuth client ID.
 
 ## Stack
 
@@ -73,7 +74,8 @@ lib/
     onboarding/              persona/goals/dietary/conditions profile capture
     account/                 signed-in account + profile summary
     home/                    landing screen
-    scan/                    scan screen (Phase 2 placeholder)
+    scan/                    barcode (camera + manual) & label-photo scan + ScanService pipeline
+    result/                  verdict / score / ingredient breakdown / "For You" note
 test/                        unit + widget tests
 config/                      dart-define environment files
 ```

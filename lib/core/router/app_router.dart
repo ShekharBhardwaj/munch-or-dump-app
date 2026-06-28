@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/features/account/account_screen.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -9,6 +10,7 @@ import 'package:munch_or_dump/features/auth/forgot_password_screen.dart';
 import 'package:munch_or_dump/features/auth/verify_email_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
+import 'package:munch_or_dump/features/result/result_screen.dart';
 import 'package:munch_or_dump/features/scan/scan_screen.dart';
 
 const Set<String> _authRoutes = <String>{
@@ -59,6 +61,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/scan',
         name: Routes.scan,
         builder: (context, state) => const ScanScreen(),
+      ),
+      GoRoute(
+        path: '/result',
+        name: Routes.result,
+        builder: (context, state) {
+          final extra = state.extra;
+          return ResultScreen(result: extra is AnalysisResult ? extra : null);
+        },
       ),
       GoRoute(
         path: '/login',

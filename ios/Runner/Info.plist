@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Munch or Dump uses the camera to scan barcodes and snap product labels.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Munch or Dump lets you choose a product label or receipt photo to analyze.</string>
 </dict>
 </plist>
