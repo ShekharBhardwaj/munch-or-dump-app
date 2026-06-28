@@ -7,7 +7,9 @@ Flutter (Dart) client of the existing [Munch or Dump API](../munch-or-dump-api).
 logic of its own — the backend is the source of truth. See [`PLAN.md`](PLAN.md) for the full
 architecture and the phased build order.
 
-> **Status:** Phase 0 (scaffold) complete. The core scan → analyze → verdict loop lands in Phase 2.
+> **Status:** Phase 1 (API + auth spine) complete — email/password sign-in, verify/reset,
+> onboarding, account, 401→sign-out. Google sign-in is gated pending an iOS OAuth client ID. The
+> core scan → analyze → verdict loop lands in Phase 2.
 
 ## Stack
 
@@ -67,6 +69,9 @@ lib/
     router/app_router.dart   go_router routes
     providers.dart           Riverpod providers (token store, dio, api, router)
   features/
+    auth/                    sign-in/register, verify email, forgot/reset, AuthController + repo
+    onboarding/              persona/goals/dietary/conditions profile capture
+    account/                 signed-in account + profile summary
     home/                    landing screen
     scan/                    scan screen (Phase 2 placeholder)
 test/                        unit + widget tests

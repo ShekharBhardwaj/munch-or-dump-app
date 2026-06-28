@@ -1,17 +1,54 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/features/account/account_screen.dart';
+import 'package:munch_or_dump/features/auth/auth_controller.dart';
+import 'package:munch_or_dump/features/auth/auth_screen.dart';
+import 'package:munch_or_dump/features/auth/forgot_password_screen.dart';
+import 'package:munch_or_dump/features/auth/verify_email_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
+import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
 import 'package:munch_or_dump/features/scan/scan_screen.dart';
 
-/// Named routes — referenced via `context.goNamed(...)` to avoid stringly paths.
-abstract final class Routes {
-  static const String home = 'home';
-  static const String scan = 'scan';
-}
+const Set<String> _authRoutes = <String>{
+  Routes.loginPath,
+  Routes.verifyPath,
+  Routes.forgotPath,
+};
+const Set<String> _gatedRoutes = <String>{
+  Routes.accountPath,
+  Routes.onboardingPath,
+};
 
-/// Builds the app's [GoRouter]. Auth-gated redirects are added in Phase 1.
-GoRouter buildRouter() {
-  return GoRouter(
+/// The app router. Redirect rules:
+///  * gated routes (`/account`, `/onboarding`) require a session → home if not
+///    (the app allows anonymous browsing; login is reached via the account icon)
+///  * auth routes redirect to home once signed in
+///  * onboarding itself is navigated to imperatively after login (not forced
+///    globally) so a signed-in user is never trapped.
+final routerProvider = Provider<GoRouter>((ref) {
+  // Re-run redirects whenever the session changes.
+  final refresh = ValueNotifier<int>(0);
+  ref
+    ..onDispose(refresh.dispose)
+    ..listen(authControllerProvider, (_, _) => refresh.value++);
+
+  final router = GoRouter(
     initialLocation: '/',
+    refreshListenable: refresh,
+    redirect: (context, state) {
+      final auth = ref.read(authControllerProvider);
+      if (auth.isLoading) return null;
+      final loggedIn = auth.valueOrNull != null;
+      final loc = state.matchedLocation;
+      // Anonymous-friendly: a logged-out user on a gated route (sign-out or an
+      // expired session) lands on home, not a login wall. The login screen is
+      // reached deliberately via the home account icon.
+      if (!loggedIn && _gatedRoutes.contains(loc)) return Routes.homePath;
+      if (loggedIn && _authRoutes.contains(loc)) return Routes.homePath;
+      return null;
+    },
     routes: <RouteBase>[
       GoRoute(
         path: '/',
@@ -23,6 +60,34 @@ GoRouter buildRouter() {
         name: Routes.scan,
         builder: (context, state) => const ScanScreen(),
       ),
+      GoRoute(
+        path: '/login',
+        name: Routes.login,
+        builder: (context, state) => const AuthScreen(),
+      ),
+      GoRoute(
+        path: '/verify',
+        name: Routes.verify,
+        builder: (context, state) =>
+            VerifyEmailScreen(email: state.extra as String? ?? ''),
+      ),
+      GoRoute(
+        path: '/forgot',
+        name: Routes.forgot,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        name: Routes.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/account',
+        name: Routes.account,
+        builder: (context, state) => const AccountScreen(),
+      ),
     ],
   );
-}
+  ref.onDispose(router.dispose);
+  return router;
+});

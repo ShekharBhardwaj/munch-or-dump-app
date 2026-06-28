@@ -6,7 +6,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// before the browser-only `mod_token` cookie (see API `shared/auth.py`), so
 /// the cookie path is irrelevant here.
 class TokenStore {
-  const TokenStore([this._storage = const FlutterSecureStorage()]);
+  const TokenStore([
+    this._storage = const FlutterSecureStorage(
+      // Keep the token device-local (out of iCloud Keychain / backups) and
+      // readable only after first unlock — it's a re-authable session token.
+      iOptions: IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device,
+      ),
+    ),
+  ]);
 
   final FlutterSecureStorage _storage;
 

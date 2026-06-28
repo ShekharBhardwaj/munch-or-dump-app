@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
-import 'package:munch_or_dump/core/router/app_router.dart';
+import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
-/// Landing screen — Phase 0 placeholder that exercises the theme, router, and
-/// verdict palette end to end.
-class HomeScreen extends StatelessWidget {
+/// Landing screen — exercises the theme, router, verdict palette, and (Phase 1)
+/// surfaces the account / sign-in entry point.
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Munch or Dump',
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
+        actions: <Widget>[
+          IconButton(
+            tooltip: loggedIn ? 'Account' : 'Sign in',
+            icon: Icon(
+              loggedIn ? Icons.account_circle : Icons.account_circle_outlined,
+            ),
+            onPressed: () => loggedIn
+                ? context.goNamed(Routes.account)
+                : context.pushNamed(Routes.login),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -63,7 +78,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Center(
                 child: Text(
-                  'Phase 0 scaffold · v0.1.0',
+                  'Phase 1 · v0.1.0',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.outline,
                   ),
