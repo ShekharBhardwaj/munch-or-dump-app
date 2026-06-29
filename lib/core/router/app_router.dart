@@ -12,10 +12,12 @@ import 'package:munch_or_dump/features/browse/brands_screen.dart';
 import 'package:munch_or_dump/features/browse/categories_screen.dart';
 import 'package:munch_or_dump/features/browse/ingredient_screen.dart';
 import 'package:munch_or_dump/features/browse/search_screen.dart';
+import 'package:munch_or_dump/features/game/game_screen.dart';
 import 'package:munch_or_dump/features/history/history_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
 import 'package:munch_or_dump/features/product/product_screen.dart';
+import 'package:munch_or_dump/features/receipt/receipt_screen.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
 import 'package:munch_or_dump/features/scan/scan_screen.dart';
 import 'package:munch_or_dump/features/watchlist/watchlist_screen.dart';
@@ -128,6 +130,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: Routes.ingredient,
         builder: (context, state) =>
             IngredientScreen(slug: state.pathParameters['slug'] ?? ''),
+      ),
+      GoRoute(
+        path: '/receipt',
+        name: Routes.receipt,
+        builder: (context, state) => const ReceiptScreen(),
+      ),
+      GoRoute(
+        path: '/game',
+        name: Routes.game,
+        builder: (context, state) => const GameScreen(),
       ),
       GoRoute(
         path: '/login',

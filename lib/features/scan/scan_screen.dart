@@ -222,6 +222,18 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                         minimumSize: const Size.fromHeight(0),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: _busy
+                          ? null
+                          : () => context.pushNamed(Routes.receipt),
+                      icon: const Icon(Icons.receipt_long_outlined),
+                      label: const Text('Scan a receipt'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size.fromHeight(0),
+                      ),
+                    ),
                     if (_message != null) ...<Widget>[
                       const SizedBox(height: 16),
                       Text(

@@ -5,7 +5,9 @@ import 'package:munch_or_dump/core/api/api_client.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
+import 'package:munch_or_dump/core/models/game.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
+import 'package:munch_or_dump/core/models/receipt.dart';
 import 'package:munch_or_dump/core/models/scan_draft.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/models/user_content.dart';
@@ -320,6 +322,58 @@ class MunchApi {
       return IngredientDetail.fromJson(data.first as Map<String, dynamic>);
     }
     return null;
+  }
+
+  // ── Receipt (Phase 5: async job) ─────────────────────────────────────────────
+
+  /// POST `/api/receipt` with an uploaded receipt image (auth). Returns a job id.
+  Future<ReceiptStart> startReceiptFromImage(String fileUrl) async {
+    final res = await _post('/api/receipt', <String, dynamic>{
+      'file_url': fileUrl,
+    });
+    return ReceiptStart.fromJson(res);
+  }
+
+  /// POST `/api/receipt` with a typed pre-shop list (auth). Returns a job id.
+  Future<ReceiptStart> startReceiptFromItems(List<String> items) async {
+    final res = await _post('/api/receipt', <String, dynamic>{'items': items});
+    return ReceiptStart.fromJson(res);
+  }
+
+  /// GET `/api/receipt/:jobId` — poll the job (auth).
+  Future<ReceiptJob> pollReceipt(String jobId) =>
+      _get('/api/receipt/$jobId', ReceiptJob.fromJson);
+
+  // ── Game (Phase 5) ───────────────────────────────────────────────────────────
+
+  /// GET `/api/game/lineup` — a target product + 4 ingredient-list options.
+  Future<GameRound> getGameLineup({List<String> exclude = const <String>[]}) =>
+      _get(
+        '/api/game/lineup',
+        GameRound.fromJson,
+        query: exclude.isEmpty
+            ? null
+            : <String, dynamic>{'exclude': exclude.join(',')},
+      );
+
+  /// GET `/api/game/leaderboard` — top scores (anonymous).
+  Future<List<LeaderboardEntry>> getLeaderboard() => _get(
+    '/api/game/leaderboard',
+    (json) =>
+        (json['items'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .map(LeaderboardEntry.fromJson)
+            .toList() ??
+        const <LeaderboardEntry>[],
+  );
+
+  /// POST `/api/game/score` — record a score (anonymous; names auto-generated).
+  Future<ScoreResult> submitScore({required int score, int streak = 0}) async {
+    final res = await _post('/api/game/score', <String, dynamic>{
+      'score': score,
+      'streak': streak,
+    });
+    return ScoreResult.fromJson(res);
   }
 
   // ── helpers ─────────────────────────────────────────────────────────────────

@@ -14,6 +14,8 @@ abstract final class Routes {
   static const String categories = 'categories';
   static const String category = 'category';
   static const String ingredient = 'ingredient';
+  static const String receipt = 'receipt';
+  static const String game = 'game';
   static const String login = 'login';
   static const String verify = 'verify';
   static const String forgot = 'forgot';
@@ -32,6 +34,8 @@ abstract final class Routes {
   static const String categoriesPath = '/categories';
   static const String categoryPath = '/category/:slug';
   static const String ingredientPath = '/ingredient/:slug';
+  static const String receiptPath = '/receipt';
+  static const String gamePath = '/game';
   static const String loginPath = '/login';
   static const String verifyPath = '/verify';
   static const String forgotPath = '/forgot';

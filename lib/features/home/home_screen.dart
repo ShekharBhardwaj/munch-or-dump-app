@@ -24,6 +24,11 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: <Widget>[
           IconButton(
+            tooltip: 'Play the game',
+            icon: const Icon(Icons.videogame_asset_outlined),
+            onPressed: () => context.pushNamed(Routes.game),
+          ),
+          IconButton(
             tooltip: 'Search',
             icon: const Icon(Icons.search),
             onPressed: () => context.pushNamed(Routes.search),
