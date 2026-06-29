@@ -6,6 +6,7 @@ import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/game.dart';
+import 'package:munch_or_dump/core/models/news.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
 import 'package:munch_or_dump/core/models/receipt.dart';
 import 'package:munch_or_dump/core/models/scan_draft.dart';
@@ -375,6 +376,19 @@ class MunchApi {
     });
     return ScoreResult.fromJson(res);
   }
+
+  // ── News (Phase 6: anonymous) ────────────────────────────────────────────────
+
+  /// GET `/api/news` — published posts (anonymous).
+  Future<NewsList> getNews({int limit = 20, int offset = 0}) => _get(
+    '/api/news',
+    parseNewsList,
+    query: <String, dynamic>{'limit': limit, 'offset': offset},
+  );
+
+  /// GET `/api/news/:slug` — a single post (anonymous).
+  Future<NewsPost> getNewsPost(String slug) =>
+      _get('/api/news/$slug', NewsPost.fromJson);
 
   // ── helpers ─────────────────────────────────────────────────────────────────
 

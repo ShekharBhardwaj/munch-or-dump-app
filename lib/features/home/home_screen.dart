@@ -100,6 +100,26 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.pushNamed(Routes.compare),
+                      icon: const Icon(Icons.compare_arrows),
+                      label: const Text('Compare'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.pushNamed(Routes.news),
+                      icon: const Icon(Icons.article_outlined),
+                      label: const Text('News'),
+                    ),
+                  ),
+                ],
+              ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,

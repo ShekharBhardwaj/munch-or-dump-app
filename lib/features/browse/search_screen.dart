@@ -17,7 +17,11 @@ const List<({String key, String label})> _dietaryFilters =
     ];
 
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({this.onPick, super.key});
+
+  /// When set, tapping a result calls this instead of opening product detail —
+  /// used by the compare picker.
+  final void Function(ProductListItem)? onPick;
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -68,7 +72,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Search')),
+      appBar: AppBar(
+        title: Text(widget.onPick != null ? 'Pick a product' : 'Search'),
+      ),
       body: Column(
         children: <Widget>[
           Padding(
@@ -163,7 +169,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             subtitle: Text('${result.total} products match'),
           );
         }
-        return ProductRow(item: result.items[i]);
+        final item = result.items[i];
+        return ProductRow(
+          item: item,
+          onTap: widget.onPick == null ? null : () => widget.onPick!(item),
+        );
       },
     );
   }

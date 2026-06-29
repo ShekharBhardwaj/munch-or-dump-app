@@ -24,7 +24,7 @@ class IngredientScreen extends ConsumerWidget {
       body: ingredient.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(ingredientProvider(slug)),
         ),
         data: (data) {

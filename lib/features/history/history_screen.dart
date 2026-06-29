@@ -24,7 +24,7 @@ class HistoryScreen extends ConsumerWidget {
       body: history.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(scanHistoryProvider),
         ),
         data: (items) {

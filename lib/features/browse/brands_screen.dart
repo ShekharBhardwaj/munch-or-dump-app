@@ -30,7 +30,7 @@ class BrandsScreen extends ConsumerWidget {
       body: brands.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(brandsProvider),
         ),
         data: (data) {
@@ -89,7 +89,7 @@ class BrandScreen extends ConsumerWidget {
       body: brand.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(brandProvider(slug)),
         ),
         data: (data) {

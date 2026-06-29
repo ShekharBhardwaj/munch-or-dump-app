@@ -30,7 +30,7 @@ class CategoriesScreen extends ConsumerWidget {
       body: categories.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(categoriesProvider),
         ),
         data: (data) {
@@ -81,7 +81,7 @@ class CategoryScreen extends ConsumerWidget {
       body: category.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(categoryProvider(slug)),
         ),
         data: (data) {

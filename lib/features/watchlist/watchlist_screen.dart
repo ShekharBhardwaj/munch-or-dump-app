@@ -52,7 +52,7 @@ class WatchlistScreen extends ConsumerWidget {
       body: library.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(libraryProvider),
         ),
         data: (data) {

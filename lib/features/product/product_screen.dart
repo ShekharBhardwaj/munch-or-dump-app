@@ -27,7 +27,7 @@ class ProductScreen extends ConsumerWidget {
       error: (error, _) => Scaffold(
         appBar: AppBar(),
         body: ErrorRetry(
-          message: '$error',
+          message: errorMessage(error),
           onRetry: () => ref.invalidate(productProvider(slug)),
         ),
       ),

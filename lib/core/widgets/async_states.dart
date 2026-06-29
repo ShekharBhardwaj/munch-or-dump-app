@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:munch_or_dump/core/api/api_exception.dart';
+
+/// User-facing text for a provider/async error — unwraps [ApiException] so the
+/// UI never shows a raw "ApiException(404): ..." string.
+String errorMessage(Object error) =>
+    error is ApiException ? error.message : 'Something went wrong.';
 
 /// Centered empty-state placeholder for an empty list.
 class EmptyState extends StatelessWidget {

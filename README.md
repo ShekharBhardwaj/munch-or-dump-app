@@ -7,10 +7,10 @@ Flutter (Dart) client of the existing [Munch or Dump API](../munch-or-dump-api).
 logic of its own — the backend is the source of truth. See [`PLAN.md`](PLAN.md) for the full
 architecture and the phased build order.
 
-> **Status:** Phase 5 (extras) complete — receipt scanning (async job + poll) and the munch-or-dump
-> guessing game (with leaderboard). Phase 4 added browse/search, Phase 3 history/watchlist/voting,
-> Phase 2 the scan loop, Phase 1 the auth spine. Compare + news and Google sign-in remain. Google
-> sign-in is gated pending an iOS OAuth client ID.
+> **Status:** Phase 6 (compare + news) complete — pick two products to compare side by side, and a
+> news/announcements reader. Phase 5 added receipt + the game, Phase 4 browse, Phase 3 history/
+> watchlist/voting, Phase 2 the scan loop, Phase 1 the auth spine. Remaining: real Google sign-in
+> (gated pending an iOS OAuth client ID) and distribution.
 
 ## Stack
 
@@ -82,6 +82,8 @@ lib/
     browse/                  search (+filters), categories, brands, ingredient pages
     receipt/                 receipt scan → async job + poll → per-item verdicts
     game/                    guess-the-ingredients game + leaderboard
+    compare/                 pick two products → side-by-side verdicts
+    news/                    announcements list + article
 test/                        unit + widget tests
 config/                      dart-define environment files
 ```

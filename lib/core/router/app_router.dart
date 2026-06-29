@@ -12,9 +12,11 @@ import 'package:munch_or_dump/features/browse/brands_screen.dart';
 import 'package:munch_or_dump/features/browse/categories_screen.dart';
 import 'package:munch_or_dump/features/browse/ingredient_screen.dart';
 import 'package:munch_or_dump/features/browse/search_screen.dart';
+import 'package:munch_or_dump/features/compare/compare_screen.dart';
 import 'package:munch_or_dump/features/game/game_screen.dart';
 import 'package:munch_or_dump/features/history/history_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
+import 'package:munch_or_dump/features/news/news_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
 import 'package:munch_or_dump/features/product/product_screen.dart';
 import 'package:munch_or_dump/features/receipt/receipt_screen.dart';
@@ -140,6 +142,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/game',
         name: Routes.game,
         builder: (context, state) => const GameScreen(),
+      ),
+      GoRoute(
+        path: '/compare',
+        name: Routes.compare,
+        builder: (context, state) =>
+            CompareScreen(initialSlug: state.uri.queryParameters['a']),
+      ),
+      GoRoute(
+        path: '/news',
+        name: Routes.news,
+        builder: (context, state) => const NewsScreen(),
+      ),
+      GoRoute(
+        path: '/news/:slug',
+        name: Routes.newsPost,
+        builder: (context, state) =>
+            NewsPostScreen(slug: state.pathParameters['slug'] ?? ''),
       ),
       GoRoute(
         path: '/login',
