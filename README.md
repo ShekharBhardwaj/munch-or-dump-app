@@ -50,7 +50,8 @@ Environment is selected at build time via `--dart-define-from-file` (no secrets 
 |-----|---------|
 | `ENV` | `dev` or `prod` |
 | `API_BASE_URL` | Munch or Dump API base (all paths are `/auth/*` or `/api/*`) |
-| `GOOGLE_SERVER_CLIENT_ID` | Google OAuth server client ID (wired in Phase 1) |
+| `GOOGLE_SERVER_CLIENT_ID` | Google OAuth **web** client ID (= backend `GOOGLE_CLIENT_ID`). Empty ⇒ Google button hidden. |
+| `GOOGLE_IOS_CLIENT_ID` | Google OAuth **iOS** client ID. See [docs/google-signin-setup.md](docs/google-signin-setup.md). |
 
 `config/dev.json` and `config/prod.json` are committed templates. Put machine-local overrides and any
 real client IDs in `config/*.local.json` (gitignored). Defaults in `AppConfig` point at production, so

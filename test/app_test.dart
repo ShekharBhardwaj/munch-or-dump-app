@@ -38,5 +38,7 @@ void main() {
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Sign in'), findsOneWidget);
+    // Google sign-in is gated: hidden until a server client ID is configured.
+    expect(find.text('Continue with Google'), findsNothing);
   });
 }

@@ -8,6 +8,7 @@ import 'package:munch_or_dump/core/config/app_config.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_navigation.dart';
+import 'package:munch_or_dump/features/auth/google_auth_service.dart';
 
 /// Sign in / create account against the Munch or Dump API (email + password).
 /// Google sign-in is shown only when a server client ID is configured (Phase 1
@@ -87,10 +88,31 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     });
   }
 
+  Future<void> _googleSignIn() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final idToken = await ref.read(googleAuthServiceProvider).signIn();
+      final user = await ref
+          .read(authControllerProvider.notifier)
+          .signInWithGoogle(idToken);
+      if (!mounted) return;
+      goAfterAuth(context, user);
+    } on GoogleSignInCancelled {
+      // User dismissed the Google sheet — no error.
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final showGoogle = AppConfig.googleServerClientId.isNotEmpty;
+    final showGoogle = AppConfig.googleSignInEnabled;
 
     return Scaffold(
       appBar: AppBar(title: Text(_register ? 'Create account' : 'Sign in')),
@@ -159,13 +181,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             if (showGoogle) ...<Widget>[
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: _busy
-                    ? null
-                    : () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Google sign-in is coming soon.'),
-                        ),
-                      ),
+                onPressed: _busy ? null : _googleSignIn,
                 icon: const Icon(Icons.account_circle_outlined),
                 label: const Text('Continue with Google'),
                 style: OutlinedButton.styleFrom(

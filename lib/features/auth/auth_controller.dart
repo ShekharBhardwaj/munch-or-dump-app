@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/features/auth/auth_repository.dart';
+import 'package:munch_or_dump/features/auth/google_auth_service.dart';
 
 /// Global session state: `AsyncValue<User?>` where a non-null value means signed
 /// in, null means signed out, loading is the launch bootstrap, and error is a
@@ -56,6 +57,7 @@ class AuthController extends AsyncNotifier<User?> {
 
   Future<void> signOut() async {
     await _repo.signOut();
+    await ref.read(googleAuthServiceProvider).signOut();
     state = const AsyncData<User?>(null);
   }
 
