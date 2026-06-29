@@ -113,6 +113,11 @@ void main() {
   });
 
   testWidgets('Result screen renders the verdict and score', (tester) async {
+    // Tall surface so the lazily-built ListView renders every section.
+    tester.view.physicalSize = const Size(1200, 3200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     final result = AnalysisResult.fromJson(_sampleJson());
     await tester.pumpWidget(
       ProviderScope(

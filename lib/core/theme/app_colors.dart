@@ -13,6 +13,17 @@ abstract final class AppColors {
   static const Color ink = Color(0xFF1C1917); // stone-900 text
   static const Color mutedInk = Color(0xFF78716C); // stone-500
 
+  // ── Premium neutral palette (calm, light) ───────────────────────────────────
+  static const Color brand = Color(0xFF0E9F6E); // calmer emerald for UI accents
+  static const Color brandDeep = Color(0xFF0A7A54);
+  static const Color canvas = Color(0xFFF6F6F3); // page background (warm paper)
+  static const Color surface = Color(0xFFFFFFFF); // cards
+  static const Color surfaceAlt = Color(0xFFEFEEEA); // subtle fills / inputs
+  static const Color inkPrimary = Color(0xFF17181C); // near-black text
+  static const Color inkSecondary = Color(0xFF646973);
+  static const Color inkMuted = Color(0xFF9CA0A8);
+  static const Color hairline = Color(0xFFE9E7E1); // hairline borders
+
   // ── Verdict — primary tone ──────────────────────────────────────────────────
   static const Color munch = Color(0xFF10B981);
   static const Color okay = Color(0xFF0EA5E9);

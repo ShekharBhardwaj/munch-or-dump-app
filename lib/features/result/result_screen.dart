@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
 import 'package:munch_or_dump/features/result/result_actions.dart';
@@ -24,7 +25,6 @@ class ResultScreen extends StatelessWidget {
       );
     }
 
-    final theme = Theme.of(context);
     final color = context.verdicts.colorFor(data.verdict);
 
     return Scaffold(
@@ -36,72 +36,72 @@ class ResultScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: <Widget>[
             _VerdictHero(result: data, color: color),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if ((data.shortExplanation ?? '').isNotEmpty) ...<Widget>[
-                    const SizedBox(height: 16),
-                    Text(
-                      data.shortExplanation!,
-                      style: theme.textTheme.titleMedium,
-                    ),
+            if (data.hasProfileNote) ...<Widget>[
+              const SizedBox(height: 12),
+              _ForYouCard(note: data.profileNote!),
+            ],
+            if (data.verdictReasons.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              _ResultCard(
+                title: 'Why',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    for (final reason in data.verdictReasons)
+                      _Bullet(text: reason, color: color),
                   ],
-                  if (data.hasProfileNote) _ForYouCard(note: data.profileNote!),
-                  if (data.verdictReasons.isNotEmpty)
-                    _Section(
-                      title: 'Why',
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          for (final reason in data.verdictReasons)
-                            _Bullet(text: reason, color: color),
-                        ],
-                      ),
-                    ),
-                  if (data.ingredientsDetected.isNotEmpty)
-                    _Section(
-                      title: 'Ingredients',
-                      child: Column(
-                        children: <Widget>[
-                          for (final ingredient in data.ingredientsDetected)
-                            _IngredientRow(ingredient: ingredient),
-                        ],
-                      ),
-                    ),
-                  if (data.marketingClaims.isNotEmpty)
-                    _Section(
-                      title: 'Marketing claims',
-                      child: Column(
-                        children: <Widget>[
-                          for (final claim in data.marketingClaims)
-                            _ClaimRow(claim: claim),
-                        ],
-                      ),
-                    ),
-                  _DietaryTags(result: data),
-                  if ((data.consumptionContext ?? '').isNotEmpty)
-                    _Section(
-                      title: 'Bottom line',
-                      child: Text(data.consumptionContext!),
-                    ),
-                  if (data.alternatives.isNotEmpty)
-                    _Section(
-                      title: 'Better alternatives',
-                      child: Column(
-                        children: <Widget>[
-                          for (final alt in data.alternatives)
-                            _AlternativeRow(alt: alt),
-                        ],
-                      ),
-                    ),
-                  ResultActions(result: data),
-                ],
+                ),
               ),
-            ),
+            ],
+            if (data.ingredientsDetected.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              _ResultCard(
+                title: 'Ingredients',
+                child: Column(
+                  children: <Widget>[
+                    for (final ingredient in data.ingredientsDetected)
+                      _IngredientRow(ingredient: ingredient),
+                  ],
+                ),
+              ),
+            ],
+            if (data.marketingClaims.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              _ResultCard(
+                title: 'Marketing claims',
+                child: Column(
+                  children: <Widget>[
+                    for (final claim in data.marketingClaims)
+                      _ClaimRow(claim: claim),
+                  ],
+                ),
+              ),
+            ],
+            _DietaryTags(result: data),
+            if ((data.consumptionContext ?? '').isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              _ResultCard(
+                title: 'Bottom line',
+                child: Text(data.consumptionContext!),
+              ),
+            ],
+            if (data.alternatives.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              _ResultCard(
+                title: 'Better alternatives',
+                child: Column(
+                  children: <Widget>[
+                    for (final alt in data.alternatives)
+                      _AlternativeRow(alt: alt),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
+            ResultActions(result: data),
           ],
         ),
       ),
@@ -118,83 +118,152 @@ class _VerdictHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final lead = result.shortExplanation ?? '';
     return Container(
       width: double.infinity,
-      color: color.withValues(alpha: 0.10),
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.hairline),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          if (result.brand != null)
-            Text(
-              result.brand!,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(result.verdict.emoji, style: const TextStyle(fontSize: 44)),
-              const SizedBox(width: 12),
+              _ScoreRing(score: result.verdictScore, color: color),
+              const SizedBox(width: 18),
               Expanded(
-                child: Text(
-                  result.verdict.label.toUpperCase(),
-                  style: theme.textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: color,
-                    letterSpacing: -1,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (result.brand != null && result.brand!.isNotEmpty)
+                      Text(
+                        result.brand!.toUpperCase(),
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppColors.inkMuted,
+                          letterSpacing: 0.6,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 2),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          result.verdict.emoji,
+                          style: const TextStyle(fontSize: 30),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              result.verdict.label.toUpperCase(),
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                color: color,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (result.cacheHit)
+                      _Pill(label: 'Instant', icon: Icons.bolt, color: color)
+                    else
+                      _Pill(
+                        label: 'Fresh analysis',
+                        icon: Icons.auto_awesome,
+                        color: color,
+                      ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: <Widget>[
-              Text(
-                '${result.verdictScore}',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                ),
-              ),
-              Text(
-                ' / 90',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              if (result.cacheHit)
-                _Pill(label: 'Instant', icon: Icons.bolt, color: color)
-              else
-                _Pill(
-                  label: 'Fresh analysis',
-                  icon: Icons.auto_awesome,
-                  color: color,
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: (result.verdictScore / 90).clamp(0.0, 1.0),
-              minHeight: 8,
-              backgroundColor: color.withValues(alpha: 0.15),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
+          if (lead.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 18),
+            Text(
+              lead,
+              style: theme.textTheme.titleMedium?.copyWith(height: 1.4),
             ),
-          ),
+          ],
           if ((result.confidence ?? '').isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               '${result.confidence} confidence',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: AppColors.inkMuted,
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A circular score gauge — verdict-colored arc over a hairline track, with the
+/// score centered. More premium than a flat bar.
+class _ScoreRing extends StatelessWidget {
+  const _ScoreRing({required this.score, required this.color});
+
+  final int score;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: 84,
+      height: 84,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          SizedBox(
+            width: 84,
+            height: 84,
+            child: CircularProgressIndicator(
+              value: (score / 90).clamp(0.0, 1.0),
+              strokeWidth: 7,
+              strokeCap: StrokeCap.round,
+              backgroundColor: AppColors.hairline,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                '$score',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: AppColors.inkPrimary,
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
+              ),
+              Text(
+                '/ 90',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.inkMuted,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -210,37 +279,37 @@ class _ForYouCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: const EdgeInsets.only(top: 20),
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: theme.colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFE7F4EE),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
             children: <Widget>[
-              Icon(
-                Icons.person,
+              const Icon(
+                Icons.person_outline,
                 size: 18,
-                color: theme.colorScheme.onSecondaryContainer,
+                color: AppColors.brandDeep,
               ),
               const SizedBox(width: 6),
               Text(
                 'For you',
                 style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.onSecondaryContainer,
+                  color: AppColors.brandDeep,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             note,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSecondaryContainer,
+              color: AppColors.brandDeep,
+              height: 1.5,
             ),
           ),
         ],
@@ -295,9 +364,7 @@ class _IngredientRow extends StatelessWidget {
                 if ((ingredient.explanation ?? '').isNotEmpty)
                   Text(
                     ingredient.explanation!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodySmall,
                   ),
               ],
             ),
@@ -328,7 +395,7 @@ class _ClaimRow extends StatelessWidget {
             size: 18,
             color: claim.isMisleading
                 ? const Color(0xFFF97316)
-                : const Color(0xFF10B981),
+                : AppColors.brand,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -342,12 +409,7 @@ class _ClaimRow extends StatelessWidget {
                   ),
                 ),
                 if ((claim.reality ?? '').isNotEmpty)
-                  Text(
-                    claim.reality!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                  Text(claim.reality!, style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -374,12 +436,15 @@ class _DietaryTags extends StatelessWidget {
       if (result.containsEggs) 'Contains eggs',
     ];
     if (tags.isEmpty) return const SizedBox.shrink();
-    return _Section(
-      title: 'Dietary',
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: <Widget>[for (final tag in tags) Chip(label: Text(tag))],
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: _ResultCard(
+        title: 'Dietary',
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: <Widget>[for (final tag in tags) Chip(label: Text(tag))],
+        ),
       ),
     );
   }
@@ -415,7 +480,7 @@ class _AlternativeRow extends StatelessWidget {
               child: Text(
                 '+$delta',
                 style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.primary,
+                  color: AppColors.brand,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -433,25 +498,29 @@ class _AlternativeRow extends StatelessWidget {
   }
 }
 
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.child});
+/// A white section card on the paper canvas — the calm surface the result is
+/// built from.
+class _ResultCard extends StatelessWidget {
+  const _ResultCard({required this.title, required this.child});
 
   final String title;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.hairline),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-          ),
+          Text(title, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),
           child,
         ],
@@ -474,14 +543,14 @@ class _Bullet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top: 6, right: 10),
+            padding: const EdgeInsets.only(top: 7, right: 10),
             child: Container(
               width: 6,
               height: 6,
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
           ),
-          Expanded(child: Text(text)),
+          Expanded(child: Text(text, style: const TextStyle(height: 1.45))),
         ],
       ),
     );
@@ -500,7 +569,7 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -523,8 +592,8 @@ class _Pill extends StatelessWidget {
 }
 
 Color _safetyColor(SafetyRating rating) => switch (rating) {
-  SafetyRating.safe => const Color(0xFF10B981),
-  SafetyRating.moderate => const Color(0xFFF59E0B),
+  SafetyRating.safe => AppColors.brand,
+  SafetyRating.moderate => const Color(0xFFE0A317),
   SafetyRating.concerning => const Color(0xFFF97316),
   SafetyRating.harmful => const Color(0xFFEF4444),
 };
