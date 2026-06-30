@@ -73,6 +73,20 @@ class AccountScreen extends ConsumerWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.pushNamed(Routes.watchlist),
             ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.gavel_outlined),
+              title: const Text('Disclaimers & terms'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.pushNamed(Routes.legal),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('Privacy policy'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.pushNamed(Routes.privacy),
+            ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: () => context.pushNamed(Routes.onboarding),

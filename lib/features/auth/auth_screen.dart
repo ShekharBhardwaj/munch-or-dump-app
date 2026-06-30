@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/config/app_config.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_navigation.dart';
 import 'package:munch_or_dump/features/auth/google_auth_service.dart';
@@ -200,9 +201,50 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+            const _TermsLine(),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Acceptance-by-action line with tappable Terms + Privacy links — also the way
+/// a logged-out user reaches the legal docs.
+class _TermsLine extends StatelessWidget {
+  const _TermsLine();
+
+  @override
+  Widget build(BuildContext context) {
+    final link = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: AppColors.brand,
+      fontWeight: FontWeight.w600,
+    );
+    return Text.rich(
+      TextSpan(
+        children: <InlineSpan>[
+          const TextSpan(text: 'By continuing you agree to our '),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: GestureDetector(
+              onTap: () => context.pushNamed(Routes.legal),
+              child: Text('Terms', style: link),
+            ),
+          ),
+          const TextSpan(text: ' and '),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: GestureDetector(
+              onTap: () => context.pushNamed(Routes.privacy),
+              child: Text('Privacy Policy', style: link),
+            ),
+          ),
+          const TextSpan(text: '.'),
+        ],
+      ),
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 12, color: AppColors.inkFaint),
     );
   }
 }

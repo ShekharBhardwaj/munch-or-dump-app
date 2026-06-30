@@ -16,6 +16,7 @@ import 'package:munch_or_dump/features/compare/compare_screen.dart';
 import 'package:munch_or_dump/features/game/game_screen.dart';
 import 'package:munch_or_dump/features/history/history_screen.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
+import 'package:munch_or_dump/features/legal/legal_screens.dart';
 import 'package:munch_or_dump/features/news/news_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
 import 'package:munch_or_dump/features/product/product_screen.dart';
@@ -186,6 +187,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/account',
         name: Routes.account,
         builder: (context, state) => const AccountScreen(),
+      ),
+      GoRoute(
+        path: '/legal',
+        name: Routes.legal,
+        builder: (context, state) => const LegalScreen(),
+      ),
+      GoRoute(
+        path: '/privacy',
+        name: Routes.privacy,
+        builder: (context, state) => const PrivacyScreen(),
       ),
     ],
   );
