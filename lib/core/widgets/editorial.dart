@@ -227,32 +227,43 @@ class WebVerdictBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tone = verdictToneFor(verdict);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: size * 1.2, vertical: size / 3),
-      decoration: BoxDecoration(
-        color: tone.tint,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: tone.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: tone.dot, shape: BoxShape.circle),
+    return Semantics(
+      label: '${verdict.label} verdict',
+      child: ExcludeSemantics(
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: size * 1.2,
+            vertical: size / 3,
           ),
-          const SizedBox(width: 6),
-          Text(
-            verdict.label.toUpperCase(),
-            style: TextStyle(
-              fontSize: size,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: tone.word,
-            ),
+          decoration: BoxDecoration(
+            color: tone.tint,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: tone.border),
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: tone.dot,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                verdict.label.toUpperCase(),
+                style: TextStyle(
+                  fontSize: size,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                  color: tone.word,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -351,20 +362,29 @@ class MetaPill extends StatelessWidget {
   }
 }
 
-/// A small filled circle keyed to a concern color.
+/// A small filled circle keyed to a concern color. [semanticLabel] gives
+/// VoiceOver the severity that the color alone encodes.
 class ConcernDot extends StatelessWidget {
-  const ConcernDot({required this.color, this.size = 8, super.key});
+  const ConcernDot({
+    required this.color,
+    this.size = 8,
+    this.semanticLabel,
+    super.key,
+  });
 
   final Color color;
   final double size;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final dot = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
+    if (semanticLabel == null) return dot;
+    return Semantics(label: semanticLabel, child: dot);
   }
 }
 

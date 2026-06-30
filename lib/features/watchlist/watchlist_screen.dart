@@ -52,19 +52,19 @@ class WatchlistScreen extends ConsumerWidget {
     final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
     if (!loggedIn) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Saved & watching')),
+        appBar: AppBar(title: const Text('Saved & following')),
         body: const SignInWall(
-          heading: 'Sign in to use Watchlist',
+          heading: 'Sign in to follow products',
           body:
-              'Track products and brands you care about. Get notified when '
-              'verdicts change.',
+              'Keep the products and brands you care about in one place, ready '
+              'whenever you come back.',
           buttonLabel: 'Sign in',
         ),
       );
     }
     final library = ref.watch(libraryProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Saved & watching')),
+      appBar: AppBar(title: const Text('Saved & following')),
       body: library.when(
         loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
@@ -129,7 +129,7 @@ class WatchlistScreen extends ConsumerWidget {
                     ),
                 ],
                 if (data.watches.products.isNotEmpty) ...<Widget>[
-                  const _SectionHeader('Watching products'),
+                  const _SectionHeader('Following products'),
                   for (final p in data.watches.products)
                     ListTile(
                       title: Text(
@@ -142,7 +142,7 @@ class WatchlistScreen extends ConsumerWidget {
                           : null,
                       trailing: IconButton(
                         icon: const Icon(Icons.notifications_off_outlined),
-                        tooltip: 'Stop watching',
+                        tooltip: 'Unfollow',
                         onPressed: () => _remove(
                           ref,
                           context,
@@ -153,7 +153,7 @@ class WatchlistScreen extends ConsumerWidget {
                     ),
                 ],
                 if (data.watches.brands.isNotEmpty) ...<Widget>[
-                  const _SectionHeader('Watching brands'),
+                  const _SectionHeader('Following brands'),
                   for (final b in data.watches.brands)
                     ListTile(
                       title: Text(
@@ -164,7 +164,7 @@ class WatchlistScreen extends ConsumerWidget {
                       subtitle: Text('${b.productCount} products'),
                       trailing: IconButton(
                         icon: const Icon(Icons.notifications_off_outlined),
-                        tooltip: 'Stop watching',
+                        tooltip: 'Unfollow',
                         onPressed: () => _remove(
                           ref,
                           context,

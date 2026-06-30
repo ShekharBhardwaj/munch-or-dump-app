@@ -68,7 +68,7 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
   Future<void> _setWatched(bool next) async {
     final slug = _slug;
     if (slug == null || slug.isEmpty || _busy) return;
-    if (!_loggedIn) return _snack('Sign in to watch products.');
+    if (!_loggedIn) return _snack('Sign in to follow products.');
     setState(() {
       _busy = true;
       _watchedOverride = next;
@@ -145,12 +145,8 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: _busy ? null : () => _setWatched(!watched),
-                  icon: Icon(
-                    watched
-                        ? Icons.notifications_active
-                        : Icons.notifications_none,
-                  ),
-                  label: Text(watched ? 'Watching' : 'Watch'),
+                  icon: Icon(watched ? Icons.bookmark : Icons.bookmark_border),
+                  label: Text(watched ? 'Following' : 'Follow'),
                 ),
               ),
             ],
@@ -201,7 +197,7 @@ class _CommunityVote extends ConsumerWidget {
               Expanded(
                 child: FilledButton.tonalIcon(
                   onPressed: enabled ? () => onVote(VoteChoice.munch) : null,
-                  icon: const Text('🥑'),
+                  icon: const ExcludeSemantics(child: Text('🥑')),
                   label: const Text('Munch'),
                 ),
               ),
@@ -209,7 +205,7 @@ class _CommunityVote extends ConsumerWidget {
               Expanded(
                 child: FilledButton.tonalIcon(
                   onPressed: enabled ? () => onVote(VoteChoice.dump) : null,
-                  icon: const Text('🚮'),
+                  icon: const ExcludeSemantics(child: Text('🚮')),
                   label: const Text('Dump'),
                 ),
               ),

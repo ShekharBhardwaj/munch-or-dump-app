@@ -438,18 +438,23 @@ class _Hud extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Expanded(
-          child: Row(
-            children: <Widget>[
-              for (var i = 0; i < kMaxLives; i++)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Icon(
-                    i < lives ? Icons.favorite : Icons.favorite_border,
-                    size: 18,
-                    color: i < lives ? _red : AppColors.inkGhost,
-                  ),
-                ),
-            ],
+          child: Semantics(
+            label: '$lives of $kMaxLives lives',
+            child: ExcludeSemantics(
+              child: Row(
+                children: <Widget>[
+                  for (var i = 0; i < kMaxLives; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: Icon(
+                        i < lives ? Icons.favorite : Icons.favorite_border,
+                        size: 18,
+                        color: i < lives ? _red : AppColors.inkGhost,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
         Column(

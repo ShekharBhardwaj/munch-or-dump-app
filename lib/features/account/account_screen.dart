@@ -69,7 +69,7 @@ class AccountScreen extends ConsumerWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.bookmark_outline),
-              title: const Text('Saved & watching'),
+              title: const Text('Saved & following'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.pushNamed(Routes.watchlist),
             ),

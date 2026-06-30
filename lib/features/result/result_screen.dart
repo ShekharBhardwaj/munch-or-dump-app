@@ -187,9 +187,11 @@ class _VerdictHero extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Text(
-                          result.verdict.emoji,
-                          style: const TextStyle(fontSize: 40),
+                        ExcludeSemantics(
+                          child: Text(
+                            result.verdict.emoji,
+                            style: const TextStyle(fontSize: 40),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -501,6 +503,7 @@ class _AmberButton extends StatelessWidget {
 /// Concern styling derived from an ingredient's safety rating.
 class _Concern {
   const _Concern({
+    required this.level,
     required this.dot,
     required this.tint,
     required this.name,
@@ -511,6 +514,7 @@ class _Concern {
     this.badgeFg,
   });
 
+  final String level;
   final Color dot;
   final Color? tint;
   final Color name;
@@ -522,6 +526,7 @@ class _Concern {
 
   static _Concern of(SafetyRating r) => switch (r) {
     SafetyRating.harmful => const _Concern(
+      level: 'High concern',
       dot: AppColors.concernHigh,
       tint: AppColors.concernHighTint,
       name: Color(0xFF7F1D1D),
@@ -532,6 +537,7 @@ class _Concern {
       badgeFg: Color(0xFFB91C1C),
     ),
     SafetyRating.concerning => const _Concern(
+      level: 'Concerning',
       dot: AppColors.concernMid,
       tint: AppColors.concernMidTint,
       name: Color(0xFF7C2D12),
@@ -542,6 +548,7 @@ class _Concern {
       badgeFg: Color(0xFFB45309),
     ),
     SafetyRating.moderate => const _Concern(
+      level: 'Moderate',
       dot: AppColors.concernModerate,
       tint: null,
       name: Color(0xFF44403C),
@@ -549,6 +556,7 @@ class _Concern {
       expanded: Color(0xFF57534E),
     ),
     SafetyRating.safe => const _Concern(
+      level: 'Safe',
       dot: AppColors.concernSafe,
       tint: null,
       name: AppColors.inkFaint,
@@ -714,7 +722,10 @@ class _IngredientRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Row(
                 children: <Widget>[
-                  ConcernDot(color: c.dot),
+                  ConcernDot(
+                    color: c.dot,
+                    semanticLabel: '${c.level} ingredient',
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
