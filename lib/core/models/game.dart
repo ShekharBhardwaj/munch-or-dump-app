@@ -76,18 +76,25 @@ class GameRound {
 
 /// A leaderboard row (`GET /api/game/leaderboard`).
 class LeaderboardEntry {
-  const LeaderboardEntry({required this.name, this.score = 0, this.streak = 0});
+  const LeaderboardEntry({
+    required this.name,
+    this.score = 0,
+    this.streak = 0,
+    this.rank,
+  });
 
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) =>
       LeaderboardEntry(
         name: json['name']?.toString() ?? '',
         score: (json['score'] as num?)?.toInt() ?? 0,
         streak: (json['streak'] as num?)?.toInt() ?? 0,
+        rank: (json['rank'] as num?)?.toInt(),
       );
 
   final String name;
   final int score;
   final int streak;
+  final int? rank;
 }
 
 /// `POST /api/game/score` result.
