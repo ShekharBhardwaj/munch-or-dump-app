@@ -13,16 +13,35 @@ abstract final class AppColors {
   static const Color ink = Color(0xFF1C1917); // stone-900 text
   static const Color mutedInk = Color(0xFF78716C); // stone-500
 
-  // ── Premium neutral palette (calm, light) ───────────────────────────────────
-  static const Color brand = Color(0xFF0E9F6E); // calmer emerald for UI accents
+  // ── Neutral palette — exact website stone values (web parity) ────────────────
+  static const Color brand = Color(0xFF0E9F6E); // emerald accent (sparingly)
   static const Color brandDeep = Color(0xFF0A7A54);
-  static const Color canvas = Color(0xFFF6F6F3); // page background (warm paper)
+  static const Color canvas = Color(0xFFF8F7F4); // page cream
   static const Color surface = Color(0xFFFFFFFF); // cards
-  static const Color surfaceAlt = Color(0xFFEFEEEA); // subtle fills / inputs
-  static const Color inkPrimary = Color(0xFF17181C); // near-black text
-  static const Color inkSecondary = Color(0xFF646973);
-  static const Color inkMuted = Color(0xFF9CA0A8);
-  static const Color hairline = Color(0xFFE9E7E1); // hairline borders
+  static const Color surfaceAlt = Color(0xFFFAFAF9); // neutral pill fill
+  static const Color inkPrimary = Color(0xFF1C1917); // stone-900 headings
+  static const Color inkSecondary = Color(0xFF78716C); // stone-500 body
+  static const Color inkFaint = Color(0xFFA8A29E); // stone-400 eyebrows
+  static const Color inkMuted = Color(
+    0xFFA8A29E,
+  ); // alias (eyebrows/placeholder)
+  static const Color inkGhost = Color(
+    0xFFD6D3D1,
+  ); // stone-300 empty/placeholder
+  static const Color hairline = Color(0xFFE7E5E4); // stone-200 borders
+  static const Color hairlineFaint = Color(0xFFF5F5F4); // stone-100 dividers
+  static const Color ctaBlack = Color(0xFF0C0A09); // stone-950 primary CTA
+  static const Color ctaPressed = Color(0xFF292524); // stone-800
+
+  // ── Concern tiers (ingredient severity) ──────────────────────────────────────
+  static const Color concernHigh = Color(0xFFEF4444); // red-500
+  static const Color concernMid = Color(0xFFFB923C); // orange-400
+  static const Color concernModerate = Color(0xFFFBBF24); // amber-400
+  static const Color concernSafe = Color(0xFF34D399); // emerald-400
+  static const Color concernHighTint = Color(0xFFFEF2F2); // red-50
+  static const Color concernMidTint = Color(0xFFFFF7ED); // orange-50
+  static const Color impactPositive = Color(0xFF16A34A); // emerald-600
+  static const Color impactNegative = Color(0xFFEF4444); // red-500
 
   // ── Verdict — primary tone ──────────────────────────────────────────────────
   static const Color munch = Color(0xFF10B981);

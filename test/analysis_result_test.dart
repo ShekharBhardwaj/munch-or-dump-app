@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
+import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
+import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/result/result_actions.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
+
+/// Resolves straight to signed-out — no secure storage in tests.
+class _SignedOutAuthController extends AuthController {
+  @override
+  Future<User?> build() async => null;
+}
 
 Map<String, dynamic> _sampleJson() => <String, dynamic>{
   'verdict': 'OKAY',
@@ -126,6 +134,7 @@ void main() {
           voteSummaryProvider(
             'Test Granola',
           ).overrideWith((ref) => const VoteSummary()),
+          authControllerProvider.overrideWith(_SignedOutAuthController.new),
         ],
         child: MaterialApp(home: ResultScreen(result: result)),
       ),
@@ -133,8 +142,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('OKAY'), findsOneWidget);
-    expect(find.text('60'), findsOneWidget);
-    expect(find.text('Test Granola'), findsOneWidget); // app bar title
+    expect(find.text('SCORE 60 / 90'), findsOneWidget);
+    expect(find.text('Test Granola'), findsOneWidget); // body title
     expect(find.textContaining('All natural'), findsOneWidget);
   });
 }

@@ -1,84 +1,181 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:munch_or_dump/core/models/catalog.dart';
+import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
-/// Landing screen — a calm, focused home: a confident intro, the Scan action as
-/// the hero, a quiet search, and a tidy "discover" grid.
+/// A handful of recently-analyzed products for the home feed.
+final recentProductsProvider =
+    FutureProvider.autoDispose<List<ProductListItem>>((ref) async {
+      final result = await ref.watch(munchApiProvider).searchProducts(limit: 6);
+      return result.items;
+    });
+
+/// Landing screen — the website's editorial identity: graph-paper canvas, the
+/// "Munch or Dump · BETA" wordmark, a two-tone headline, the black "Analyze a
+/// product" CTA, trust taglines, and a live "Recently analyzed" feed.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
 
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Text('Munch or Dump', style: theme.textTheme.titleLarge),
-                const Spacer(),
-                _AvatarButton(loggedIn: loggedIn),
-              ],
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Know what\nyou’re eating.',
-              style: theme.textTheme.displaySmall,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Scan any product for an honest, personalized verdict.',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: AppColors.inkSecondary,
+      body: GridBackground(
+        child: SafeArea(
+          bottom: false,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 36),
+            children: <Widget>[
+              _Navbar(loggedIn: loggedIn),
+              const SizedBox(height: 36),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    const Eyebrow(
+                      'Ingredient intelligence',
+                      align: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    const TwoToneHeadline(
+                      dark: 'Know what you’re',
+                      muted: 'really eating.',
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Scan what you’re actually putting in your body — not '
+                      'what the label wants you to think.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: AppColors.inkSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _SearchField(onTap: () => context.pushNamed(Routes.search)),
+                    const SizedBox(height: 14),
+                    Center(
+                      child: BlackCtaButton(
+                        label: 'Analyze a product',
+                        leadingIcon: Icons.file_upload_outlined,
+                        onTap: () => context.pushNamed(Routes.scan),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Photo · Barcode · Search — verdict in seconds',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: AppColors.inkFaint),
+                    ),
+                    const SizedBox(height: 28),
+                    const _TrustLine(),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _ScanHero(onTap: () => context.pushNamed(Routes.scan)),
-            const SizedBox(height: 12),
-            _SearchField(onTap: () => context.pushNamed(Routes.search)),
-            const SizedBox(height: 32),
-            Text('Discover', style: theme.textTheme.titleSmall),
-            const SizedBox(height: 12),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.9,
-              children: <Widget>[
-                _DiscoverTile(
-                  icon: Icons.category_outlined,
-                  label: 'Categories',
-                  onTap: () => context.pushNamed(Routes.categories),
-                ),
-                _DiscoverTile(
-                  icon: Icons.storefront_outlined,
-                  label: 'Brands',
-                  onTap: () => context.pushNamed(Routes.brands),
-                ),
-                _DiscoverTile(
-                  icon: Icons.compare_arrows,
-                  label: 'Compare',
-                  onTap: () => context.pushNamed(Routes.compare),
-                ),
-                _DiscoverTile(
-                  icon: Icons.article_outlined,
-                  label: 'News',
-                  onTap: () => context.pushNamed(Routes.news),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _GameCard(onTap: () => context.pushNamed(Routes.game)),
-          ],
+              const SizedBox(height: 36),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: SectionLabel('Recently analyzed'),
+              ),
+              const SizedBox(height: 16),
+              const _RecentFeed(),
+              const SizedBox(height: 28),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: SectionLabel('Browse'),
+              ),
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: _BrowseRow(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Navbar extends StatelessWidget {
+  const _Navbar({required this.loggedIn});
+
+  final bool loggedIn;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 16, 0),
+      child: Row(
+        children: <Widget>[
+          const _Wordmark(),
+          const SizedBox(width: 8),
+          const _BetaBadge(),
+          const Spacer(),
+          _AvatarButton(loggedIn: loggedIn),
+        ],
+      ),
+    );
+  }
+}
+
+class _Wordmark extends StatelessWidget {
+  const _Wordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    const bold = TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.4,
+      color: AppColors.inkPrimary,
+    );
+    const light = TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.w300,
+      letterSpacing: -0.4,
+      color: AppColors.inkFaint,
+    );
+    return const Text.rich(
+      TextSpan(
+        children: <TextSpan>[
+          TextSpan(text: 'Munch', style: bold),
+          TextSpan(text: ' or ', style: light),
+          TextSpan(text: 'Dump', style: bold),
+        ],
+      ),
+    );
+  }
+}
+
+class _BetaBadge extends StatelessWidget {
+  const _BetaBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.inkGhost),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Text(
+        'BETA',
+        style: TextStyle(
+          fontSize: 9,
+          height: 1,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.5,
+          color: AppColors.inkFaint,
         ),
       ),
     );
@@ -118,61 +215,6 @@ class _AvatarButton extends StatelessWidget {
   }
 }
 
-class _ScanHero extends StatelessWidget {
-  const _ScanHero({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return _SoftCard(
-      onTap: onTap,
-      color: AppColors.brand,
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.qr_code_scanner,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Scan a product',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Barcode, label, or receipt',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.arrow_forward, color: Colors.white.withValues(alpha: 0.9)),
-        ],
-      ),
-    );
-  }
-}
-
 class _SearchField extends StatelessWidget {
   const _SearchField({required this.onTap});
 
@@ -180,7 +222,6 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -191,15 +232,13 @@ class _SearchField extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.hairline),
         ),
-        child: Row(
+        child: const Row(
           children: <Widget>[
-            const Icon(Icons.search, color: AppColors.inkMuted, size: 22),
-            const SizedBox(width: 12),
+            Icon(Icons.search, color: AppColors.inkFaint, size: 20),
+            SizedBox(width: 12),
             Text(
-              'Search products or brands',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: AppColors.inkMuted,
-              ),
+              'Search a product or brand…',
+              style: TextStyle(fontSize: 14, color: AppColors.inkFaint),
             ),
           ],
         ),
@@ -208,8 +247,211 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _DiscoverTile extends StatelessWidget {
-  const _DiscoverTile({
+class _TrustLine extends StatelessWidget {
+  const _TrustLine();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: <Widget>[
+        _Trust(bold: 'No brand deals.', rest: ' Ever.'),
+        SizedBox(height: 8),
+        _Trust(bold: 'Every red flag', rest: ' named by ingredient.'),
+        SizedBox(height: 8),
+        _Trust(bold: 'DUMP means dump.', rest: ' No softening.'),
+      ],
+    );
+  }
+}
+
+class _Trust extends StatelessWidget {
+  const _Trust({required this.bold, required this.rest});
+
+  final String bold;
+  final String rest;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        children: <TextSpan>[
+          TextSpan(
+            text: bold,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.ctaPressed,
+            ),
+          ),
+          TextSpan(
+            text: rest,
+            style: const TextStyle(fontSize: 12, color: AppColors.inkSecondary),
+          ),
+        ],
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+}
+
+class _RecentFeed extends ConsumerWidget {
+  const _RecentFeed();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recent = ref.watch(recentProductsProvider);
+    return recent.when(
+      loading: () => const _FeedSkeleton(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (items) {
+        if (items.isEmpty) return const SizedBox.shrink();
+        return Column(
+          children: <Widget>[
+            for (final p in items.take(5))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: _RecentCard(product: p),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FeedSkeleton extends StatelessWidget {
+  const _FeedSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        for (var i = 0; i < 2; i++)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Container(
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.hairline),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _RecentCard extends StatelessWidget {
+  const _RecentCard({required this.product});
+
+  final ProductListItem product;
+
+  @override
+  Widget build(BuildContext context) {
+    final verdict = product.verdict;
+    final accent = verdict == null
+        ? AppColors.inkGhost
+        : verdictToneFor(verdict).bar;
+    final category = product.category?.trim() ?? '';
+    final brand = product.brandName?.trim() ?? '';
+    return AccentTopBorderCard(
+      accent: accent,
+      padding: const EdgeInsets.all(20),
+      onTap: product.slug.isEmpty
+          ? null
+          : () => context.pushNamed(
+              Routes.product,
+              pathParameters: <String, String>{'slug': product.slug},
+            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                child: Eyebrow(
+                  category.isEmpty ? 'Product' : category,
+                  size: 10,
+                  spacing: 3,
+                ),
+              ),
+              if (verdict != null) WebVerdictBadge(verdict: verdict, size: 11),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            product.name.trim().isEmpty ? 'Unknown product' : product.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.25,
+              fontWeight: FontWeight.w700,
+              color: AppColors.inkPrimary,
+            ),
+          ),
+          if (brand.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 4),
+            Text(
+              brand,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.inkSecondary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _BrowseRow extends StatelessWidget {
+  const _BrowseRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: <Widget>[
+        _BrowseChip(
+          icon: Icons.category_outlined,
+          label: 'Categories',
+          onTap: () => context.pushNamed(Routes.categories),
+        ),
+        _BrowseChip(
+          icon: Icons.storefront_outlined,
+          label: 'Brands',
+          onTap: () => context.pushNamed(Routes.brands),
+        ),
+        _BrowseChip(
+          icon: Icons.compare_arrows,
+          label: 'Compare',
+          onTap: () => context.pushNamed(Routes.compare),
+        ),
+        _BrowseChip(
+          icon: Icons.article_outlined,
+          label: 'News',
+          onTap: () => context.pushNamed(Routes.news),
+        ),
+        _BrowseChip(
+          icon: Icons.videogame_asset_outlined,
+          label: 'Game',
+          onTap: () => context.pushNamed(Routes.game),
+        ),
+      ],
+    );
+  }
+}
+
+class _BrowseChip extends StatelessWidget {
+  const _BrowseChip({
     required this.icon,
     required this.label,
     required this.onTap,
@@ -221,113 +463,30 @@ class _DiscoverTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return _SoftCard(
+    return InkWell(
       onTap: onTap,
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceAlt,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Icon(icon, size: 20, color: AppColors.inkPrimary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.hairline),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 16, color: AppColors.inkSecondary),
+            const SizedBox(width: 8),
+            Text(
               label,
-              style: theme.textTheme.titleMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GameCard extends StatelessWidget {
-  const _GameCard({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return _SoftCard(
-      onTap: onTap,
-      child: Row(
-        children: <Widget>[
-          const Icon(
-            Icons.videogame_asset_outlined,
-            color: AppColors.inkPrimary,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('Play the game', style: theme.textTheme.titleMedium),
-                Text(
-                  'Guess the ingredients, beat the streak',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right, color: AppColors.inkMuted),
-        ],
-      ),
-    );
-  }
-}
-
-/// A white card with a hairline border and a very soft shadow — the redesign's
-/// core surface. [color] fills it (e.g. the emerald scan hero).
-class _SoftCard extends StatelessWidget {
-  const _SoftCard({
-    required this.child,
-    required this.onTap,
-    this.color = AppColors.surface,
-    this.padding = const EdgeInsets.all(18),
-  });
-
-  final Widget child;
-  final VoidCallback onTap;
-  final Color color;
-  final EdgeInsets padding;
-
-  @override
-  Widget build(BuildContext context) {
-    final tinted = color != AppColors.surface;
-    return Material(
-      color: color,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Ink(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(18),
-            border: tinted ? null : Border.all(color: AppColors.hairline),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: (tinted ? AppColors.brand : Colors.black).withValues(
-                  alpha: tinted ? 0.18 : 0.04,
-                ),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.inkPrimary,
               ),
-            ],
-          ),
-          child: child,
+            ),
+          ],
         ),
       ),
     );

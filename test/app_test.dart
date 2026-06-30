@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:munch_or_dump/app.dart';
+import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
+import 'package:munch_or_dump/features/home/home_screen.dart';
 
 /// Bypasses secure storage / network in tests by resolving straight to
 /// signed-out.
@@ -15,6 +17,8 @@ class _SignedOutAuthController extends AuthController {
 Widget _app() => ProviderScope(
   overrides: <Override>[
     authControllerProvider.overrideWith(_SignedOutAuthController.new),
+    // No network for the home "recently analyzed" feed.
+    recentProductsProvider.overrideWith((ref) async => <ProductListItem>[]),
   ],
   child: const MunchOrDumpApp(),
 );
@@ -24,8 +28,8 @@ void main() {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
 
-    expect(find.text('Munch or Dump'), findsOneWidget);
-    expect(find.text('Scan a product'), findsOneWidget);
+    expect(find.text('INGREDIENT INTELLIGENCE'), findsOneWidget);
+    expect(find.text('Analyze a product'), findsOneWidget);
   });
 
   testWidgets('account icon opens sign-in when signed out', (tester) async {
