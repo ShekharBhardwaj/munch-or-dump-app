@@ -29,17 +29,18 @@ const Set<String> _authRoutes = <String>{
   Routes.verifyPath,
   Routes.forgotPath,
 };
+// History + watchlist are NOT redirected when logged out — they show an
+// in-place sign-in wall (matching the web), so the user sees why.
 const Set<String> _gatedRoutes = <String>{
   Routes.accountPath,
   Routes.onboardingPath,
-  Routes.historyPath,
-  Routes.watchlistPath,
 };
 
 /// The app router. Redirect rules:
-///  * gated routes (`_gatedRoutes`: `/account`, `/onboarding`, `/history`,
-///    `/watchlist`) require a session → home if not (the app allows anonymous
-///    browsing; login is reached via the account icon)
+///  * gated routes (`_gatedRoutes`: `/account`, `/onboarding`) require a
+///    session → home if not (the app allows anonymous browsing; login is
+///    reached via the account icon). History/watchlist stay routable and show
+///    an in-place sign-in wall.
 ///  * auth routes redirect to home once signed in
 ///  * onboarding itself is navigated to imperatively after login (not forced
 ///    globally) so a signed-in user is never trapped.

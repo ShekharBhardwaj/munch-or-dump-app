@@ -6,6 +6,8 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
+import 'package:munch_or_dump/features/auth/auth_controller.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 /// The signed-in user's scan history (`GET /api/scans`).
 final scanHistoryProvider = FutureProvider.autoDispose<List<ScanHistoryItem>>((
@@ -19,6 +21,17 @@ class HistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
+    if (!loggedIn) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('History')),
+        body: const SignInWall(
+          subheading: 'Your scan history',
+          heading: 'Sign in required',
+          body: 'Create a free account to save and revisit your scans.',
+        ),
+      );
+    }
     final history = ref.watch(scanHistoryProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('History')),

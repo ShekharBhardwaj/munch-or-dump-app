@@ -10,6 +10,8 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
+import 'package:munch_or_dump/features/scan/scan_quota_modal.dart';
 import 'package:munch_or_dump/features/scan/scan_service.dart';
 
 /// The scan screen: live barcode camera + manual barcode entry (works without a
@@ -123,7 +125,14 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           setState(() => _message = message);
       }
     } on ApiException catch (e) {
-      if (mounted) setState(() => _message = e.message);
+      if (!mounted) return;
+      final loggedOut = ref.read(authControllerProvider).valueOrNull == null;
+      final quotaHit = e.statusCode == 403 || e.isRateLimited;
+      if (loggedOut && quotaHit) {
+        unawaited(showScanQuotaModal(context));
+      } else {
+        setState(() => _message = e.message);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -132,6 +141,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
     return Scaffold(
       appBar: AppBar(title: const Text('Scan')),
       body: Stack(
@@ -235,6 +245,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                         minimumSize: const Size.fromHeight(0),
                       ),
                     ),
+                    if (!loggedIn) ...<Widget>[
+                      const SizedBox(height: 16),
+                      const Center(
+                        child: SignInInline(
+                          action: 'Sign in',
+                          rest:
+                              ' for unlimited scans and to save your results.',
+                        ),
+                      ),
+                    ],
                     if (_message != null) ...<Widget>[
                       const SizedBox(height: 16),
                       Text(

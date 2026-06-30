@@ -8,6 +8,8 @@ import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
+import 'package:munch_or_dump/features/auth/auth_controller.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 typedef _LibraryData = ({SavedLists saved, Watches watches});
 
@@ -47,6 +49,19 @@ class WatchlistScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
+    if (!loggedIn) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Saved & watching')),
+        body: const SignInWall(
+          heading: 'Sign in to use Watchlist',
+          body:
+              'Track products and brands you care about. Get notified when '
+              'verdicts change.',
+          buttonLabel: 'Sign in',
+        ),
+      );
+    }
     final library = ref.watch(libraryProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Saved & watching')),
