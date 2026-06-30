@@ -46,24 +46,10 @@ class BrandsScreen extends ConsumerWidget {
             separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final b = data.items[i];
-              return ListTile(
-                title: Text(
-                  b.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text('${b.productCount} products'),
-                trailing: b.avgScore != null
-                    ? Text(
-                        'avg ${b.avgScore}',
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                      )
-                    : null,
+              return BrowseHubRow(
+                label: b.name,
+                sub: '${b.productCount} products',
+                avgScore: b.avgScore,
                 onTap: () => context.pushNamed(
                   Routes.brand,
                   pathParameters: <String, String>{'slug': b.slug},

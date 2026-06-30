@@ -46,16 +46,10 @@ class CategoriesScreen extends ConsumerWidget {
             separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final c = data.items[i];
-              return ListTile(
-                title: Text(
-                  c.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text('${c.productCount} products'),
-                trailing: c.avgScore != null
-                    ? _ScorePill(score: c.avgScore!)
-                    : null,
+              return BrowseHubRow(
+                label: c.label,
+                sub: '${c.productCount} products',
+                avgScore: c.avgScore,
                 onTap: () => context.pushNamed(
                   Routes.category,
                   pathParameters: <String, String>{'slug': c.slug},
@@ -98,23 +92,6 @@ class CategoryScreen extends ConsumerWidget {
             itemBuilder: (context, i) => ProductRow(item: data.products[i]),
           );
         },
-      ),
-    );
-  }
-}
-
-class _ScorePill extends StatelessWidget {
-  const _ScorePill({required this.score});
-
-  final int score;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Text(
-      'avg $score',
-      style: theme.textTheme.labelMedium?.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
       ),
     );
   }
