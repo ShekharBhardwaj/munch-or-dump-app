@@ -245,21 +245,37 @@ List<Widget> _metaPills(AnalysisResult r) {
   final pills = <Widget>[];
   final nova = r.novaGroup;
   if (nova != null && nova >= 1 && nova <= 4) {
-    const labels = <int, String>{
-      1: 'NOVA 1 · Unprocessed',
-      2: 'NOVA 2 · Culinary',
-      3: 'NOVA 3 · Processed',
-      4: 'NOVA 4 · Ultra-processed',
-    };
-    final ok = nova <= 2;
-    pills.add(
-      MetaPill(
-        text: labels[nova]!,
-        upper: true,
-        fg: ok ? const Color(0xFF047857) : const Color(0xFFDC2626),
-        bg: ok ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2),
-        border: ok ? const Color(0xFFA7F3D0) : const Color(0xFFFECACA),
+    // (label, fg, bg, border) per NOVA group — 1 green, 2 lime, 3 amber, 4 red.
+    const nova1 = (
+      'NOVA 1 · Unprocessed',
+      Color(0xFF047857),
+      Color(0xFFECFDF5),
+      Color(0xFFA7F3D0),
+    );
+    const map = <int, (String, Color, Color, Color)>{
+      1: nova1,
+      2: (
+        'NOVA 2 · Culinary',
+        Color(0xFF4D7C0F),
+        Color(0xFFF7FEE7),
+        Color(0xFFD9F99D),
       ),
+      3: (
+        'NOVA 3 · Processed',
+        Color(0xFFB45309),
+        Color(0xFFFFFBEB),
+        Color(0xFFFDE68A),
+      ),
+      4: (
+        'NOVA 4 · Ultra-processed',
+        Color(0xFFDC2626),
+        Color(0xFFFEF2F2),
+        Color(0xFFFECACA),
+      ),
+    };
+    final (label, fg, bg, border) = map[nova] ?? nova1;
+    pills.add(
+      MetaPill(text: label, upper: true, fg: fg, bg: bg, border: border),
     );
   }
   void diet(bool on, String label, {required bool good}) {
