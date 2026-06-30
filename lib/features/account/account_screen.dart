@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
 /// Signed-in account screen: identity, plan/tier, profile summary, edit + sign
@@ -14,7 +15,7 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).valueOrNull;
     if (user == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: PageLoader());
     }
     final theme = Theme.of(context);
 

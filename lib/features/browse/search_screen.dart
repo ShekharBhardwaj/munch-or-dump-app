@@ -5,6 +5,7 @@ import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 
 const List<({String key, String label})> _dietaryFilters =
@@ -139,7 +140,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildResults(ThemeData theme) {
     if (_busy && _result == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const PageLoader();
     }
     if (_error != null) {
       return ErrorRetry(message: _error!, onRetry: _search);

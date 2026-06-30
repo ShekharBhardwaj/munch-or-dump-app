@@ -6,6 +6,7 @@ import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
 
 typedef _LibraryData = ({SavedLists saved, Watches watches});
@@ -50,7 +51,7 @@ class WatchlistScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Saved & watching')),
       body: library.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(libraryProvider),

@@ -4,6 +4,7 @@ import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
 
 /// The signed-in user's scan history (`GET /api/scans`).
@@ -22,7 +23,7 @@ class HistoryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('History')),
       body: history.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(scanHistoryProvider),

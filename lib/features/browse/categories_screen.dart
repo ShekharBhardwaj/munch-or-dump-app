@@ -5,6 +5,7 @@ import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 
 final categoriesProvider =
@@ -28,7 +29,7 @@ class CategoriesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Categories')),
       body: categories.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(categoriesProvider),
@@ -79,7 +80,7 @@ class CategoryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(category.valueOrNull?.label ?? 'Category')),
       body: category.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(categoryProvider(slug)),

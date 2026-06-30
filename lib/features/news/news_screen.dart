@@ -5,6 +5,7 @@ import 'package:munch_or_dump/core/models/news.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 final newsProvider = FutureProvider.autoDispose<NewsList>((ref) {
   return ref.watch(munchApiProvider).getNews();
@@ -26,7 +27,7 @@ class NewsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('What’s new')),
       body: news.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(newsProvider),
@@ -77,7 +78,7 @@ class NewsPostScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('News')),
       body: post.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(newsPostProvider(slug)),

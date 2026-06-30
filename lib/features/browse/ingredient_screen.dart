@@ -4,6 +4,7 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 
 final ingredientProvider = FutureProvider.autoDispose
@@ -22,7 +23,7 @@ class IngredientScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(ingredient.valueOrNull?.name ?? 'Ingredient')),
       body: ingredient.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PageLoader(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(ingredientProvider(slug)),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
 
 /// Canonical product detail by slug. The response shares the analyze verdict
@@ -22,8 +23,7 @@ class ProductScreen extends ConsumerWidget {
     final product = ref.watch(productProvider(slug));
     return product.when(
       data: (result) => ResultScreen(result: result),
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: PageLoader()),
       error: (error, _) => Scaffold(
         appBar: AppBar(),
         body: ErrorRetry(

@@ -434,6 +434,99 @@ const List<String> _analysisSteps = <String>[
   'Forming verdict',
 ];
 
+/// The cycling verdict word: MUNCH→OKAY→…→BULLSHIT, one every 600ms, each
+/// sliding up + fading in. Shared by [PageLoader] and [AnalysisLoader].
+class _RollingWord extends StatefulWidget {
+  const _RollingWord();
+
+  @override
+  State<_RollingWord> createState() => _RollingWordState();
+}
+
+class _RollingWordState extends State<_RollingWord> {
+  int _index = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 600), (_) {
+      if (mounted) setState(() => _index = (_index + 1) % _verdictRoll.length);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final roll = _verdictRoll[_index];
+    return SizedBox(
+      height: 48,
+      child: Center(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 260),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.5),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: Text(
+            roll.word,
+            key: ValueKey<int>(_index),
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 6,
+              color: roll.color,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// General page-load wait (~1-2s): the rolling verdict word over the cream
+/// canvas with a "Loading {label}…" caption — the website's PageLoader.
+class PageLoader extends StatelessWidget {
+  const PageLoader({this.label = 'verdict', super.key});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.canvas,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const _RollingWord(),
+            const SizedBox(height: 12),
+            Text(
+              'LOADING ${label.toUpperCase()}…',
+              style: const TextStyle(
+                fontSize: 12,
+                letterSpacing: 3.6,
+                color: AppColors.inkFaint,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Full-screen wait state while the verdict is generated: the verdict word rolls
 /// (slide-up + fade) every 600ms over the cream canvas, with step labels that
 /// advance every 3.2s — the website's AnalysisLoader.
@@ -447,21 +540,12 @@ class AnalysisLoader extends StatefulWidget {
 }
 
 class _AnalysisLoaderState extends State<AnalysisLoader> {
-  int _verdictIndex = 0;
   int _step = 0;
-  Timer? _verdictTimer;
   Timer? _stepTimer;
 
   @override
   void initState() {
     super.initState();
-    _verdictTimer = Timer.periodic(const Duration(milliseconds: 600), (_) {
-      if (mounted) {
-        setState(
-          () => _verdictIndex = (_verdictIndex + 1) % _verdictRoll.length,
-        );
-      }
-    });
     _stepTimer = Timer.periodic(const Duration(milliseconds: 3200), (_) {
       if (mounted && _step < _analysisSteps.length - 1) {
         setState(() => _step++);
@@ -471,14 +555,12 @@ class _AnalysisLoaderState extends State<AnalysisLoader> {
 
   @override
   void dispose() {
-    _verdictTimer?.cancel();
     _stepTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final roll = _verdictRoll[_verdictIndex];
     final name = widget.productName?.trim() ?? '';
     return Material(
       color: AppColors.canvas,
@@ -488,34 +570,7 @@ class _AnalysisLoaderState extends State<AnalysisLoader> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            SizedBox(
-              height: 48,
-              child: Center(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 260),
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.5),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
-                  ),
-                  child: Text(
-                    roll.word,
-                    key: ValueKey<int>(_verdictIndex),
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 6,
-                      color: roll.color,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            const _RollingWord(),
             if (name.isNotEmpty) ...<Widget>[
               const SizedBox(height: 12),
               Text(

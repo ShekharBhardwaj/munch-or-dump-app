@@ -6,6 +6,7 @@ import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/game.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
 
 enum _Phase { loading, playing, revealed, gameOver, error }
@@ -128,7 +129,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         ],
       ),
       body: switch (_phase) {
-        _Phase.loading => const Center(child: CircularProgressIndicator()),
+        _Phase.loading => const PageLoader(),
         _Phase.error => ErrorRetry(
           message: _message ?? 'Couldn’t start the game.',
           onRetry: () => _loadRound(reset: true),
