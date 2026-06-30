@@ -480,69 +480,71 @@ class _AnalysisLoaderState extends State<AnalysisLoader> {
   Widget build(BuildContext context) {
     final roll = _verdictRoll[_verdictIndex];
     final name = widget.productName?.trim() ?? '';
-    return Container(
+    return Material(
       color: AppColors.canvas,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          SizedBox(
-            height: 48,
-            child: Center(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 260),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.5),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            SizedBox(
+              height: 48,
+              child: Center(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 260),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.5),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
                   ),
-                ),
-                child: Text(
-                  roll.word,
-                  key: ValueKey<int>(_verdictIndex),
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 6,
-                    color: roll.color,
+                  child: Text(
+                    roll.word,
+                    key: ValueKey<int>(_verdictIndex),
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 6,
+                      color: roll.color,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          if (name.isNotEmpty) ...<Widget>[
+            if (name.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 12),
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.inkSecondary,
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
-            Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.inkSecondary,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Text(
+                '${_analysisSteps[_step].toUpperCase()}…',
+                key: ValueKey<int>(_step),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 3.6,
+                  color: AppColors.inkFaint,
+                ),
               ),
             ),
           ],
-          const SizedBox(height: 12),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: Text(
-              '${_analysisSteps[_step].toUpperCase()}…',
-              key: ValueKey<int>(_step),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                letterSpacing: 3.6,
-                color: AppColors.inkFaint,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
