@@ -5,15 +5,15 @@ import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 const List<String> _perks = <String>[
-  'Unlimited scans, always free',
-  'Full scan history saved',
-  'Watchlist for products you track',
+  'Scan any product for a verdict',
+  'Your scan history, saved',
+  'A watchlist for products you track',
   'No brand deals. Ever.',
 ];
 
-/// The free-scan-quota bottom sheet shown to a logged-out user after the server
-/// rejects a scan for the anonymous limit. Matches the web ScanQuotaModal.
-Future<void> showScanQuotaModal(BuildContext context) {
+/// Bottom sheet shown when a logged-out user tries to scan. Scanning requires an
+/// account (the API returns 401 for anonymous analyze), so this is the gate.
+Future<void> showSignInToScanSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: AppColors.surface,
@@ -30,7 +30,7 @@ Future<void> showScanQuotaModal(BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const Text(
-              'You’ve seen what we can do.',
+              'Sign in to scan',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
@@ -40,8 +40,8 @@ Future<void> showScanQuotaModal(BuildContext context) {
             ),
             const SizedBox(height: 8),
             const Text(
-              '5 free scans in — now make it count. Create an account and keep '
-              'going.',
+              'Create a free account to scan products and get an instant, '
+              'honest verdict.',
               style: TextStyle(
                 fontSize: 15,
                 height: 1.5,

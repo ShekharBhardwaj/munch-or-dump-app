@@ -82,12 +82,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   }
 
   Future<void> _runPhoto() async {
-    final loggedIn = ref.read(authControllerProvider).valueOrNull != null;
-    if (!loggedIn) {
-      setState(
-        () => _message =
-            'Sign in to scan label photos. Barcode scanning works without an account.',
-      );
+    if (ref.read(authControllerProvider).valueOrNull == null) {
+      unawaited(showSignInToScanSheet(context));
       return;
     }
     final file = await ImagePicker().pickImage(
@@ -103,6 +99,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
 
   Future<void> _run(Future<AnalyzeOutcome> Function() op) async {
     if (_busy) return;
+    // Scanning requires an account — the API returns 401 for anonymous
+    // analyze, so gate before the round-trip rather than failing on it.
+    if (ref.read(authControllerProvider).valueOrNull == null) {
+      unawaited(showSignInToScanSheet(context));
+      return;
+    }
     setState(() {
       _busy = true;
       _message = null;
@@ -125,14 +127,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           setState(() => _message = message);
       }
     } on ApiException catch (e) {
-      if (!mounted) return;
-      final loggedOut = ref.read(authControllerProvider).valueOrNull == null;
-      final quotaHit = e.statusCode == 403 || e.isRateLimited;
-      if (loggedOut && quotaHit) {
-        unawaited(showScanQuotaModal(context));
-      } else {
-        setState(() => _message = e.message);
-      }
+      if (mounted) setState(() => _message = e.message);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -250,8 +245,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                       const Center(
                         child: SignInInline(
                           action: 'Sign in',
-                          rest:
-                              ' for unlimited scans and to save your results.',
+                          rest: ' to scan a product and save your verdicts.',
                         ),
                       ),
                     ],

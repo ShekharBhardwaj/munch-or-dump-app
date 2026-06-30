@@ -70,6 +70,8 @@ class ResultScreen extends StatelessWidget {
               ],
               const SizedBox(height: 20),
               _VerdictHero(result: data, tone: tone),
+              const SizedBox(height: 10),
+              const _VerdictDisclaimer(),
               if (lead.isNotEmpty) ...<Widget>[
                 const SizedBox(height: 20),
                 Text(
@@ -221,6 +223,12 @@ class _VerdictHero extends StatelessWidget {
                       alignment: WrapAlignment.center,
                       children: pills,
                     ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'AI estimate — always read the label for allergens.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 11, color: AppColors.inkMuted),
+                    ),
                   ],
                   const SizedBox(height: 12),
                   Text(
@@ -236,6 +244,21 @@ class _VerdictHero extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Persistent per-verdict disclaimer — every verdict is an AI opinion, never a
+/// fact or medical advice. Shown on every result.
+class _VerdictDisclaimer extends StatelessWidget {
+  const _VerdictDisclaimer();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text(
+      'An AI opinion — not fact, and not medical advice.',
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: 12, color: AppColors.inkFaint),
     );
   }
 }
