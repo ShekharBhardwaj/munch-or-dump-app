@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
@@ -405,6 +407,143 @@ class SectionLabel extends StatelessWidget {
         ),
         const Expanded(child: Divider(color: AppColors.hairline, thickness: 1)),
       ],
+    );
+  }
+}
+
+class _RollWord {
+  const _RollWord(this.word, this.color);
+  final String word;
+  final Color color;
+}
+
+const List<_RollWord> _verdictRoll = <_RollWord>[
+  _RollWord('MUNCH', Color(0xFF059669)),
+  _RollWord('OKAY', Color(0xFF0EA5E9)),
+  _RollWord('TREAT', Color(0xFFF59E0B)),
+  _RollWord('ENGINEERED', Color(0xFF64748B)),
+  _RollWord('DUMP', Color(0xFFEF4444)),
+  _RollWord('BULLSHIT', Color(0xFFA855F7)),
+];
+
+const List<String> _analysisSteps = <String>[
+  'Reading ingredients',
+  'Checking formula',
+  'Evaluating additives',
+  'Cross-referencing database',
+  'Forming verdict',
+];
+
+/// Full-screen wait state while the verdict is generated: the verdict word rolls
+/// (slide-up + fade) every 600ms over the cream canvas, with step labels that
+/// advance every 3.2s — the website's AnalysisLoader.
+class AnalysisLoader extends StatefulWidget {
+  const AnalysisLoader({this.productName, super.key});
+
+  final String? productName;
+
+  @override
+  State<AnalysisLoader> createState() => _AnalysisLoaderState();
+}
+
+class _AnalysisLoaderState extends State<AnalysisLoader> {
+  int _verdictIndex = 0;
+  int _step = 0;
+  Timer? _verdictTimer;
+  Timer? _stepTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _verdictTimer = Timer.periodic(const Duration(milliseconds: 600), (_) {
+      if (mounted) {
+        setState(
+          () => _verdictIndex = (_verdictIndex + 1) % _verdictRoll.length,
+        );
+      }
+    });
+    _stepTimer = Timer.periodic(const Duration(milliseconds: 3200), (_) {
+      if (mounted && _step < _analysisSteps.length - 1) {
+        setState(() => _step++);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _verdictTimer?.cancel();
+    _stepTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final roll = _verdictRoll[_verdictIndex];
+    final name = widget.productName?.trim() ?? '';
+    return Container(
+      color: AppColors.canvas,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SizedBox(
+            height: 48,
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.5),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: Text(
+                  roll.word,
+                  key: ValueKey<int>(_verdictIndex),
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 6,
+                    color: roll.color,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (name.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 12),
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.inkSecondary,
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Text(
+              '${_analysisSteps[_step].toUpperCase()}…',
+              key: ValueKey<int>(_step),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                letterSpacing: 3.6,
+                color: AppColors.inkFaint,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

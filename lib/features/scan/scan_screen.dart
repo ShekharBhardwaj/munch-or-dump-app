@@ -8,6 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/scan/scan_service.dart';
 
@@ -246,11 +247,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
               ),
             ],
           ),
-          if (_busy)
-            const ColoredBox(
-              color: Color(0x66000000),
-              child: Center(child: CircularProgressIndicator()),
-            ),
+          if (_busy) const Positioned.fill(child: AnalysisLoader()),
         ],
       ),
     );
