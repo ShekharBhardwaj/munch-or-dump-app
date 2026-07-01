@@ -149,8 +149,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/compare',
         name: Routes.compare,
-        builder: (context, state) =>
-            CompareScreen(initialSlug: state.uri.queryParameters['a']),
+        builder: (context, state) => CompareScreen(
+          initialSlug: state.uri.queryParameters['a'],
+          initialSlugB: state.uri.queryParameters['b'],
+        ),
       ),
       GoRoute(
         path: '/news',
