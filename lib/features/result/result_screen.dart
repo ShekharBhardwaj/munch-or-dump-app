@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
+import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
@@ -125,11 +126,9 @@ class ResultScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _ResultCard(
                   title: 'Better alternatives',
-                  child: Column(
-                    children: <Widget>[
-                      for (final alt in data.alternatives)
-                        _AlternativeRow(alt: alt),
-                    ],
+                  child: _AlternativesList(
+                    verdict: data.verdict,
+                    alternatives: data.alternatives,
                   ),
                 ),
               ],
@@ -906,6 +905,51 @@ class _ClaimCard extends StatelessWidget {
   }
 }
 
+/// The web's one-line framing per verdict, above the alternatives list. Only
+/// non-MUNCH verdicts get alternatives from the API, so MUNCH is intentionally
+/// absent here.
+const Map<Verdict, String> _altSubtext = <Verdict, String>{
+  Verdict.okay: 'Good enough — but these are meaningfully cleaner.',
+  Verdict.treat: 'Fine occasionally — but these are everyday choices.',
+  Verdict.engineered: 'A lab-built formula. These are made in a kitchen.',
+  Verdict.dump: 'This one has red flags. These don’t.',
+  Verdict.bullshit: 'The label lies. These actually do what they claim.',
+};
+
+class _AlternativesList extends StatelessWidget {
+  const _AlternativesList({required this.verdict, required this.alternatives});
+
+  final Verdict verdict;
+  final List<Alternative> alternatives;
+
+  @override
+  Widget build(BuildContext context) {
+    final alts = alternatives.take(5).toList();
+    final subtext = _altSubtext[verdict];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (subtext != null) ...<Widget>[
+          Text(
+            subtext,
+            style: const TextStyle(
+              fontSize: 13.5,
+              height: 1.5,
+              color: AppColors.inkSecondary,
+            ),
+          ),
+          const SizedBox(height: 6),
+        ],
+        for (var i = 0; i < alts.length; i++) ...<Widget>[
+          if (i > 0)
+            const Divider(height: 1, color: AppColors.hairlineFaint),
+          _AlternativeRow(alt: alts[i]),
+        ],
+      ],
+    );
+  }
+}
+
 class _AlternativeRow extends StatelessWidget {
   const _AlternativeRow({required this.alt});
 
@@ -916,39 +960,62 @@ class _AlternativeRow extends StatelessWidget {
     final verdict = alt.verdict;
     final delta = alt.scoreDelta;
     final brand = alt.brandName;
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        alt.name.trim().isEmpty ? alt.slug : alt.name,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: brand != null && brand.isNotEmpty
-          ? Text(brand, maxLines: 1, overflow: TextOverflow.ellipsis)
-          : null,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          if (delta != null && delta > 0)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Text(
-                '+$delta',
-                style: const TextStyle(
-                  color: AppColors.impactPositive,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          if (verdict != null) WebVerdictBadge(verdict: verdict, size: 10),
-        ],
-      ),
+    final name = alt.name.trim().isEmpty ? alt.slug : alt.name;
+    return InkWell(
       onTap: alt.slug.isEmpty
           ? null
           : () => context.pushNamed(
               Routes.product,
               pathParameters: <String, String>{'slug': alt.slug},
             ),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  if (brand != null && brand.isNotEmpty) ...<Widget>[
+                    Eyebrow(brand, size: 10, spacing: 1.4),
+                    const SizedBox(height: 3),
+                  ],
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.inkPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            if (delta != null && delta > 0) ...<Widget>[
+              Text(
+                '+$delta',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.impactPositive,
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            if (verdict != null) WebVerdictBadge(verdict: verdict, size: 9),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.inkGhost,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

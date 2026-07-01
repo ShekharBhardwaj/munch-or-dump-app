@@ -14,6 +14,7 @@ import 'package:munch_or_dump/features/browse/categories_screen.dart';
 import 'package:munch_or_dump/features/browse/ingredient_screen.dart';
 import 'package:munch_or_dump/features/browse/search_screen.dart';
 import 'package:munch_or_dump/features/compare/compare_screen.dart';
+import 'package:munch_or_dump/features/examples/examples_screen.dart';
 import 'package:munch_or_dump/features/game/game_screen.dart';
 import 'package:munch_or_dump/features/history/history_screen.dart';
 import 'package:munch_or_dump/features/legal/legal_screens.dart';
@@ -153,6 +154,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           initialSlug: state.uri.queryParameters['a'],
           initialSlugB: state.uri.queryParameters['b'],
         ),
+      ),
+      GoRoute(
+        path: '/examples',
+        name: Routes.examples,
+        builder: (context, state) => const ExamplesScreen(),
       ),
       GoRoute(
         path: '/news',

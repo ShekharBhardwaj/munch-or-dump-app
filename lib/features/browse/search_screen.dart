@@ -16,6 +16,8 @@ const List<({String key, String label})> _dietaryFilters =
       (key: 'gluten_free', label: 'Gluten-free'),
       (key: 'dairy_free', label: 'Dairy-free'),
       (key: 'no_nuts', label: 'Nut-free'),
+      (key: 'no_soy', label: 'Soy-free'),
+      (key: 'no_eggs', label: 'Egg-free'),
     ];
 
 class SearchScreen extends ConsumerStatefulWidget {

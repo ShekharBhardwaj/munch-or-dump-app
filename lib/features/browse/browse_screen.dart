@@ -32,6 +32,12 @@ class BrowseScreen extends StatelessWidget {
                   onTap: () => context.pushNamed(Routes.categories),
                 ),
                 _BrowseTile(
+                  icon: Icons.workspace_premium_outlined,
+                  label: 'The verdicts',
+                  sub: 'What each rating means',
+                  onTap: () => context.pushNamed(Routes.examples),
+                ),
+                _BrowseTile(
                   icon: Icons.storefront_outlined,
                   label: 'Brands',
                   sub: 'The brand leaderboard',
