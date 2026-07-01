@@ -9,6 +9,7 @@ import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 import 'package:munch_or_dump/features/scan/scan_quota_modal.dart';
@@ -32,6 +33,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
   final TextEditingController _manualBarcode = TextEditingController();
 
   bool _busy = false;
+  // Guards the anonymous "sign in to scan" sheet: the camera fires onDetect many
+  // times a second, so without this a signed-out scan would stack hundreds of
+  // sheets. Held from the moment we open the sheet until it's dismissed.
+  bool _signInPromptOpen = false;
   String? _message;
 
   @override
@@ -81,13 +86,28 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     await _run(() => ref.read(scanServiceProvider).analyzeBarcode(trimmed));
   }
 
+  /// Show the "sign in to scan" sheet exactly once at a time. The camera's
+  /// onDetect fires continuously, so this guard is what stops a signed-out scan
+  /// from stacking the sheet over and over.
+  Future<void> _promptSignInToScan() async {
+    if (_signInPromptOpen) return;
+    _signInPromptOpen = true;
+    try {
+      await showSignInToScanSheet(context);
+    } finally {
+      if (mounted) _signInPromptOpen = false;
+    }
+  }
+
   Future<void> _runPhoto() async {
     if (ref.read(authControllerProvider).valueOrNull == null) {
-      unawaited(showSignInToScanSheet(context));
+      await _promptSignInToScan();
       return;
     }
+    final source = await _pickImageSource();
+    if (source == null) return; // dismissed the chooser
     final file = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
+      source: source,
       maxWidth: 2000,
       imageQuality: 85,
     );
@@ -97,12 +117,48 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
     );
   }
 
+  /// Ask whether to take a new photo or pick an existing one — the standard iOS
+  /// pattern so a label can be captured on the spot, not just chosen from the
+  /// library.
+  Future<ImageSource?> _pickImageSource() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Eyebrow('Scan a label', spacing: 3.6),
+              const SizedBox(height: 4),
+              NavRow(
+                icon: Icons.photo_camera_outlined,
+                label: 'Take a photo',
+                trailing: const SizedBox.shrink(),
+                onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+              ),
+              const Divider(height: 1),
+              NavRow(
+                icon: Icons.photo_library_outlined,
+                label: 'Choose from library',
+                trailing: const SizedBox.shrink(),
+                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _run(Future<AnalyzeOutcome> Function() op) async {
-    if (_busy) return;
+    if (_busy || _signInPromptOpen) return;
     // Scanning requires an account — the API returns 401 for anonymous
     // analyze, so gate before the round-trip rather than failing on it.
     if (ref.read(authControllerProvider).valueOrNull == null) {
-      unawaited(showSignInToScanSheet(context));
+      await _promptSignInToScan();
       return;
     }
     setState(() {
@@ -151,7 +207,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
                     MobileScanner(
                       controller: _scanner,
                       onDetect: (capture) {
-                        if (_busy || capture.barcodes.isEmpty) return;
+                        if (_busy ||
+                            _signInPromptOpen ||
+                            capture.barcodes.isEmpty) {
+                          return;
+                        }
                         final code = capture.barcodes.first.rawValue;
                         if (code != null && code.isNotEmpty) {
                           unawaited(_runBarcode(code));
