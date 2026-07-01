@@ -64,40 +64,45 @@ class _CompareScreenState extends ConsumerState<CompareScreen> {
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: SafeArea(
         top: false,
-        child: ListView(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
-          children: <Widget>[
-            const _CompareHeader(),
-            const SizedBox(height: 20),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Expanded(
-                  child: _PickerSlot(
-                    label: 'Product A',
-                    async: aAsync,
-                    onPick: () => _pick(isA: true),
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const _CompareHeader(),
+              const SizedBox(height: 20),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Expanded(
+                      child: _PickerSlot(
+                        label: 'Product A',
+                        async: aAsync,
+                        onPick: () => _pick(isA: true),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _PickerSlot(
+                        label: 'Product B',
+                        async: bAsync,
+                        onPick: () => _pick(isA: false),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _PickerSlot(
-                    label: 'Product B',
-                    async: bAsync,
-                    onPick: () => _pick(isA: false),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            if (a != null && b != null)
-              _ComparisonSheet(a: a, b: b)
-            else
-              _EmptyHint(
-                bothEmpty: _a == null && _b == null,
-                onBrowse: () => _pick(isA: _a == null),
               ),
-          ],
+              const SizedBox(height: 24),
+              if (a != null && b != null)
+                _ComparisonSheet(a: a, b: b)
+              else
+                _EmptyHint(
+                  bothEmpty: _a == null && _b == null,
+                  onBrowse: () => _pick(isA: _a == null),
+                ),
+            ],
+          ),
         ),
       ),
     );
