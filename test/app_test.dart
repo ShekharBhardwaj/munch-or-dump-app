@@ -32,16 +32,21 @@ void main() {
     expect(find.text('Analyze a product'), findsOneWidget);
   });
 
-  testWidgets('account icon opens sign-in when signed out', (tester) async {
+  testWidgets('You tab offers sign-in when signed out', (tester) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Sign in'));
+    // Bottom-bar "You" tab → the signed-out invitation.
+    await tester.tap(find.text('You'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sign in to Munch or Dump'), findsOneWidget);
+
+    // Its "Sign in" CTA opens the login screen.
+    await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'Sign in'), findsOneWidget);
     // Google sign-in is gated: hidden until a server client ID is configured.
     expect(find.text('Continue with Google'), findsNothing);
   });

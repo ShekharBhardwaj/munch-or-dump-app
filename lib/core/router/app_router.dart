@@ -15,7 +15,6 @@ import 'package:munch_or_dump/features/browse/search_screen.dart';
 import 'package:munch_or_dump/features/compare/compare_screen.dart';
 import 'package:munch_or_dump/features/game/game_screen.dart';
 import 'package:munch_or_dump/features/history/history_screen.dart';
-import 'package:munch_or_dump/features/home/home_screen.dart';
 import 'package:munch_or_dump/features/legal/legal_screens.dart';
 import 'package:munch_or_dump/features/news/news_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
@@ -23,6 +22,7 @@ import 'package:munch_or_dump/features/product/product_screen.dart';
 import 'package:munch_or_dump/features/receipt/receipt_screen.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
 import 'package:munch_or_dump/features/scan/scan_screen.dart';
+import 'package:munch_or_dump/features/shell/main_shell.dart';
 import 'package:munch_or_dump/features/watchlist/watchlist_screen.dart';
 
 const Set<String> _authRoutes = <String>{
@@ -71,7 +71,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         name: Routes.home,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const MainShell(),
       ),
       GoRoute(
         path: '/scan',

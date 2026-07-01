@@ -7,7 +7,6 @@ import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
-import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
 /// A handful of recently-analyzed products for the home feed.
 final recentProductsProvider =
@@ -24,8 +23,6 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loggedIn = ref.watch(authControllerProvider).valueOrNull != null;
-
     return Scaffold(
       body: GridBackground(
         child: SafeArea(
@@ -33,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 36),
             children: <Widget>[
-              _Navbar(loggedIn: loggedIn),
+              const _Navbar(),
               const SizedBox(height: 36),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -88,16 +85,6 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               const _RecentFeed(),
-              const SizedBox(height: 28),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: SectionLabel('Browse'),
-              ),
-              const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: _BrowseRow(),
-              ),
             ],
           ),
         ),
@@ -107,22 +94,14 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _Navbar extends StatelessWidget {
-  const _Navbar({required this.loggedIn});
-
-  final bool loggedIn;
+  const _Navbar();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 16, 0),
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Row(
-        children: <Widget>[
-          const _Wordmark(),
-          const SizedBox(width: 8),
-          const _BetaBadge(),
-          const Spacer(),
-          _AvatarButton(loggedIn: loggedIn),
-        ],
+        children: <Widget>[_Wordmark(), SizedBox(width: 8), _BetaBadge()],
       ),
     );
   }
@@ -176,39 +155,6 @@ class _BetaBadge extends StatelessWidget {
           fontWeight: FontWeight.w600,
           letterSpacing: 1.5,
           color: AppColors.inkFaint,
-        ),
-      ),
-    );
-  }
-}
-
-class _AvatarButton extends StatelessWidget {
-  const _AvatarButton({required this.loggedIn});
-
-  final bool loggedIn;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: loggedIn ? 'Account' : 'Sign in',
-      child: InkWell(
-        onTap: () => loggedIn
-            ? context.goNamed(Routes.account)
-            : context.pushNamed(Routes.login),
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.hairline),
-          ),
-          child: Icon(
-            loggedIn ? Icons.person : Icons.person_outline,
-            size: 20,
-            color: AppColors.inkSecondary,
-          ),
         ),
       ),
     );
@@ -406,88 +352,6 @@ class _RecentCard extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _BrowseRow extends StatelessWidget {
-  const _BrowseRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: <Widget>[
-        _BrowseChip(
-          icon: Icons.category_outlined,
-          label: 'Categories',
-          onTap: () => context.pushNamed(Routes.categories),
-        ),
-        _BrowseChip(
-          icon: Icons.storefront_outlined,
-          label: 'Brands',
-          onTap: () => context.pushNamed(Routes.brands),
-        ),
-        _BrowseChip(
-          icon: Icons.compare_arrows,
-          label: 'Compare',
-          onTap: () => context.pushNamed(Routes.compare),
-        ),
-        _BrowseChip(
-          icon: Icons.article_outlined,
-          label: 'News',
-          onTap: () => context.pushNamed(Routes.news),
-        ),
-        _BrowseChip(
-          icon: Icons.videogame_asset_outlined,
-          label: 'Game',
-          onTap: () => context.pushNamed(Routes.game),
-        ),
-      ],
-    );
-  }
-}
-
-class _BrowseChip extends StatelessWidget {
-  const _BrowseChip({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: AppColors.hairline),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(icon, size: 16, color: AppColors.inkSecondary),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.inkPrimary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
