@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/features/about/about_screens.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
 /// Signed-in account screen: identity, plan/tier, profile summary, edit + sign
@@ -75,6 +76,27 @@ class AccountScreen extends ConsumerWidget {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About Munch or Dump'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.pushNamed(Routes.about),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.science_outlined),
+              title: const Text('How it works'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.pushNamed(Routes.howItWorks),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.auto_stories_outlined),
+              title: const Text('Our story'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.pushNamed(Routes.ourStory),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.gavel_outlined),
               title: const Text('Disclaimers & terms'),
               trailing: const Icon(Icons.chevron_right),
@@ -108,6 +130,8 @@ class AccountScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
+            const SizedBox(height: 28),
+            const SatireFooter(),
           ],
         ),
       ),

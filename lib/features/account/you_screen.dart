@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/features/about/about_screens.dart';
 import 'package:munch_or_dump/features/account/account_screen.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
@@ -81,6 +82,24 @@ class _SignedOutYou extends StatelessWidget {
             const Eyebrow('About', spacing: 4),
             const SizedBox(height: 12),
             _LinkTile(
+              icon: Icons.info_outline,
+              label: 'About Munch or Dump',
+              onTap: () => context.pushNamed(Routes.about),
+            ),
+            const Divider(height: 1, color: AppColors.hairlineFaint),
+            _LinkTile(
+              icon: Icons.science_outlined,
+              label: 'How it works',
+              onTap: () => context.pushNamed(Routes.howItWorks),
+            ),
+            const Divider(height: 1, color: AppColors.hairlineFaint),
+            _LinkTile(
+              icon: Icons.auto_stories_outlined,
+              label: 'Our story',
+              onTap: () => context.pushNamed(Routes.ourStory),
+            ),
+            const Divider(height: 1, color: AppColors.hairlineFaint),
+            _LinkTile(
               icon: Icons.gavel_outlined,
               label: 'Disclaimers & terms',
               onTap: () => context.pushNamed(Routes.legal),
@@ -91,6 +110,8 @@ class _SignedOutYou extends StatelessWidget {
               label: 'Privacy policy',
               onTap: () => context.pushNamed(Routes.privacy),
             ),
+            const SizedBox(height: 28),
+            const SatireFooter(),
           ],
         ),
       ),

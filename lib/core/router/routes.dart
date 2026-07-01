@@ -26,6 +26,9 @@ abstract final class Routes {
   static const String account = 'account';
   static const String legal = 'legal';
   static const String privacy = 'privacy';
+  static const String about = 'about';
+  static const String howItWorks = 'howItWorks';
+  static const String ourStory = 'ourStory';
 
   static const String homePath = '/';
   static const String scanPath = '/scan';
@@ -51,4 +54,7 @@ abstract final class Routes {
   static const String accountPath = '/account';
   static const String legalPath = '/legal';
   static const String privacyPath = '/privacy';
+  static const String aboutPath = '/about';
+  static const String howItWorksPath = '/how-it-works';
+  static const String ourStoryPath = '/our-story';
 }

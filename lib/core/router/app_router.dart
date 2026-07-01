@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/features/about/about_screens.dart';
 import 'package:munch_or_dump/features/account/account_screen.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_screen.dart';
@@ -197,6 +198,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/privacy',
         name: Routes.privacy,
         builder: (context, state) => const PrivacyScreen(),
+      ),
+      GoRoute(
+        path: '/about',
+        name: Routes.about,
+        builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: '/how-it-works',
+        name: Routes.howItWorks,
+        builder: (context, state) => const HowItWorksScreen(),
+      ),
+      GoRoute(
+        path: '/our-story',
+        name: Routes.ourStory,
+        builder: (context, state) => const OurStoryScreen(),
       ),
     ],
   );
