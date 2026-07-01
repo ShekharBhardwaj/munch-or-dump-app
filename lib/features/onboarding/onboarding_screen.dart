@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/onboarding/personalization_options.dart';
 
@@ -71,171 +74,116 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  void _toggle(Set<String> set, String value) => setState(() {
+    if (!set.remove(value)) set.add(value);
+  });
+
   @override
   Widget build(BuildContext context) {
     _seedFromProfile();
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Personalize')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: <Widget>[
-            Text(
-              'Tell us about you',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Used to tailor your verdicts and "For You" notes. You can change '
-              'this anytime.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            _Section(
-              title: 'Who are you shopping for?',
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: <Widget>[
-                  for (final option in personaOptions)
-                    ChoiceChip(
-                      label: Text(option.label),
-                      selected: _persona == option.value,
-                      onSelected: _busy
-                          ? null
-                          : (selected) => setState(
-                              () => _persona = selected ? option.value : null,
-                            ),
-                    ),
-                ],
-              ),
-            ),
-            _MultiSection(
-              title: 'Goals',
-              options: goalOptions,
-              selected: _goals,
-              busy: _busy,
-              onChanged: () => setState(() {}),
-            ),
-            _MultiSection(
-              title: 'Dietary preferences',
-              options: dietaryOptions,
-              selected: _dietary,
-              busy: _busy,
-              onChanged: () => setState(() {}),
-            ),
-            _MultiSection(
-              title: 'Health conditions',
-              options: conditionOptions,
-              selected: _conditions,
-              busy: _busy,
-              onChanged: () => setState(() {}),
-            ),
-            _Section(
-              title: 'Anything else? (optional)',
-              child: TextField(
-                controller: _context,
-                enabled: !_busy,
-                maxLength: maxContextChars,
-                maxLines: 2,
-                decoration: const InputDecoration(
-                  hintText: 'e.g. avoiding seed oils, training for a marathon',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            if (_error != null) ...<Widget>[
-              Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-              const SizedBox(height: 8),
-            ],
-            FilledButton(
-              onPressed: _busy ? null : _save,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: _busy
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return FormScaffold(
+      eyebrow: 'Personalize',
+      titleDark: 'Tell us',
+      titleMuted: 'about you.',
+      subtitle:
+          'Used to tailor your verdicts and “For You” notes. You can change '
+          'this anytime.',
       children: <Widget>[
-        Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        _ChoiceGroup(
+          title: 'Who are you shopping for?',
+          options: personaOptions,
+          isSelected: (v) => _persona == v,
+          onTap: _busy
+              ? null
+              : (v) => setState(() => _persona = _persona == v ? null : v),
         ),
-        const SizedBox(height: 8),
-        child,
+        _ChoiceGroup(
+          title: 'Goals',
+          options: goalOptions,
+          isSelected: _goals.contains,
+          onTap: _busy ? null : (v) => _toggle(_goals, v),
+        ),
+        _ChoiceGroup(
+          title: 'Dietary preferences',
+          options: dietaryOptions,
+          isSelected: _dietary.contains,
+          onTap: _busy ? null : (v) => _toggle(_dietary, v),
+        ),
+        _ChoiceGroup(
+          title: 'Health conditions',
+          options: conditionOptions,
+          isSelected: _conditions.contains,
+          onTap: _busy ? null : (v) => _toggle(_conditions, v),
+        ),
+        LabeledField(
+          label: 'Anything else? (optional)',
+          child: TextField(
+            controller: _context,
+            enabled: !_busy,
+            maxLength: maxContextChars,
+            maxLines: 2,
+            decoration: const InputDecoration(
+              hintText: 'e.g. avoiding seed oils, training for a marathon',
+            ),
+          ),
+        ),
+        if (_error != null) FormMessage(_error!),
         const SizedBox(height: 20),
+        BlackCtaButton(
+          label: 'Save',
+          expand: true,
+          busy: _busy,
+          trailingIcon: null,
+          onTap: _save,
+        ),
       ],
     );
   }
 }
 
-class _MultiSection extends StatelessWidget {
-  const _MultiSection({
+/// A titled group of [SelectChip]s for a single- or multi-select field.
+class _ChoiceGroup extends StatelessWidget {
+  const _ChoiceGroup({
     required this.title,
     required this.options,
-    required this.selected,
-    required this.busy,
-    required this.onChanged,
+    required this.isSelected,
+    required this.onTap,
   });
 
   final String title;
   final List<LabeledOption> options;
-  final Set<String> selected;
-  final bool busy;
-  final VoidCallback onChanged;
+  final bool Function(String) isSelected;
+  final void Function(String)? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return _Section(
-      title: title,
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          for (final option in options)
-            FilterChip(
-              label: Text(option.label),
-              selected: selected.contains(option.value),
-              onSelected: busy
-                  ? null
-                  : (isSelected) {
-                      if (isSelected) {
-                        selected.add(option.value);
-                      } else {
-                        selected.remove(option.value);
-                      }
-                      onChanged();
-                    },
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+              color: AppColors.inkPrimary,
             ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: <Widget>[
+              for (final option in options)
+                SelectChip(
+                  label: option.label,
+                  selected: isSelected(option.value),
+                  onTap: onTap == null ? null : () => onTap!(option.value),
+                ),
+            ],
+          ),
         ],
       ),
     );

@@ -7,6 +7,8 @@ import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/config/app_config.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_navigation.dart';
 import 'package:munch_or_dump/features/auth/google_auth_service.dart';
@@ -112,98 +114,97 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final showGoogle = AppConfig.googleSignInEnabled;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(_register ? 'Create account' : 'Sign in')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: <Widget>[
-            Text(
-              _register ? 'Join Munch or Dump' : 'Welcome back',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+    return FormScaffold(
+      eyebrow: 'Munch or Dump',
+      titleDark: _register ? 'Create your' : 'Welcome',
+      titleMuted: _register ? 'account.' : 'back.',
+      subtitle: _register
+          ? 'Scan anything, get a straight verdict, and save the products you '
+                'care about.'
+          : 'Sign in to pick up where you left off.',
+      children: <Widget>[
+        LabeledField(
+          label: 'Email',
+          child: TextField(
+            controller: _email,
+            enabled: !_busy,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+            textInputAction: TextInputAction.next,
+            decoration: const InputDecoration(hintText: 'you@example.com'),
+          ),
+        ),
+        const SizedBox(height: 16),
+        LabeledField(
+          label: 'Password',
+          child: TextField(
+            controller: _password,
+            enabled: !_busy,
+            obscureText: true,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submit(),
+            decoration: const InputDecoration(hintText: '••••••••'),
+          ),
+        ),
+        if (!_register)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _busy ? null : () => context.pushNamed(Routes.forgot),
+              child: const Text('Forgot password?'),
             ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _email,
-              enabled: !_busy,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
+          ),
+        if (_error != null) FormMessage(_error!),
+        const SizedBox(height: 20),
+        BlackCtaButton(
+          label: _register ? 'Create account' : 'Sign in',
+          expand: true,
+          busy: _busy,
+          trailingIcon: null,
+          onTap: _submit,
+        ),
+        if (showGoogle) ...<Widget>[
+          const SizedBox(height: 12),
+          _GoogleButton(onTap: _busy ? null : _googleSignIn),
+        ],
+        const SizedBox(height: 18),
+        Center(
+          child: TextButton(
+            onPressed: _busy ? null : _toggleMode,
+            child: Text(
+              _register
+                  ? 'Already have an account? Sign in'
+                  : 'New here? Create an account',
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _password,
-              enabled: !_busy,
-              obscureText: true,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            if (!_register)
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: _busy
-                      ? null
-                      : () => context.pushNamed(Routes.forgot),
-                  child: const Text('Forgot password?'),
-                ),
-              ),
-            if (_error != null) ...<Widget>[
-              const SizedBox(height: 8),
-              Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-            ],
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _busy ? null : _submit,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: _busy
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_register ? 'Create account' : 'Sign in'),
-            ),
-            if (showGoogle) ...<Widget>[
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: _busy ? null : _googleSignIn,
-                icon: const Icon(Icons.account_circle_outlined),
-                label: const Text('Continue with Google'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Center(
-              child: TextButton(
-                onPressed: _busy ? null : _toggleMode,
-                child: Text(
-                  _register
-                      ? 'Already have an account? Sign in'
-                      : 'New here? Create an account',
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const _TermsLine(),
-          ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        const _TermsLine(),
+      ],
+    );
+  }
+}
+
+/// Full-width outlined pill for the Google sign-in secondary action.
+class _GoogleButton extends StatelessWidget {
+  const _GoogleButton({required this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: const Icon(Icons.account_circle_outlined, size: 18),
+      label: const Text('Continue with Google'),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(48),
+        foregroundColor: AppColors.inkPrimary,
+        backgroundColor: AppColors.surface,
+        shape: const StadiumBorder(
+          side: BorderSide(color: AppColors.hairline),
         ),
       ),
     );

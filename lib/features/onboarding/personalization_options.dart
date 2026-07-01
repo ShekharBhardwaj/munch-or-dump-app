@@ -47,3 +47,19 @@ const List<LabeledOption> conditionOptions = <LabeledOption>[
 
 /// Max length of the freeform personal note (`context`), per the API.
 const int maxContextChars = 150;
+
+/// The human label for a stored [value] within [options], falling back to a
+/// humanized form of the raw code (e.g. `high_cholesterol` → "High cholesterol")
+/// so the UI never shows machine values.
+String labelForValue(String value, List<LabeledOption> options) {
+  for (final option in options) {
+    if (option.value == value) return option.label;
+  }
+  if (value.isEmpty) return value;
+  final spaced = value.replaceAll('_', ' ');
+  return spaced[0].toUpperCase() + spaced.substring(1);
+}
+
+/// [labelForValue] mapped over a list of stored values.
+List<String> labelsForValues(List<String> values, List<LabeledOption> options) =>
+    <String>[for (final v in values) labelForValue(v, options)];

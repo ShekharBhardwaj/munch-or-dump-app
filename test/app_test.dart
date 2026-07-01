@@ -45,7 +45,9 @@ void main() {
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome back'), findsOneWidget);
+    // The two-tone headline "Welcome back." is rich text; assert on the
+    // login-only affordances instead.
+    expect(find.text('New here? Create an account'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
     // Google sign-in is gated: hidden until a server client ID is configured.
     expect(find.text('Continue with Google'), findsNothing);

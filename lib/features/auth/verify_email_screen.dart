@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_navigation.dart';
 
@@ -81,83 +83,58 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Verify email')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: <Widget>[
-            Text(
-              'Check your inbox',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'We sent a 6-digit code to verify your account.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _email,
-              enabled: !_busy,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _code,
-              enabled: !_busy,
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              onSubmitted: (_) => _verify(),
-              decoration: const InputDecoration(
-                labelText: '6-digit code',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            if (_error != null)
-              Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-            if (_notice != null)
-              Text(
-                _notice!,
-                style: TextStyle(color: theme.colorScheme.primary),
-              ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _busy ? null : _verify,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: _busy
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Verify'),
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton(
-                onPressed: _busy ? null : _resend,
-                child: const Text('Resend code'),
-              ),
-            ),
-          ],
+    return FormScaffold(
+      eyebrow: 'Verify email',
+      titleDark: 'Check your',
+      titleMuted: 'inbox.',
+      subtitle: 'We sent a 6-digit code to verify your account.',
+      children: <Widget>[
+        LabeledField(
+          label: 'Email',
+          child: TextField(
+            controller: _email,
+            enabled: !_busy,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+            decoration: const InputDecoration(hintText: 'you@example.com'),
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+        LabeledField(
+          label: '6-digit code',
+          child: TextField(
+            controller: _code,
+            enabled: !_busy,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            onSubmitted: (_) => _verify(),
+            decoration: const InputDecoration(
+              hintText: '123456',
+              counterText: '',
+            ),
+          ),
+        ),
+        if (_error != null) FormMessage(_error!),
+        if (_notice != null) FormMessage(_notice!, error: false),
+        const SizedBox(height: 20),
+        BlackCtaButton(
+          label: 'Verify',
+          expand: true,
+          busy: _busy,
+          trailingIcon: null,
+          onTap: _verify,
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: TextButton(
+            onPressed: _busy ? null : _resend,
+            child: const Text('Resend code'),
+          ),
+        ),
+      ],
     );
   }
 }

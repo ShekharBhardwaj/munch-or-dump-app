@@ -144,12 +144,18 @@ class TwoToneHeadline extends StatelessWidget {
 }
 
 /// The pure-black pill CTA ("Analyze a product"). Not the themed emerald button.
+///
+/// [expand] stretches it full-width (for form submits); [busy] swaps the label
+/// for a spinner and blocks taps; [enabled]:false dims it and blocks taps.
 class BlackCtaButton extends StatefulWidget {
   const BlackCtaButton({
     required this.label,
     required this.onTap,
     this.leadingIcon,
     this.trailingIcon = Icons.arrow_forward,
+    this.expand = false,
+    this.busy = false,
+    this.enabled = true,
     super.key,
   });
 
@@ -157,6 +163,9 @@ class BlackCtaButton extends StatefulWidget {
   final VoidCallback onTap;
   final IconData? leadingIcon;
   final IconData? trailingIcon;
+  final bool expand;
+  final bool busy;
+  final bool enabled;
 
   @override
   State<BlackCtaButton> createState() => _BlackCtaButtonState();
@@ -167,50 +176,80 @@ class _BlackCtaButtonState extends State<BlackCtaButton> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTap: widget.onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 28),
-        decoration: BoxDecoration(
-          color: _pressed ? AppColors.ctaPressed : AppColors.ctaBlack,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: const <BoxShadow>[
-            BoxShadow(
-              color: Color(0x141C1917),
-              blurRadius: 18,
-              offset: Offset(0, 6),
+    final disabled = widget.busy || !widget.enabled;
+    return Semantics(
+      button: true,
+      enabled: !disabled,
+      label: widget.busy ? '${widget.label}, loading' : widget.label,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTapDown: disabled ? null : (_) => setState(() => _pressed = true),
+          onTapCancel: disabled ? null : () => setState(() => _pressed = false),
+          onTapUp: disabled ? null : (_) => setState(() => _pressed = false),
+          onTap: disabled ? null : widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            height: 48,
+            width: widget.expand ? double.infinity : null,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            decoration: BoxDecoration(
+              color: !widget.enabled
+                  ? const Color(0xFF9C968F)
+                  : (_pressed ? AppColors.ctaPressed : AppColors.ctaBlack),
+              borderRadius: BorderRadius.circular(999),
+              boxShadow: disabled
+                  ? null
+                  : const <BoxShadow>[
+                      BoxShadow(
+                        color: Color(0x141C1917),
+                        blurRadius: 18,
+                        offset: Offset(0, 6),
+                      ),
+                    ],
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (widget.leadingIcon != null) ...<Widget>[
-              Icon(widget.leadingIcon, size: 16, color: Colors.white),
-              const SizedBox(width: 10),
-            ],
-            Text(
-              widget.label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (widget.trailingIcon != null) ...<Widget>[
-              const SizedBox(width: 10),
-              AnimatedSlide(
-                duration: const Duration(milliseconds: 120),
-                offset: Offset(_pressed ? 0.18 : 0, 0),
-                child: Icon(widget.trailingIcon, size: 15, color: Colors.white),
-              ),
-            ],
-          ],
+            child: widget.busy
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: widget.expand
+                        ? MainAxisSize.max
+                        : MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      if (widget.leadingIcon != null) ...<Widget>[
+                        Icon(widget.leadingIcon, size: 16, color: Colors.white),
+                        const SizedBox(width: 10),
+                      ],
+                      Text(
+                        widget.label,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (widget.trailingIcon != null) ...<Widget>[
+                        const SizedBox(width: 10),
+                        AnimatedSlide(
+                          duration: const Duration(milliseconds: 120),
+                          offset: Offset(_pressed ? 0.18 : 0, 0),
+                          child: Icon(
+                            widget.trailingIcon,
+                            size: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
         ),
       ),
     );

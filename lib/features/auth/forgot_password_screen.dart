@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 
 /// Two steps in one screen: request a reset code, then set a new password with
@@ -84,87 +86,63 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Reset password')),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: <Widget>[
-            Text(
-              _codeSent ? 'Enter your code' : 'Forgot your password?',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _codeSent
-                  ? 'If that email exists, a 6-digit reset code is on its way.'
-                  : 'Enter your email and we’ll send a reset code.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _email,
-              enabled: !_busy && !_codeSent,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            if (_codeSent) ...<Widget>[
-              const SizedBox(height: 16),
-              TextField(
-                controller: _code,
-                enabled: !_busy,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                decoration: const InputDecoration(
-                  labelText: '6-digit code',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              TextField(
-                controller: _password,
-                enabled: !_busy,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'New password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-            if (_error != null) ...<Widget>[
-              const SizedBox(height: 8),
-              Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-            ],
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _busy
-                  ? null
-                  : (_codeSent ? _resetPassword : _requestCode),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: _busy
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_codeSent ? 'Update password' : 'Send reset code'),
-            ),
-          ],
+    return FormScaffold(
+      eyebrow: 'Reset password',
+      titleDark: _codeSent ? 'Enter your' : 'Forgot your',
+      titleMuted: _codeSent ? 'code.' : 'password?',
+      subtitle: _codeSent
+          ? 'If that email exists, a 6-digit reset code is on its way.'
+          : 'Enter your email and we’ll send a reset code.',
+      children: <Widget>[
+        LabeledField(
+          label: 'Email',
+          child: TextField(
+            controller: _email,
+            enabled: !_busy && !_codeSent,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+            decoration: const InputDecoration(hintText: 'you@example.com'),
+          ),
         ),
-      ),
+        if (_codeSent) ...<Widget>[
+          const SizedBox(height: 16),
+          LabeledField(
+            label: '6-digit code',
+            child: TextField(
+              controller: _code,
+              enabled: !_busy,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+              decoration: const InputDecoration(
+                hintText: '123456',
+                counterText: '',
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          LabeledField(
+            label: 'New password',
+            child: TextField(
+              controller: _password,
+              enabled: !_busy,
+              obscureText: true,
+              decoration: const InputDecoration(hintText: '••••••••'),
+            ),
+          ),
+        ],
+        if (_error != null) FormMessage(_error!),
+        const SizedBox(height: 20),
+        BlackCtaButton(
+          label: _codeSent ? 'Update password' : 'Send reset code',
+          expand: true,
+          busy: _busy,
+          trailingIcon: null,
+          onTap: _codeSent ? _resetPassword : _requestCode,
+        ),
+      ],
     );
   }
 }
