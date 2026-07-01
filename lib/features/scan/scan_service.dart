@@ -5,9 +5,11 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/upload_helper.dart';
 
-/// Orchestrates the two scan paths into a single [AnalyzeOutcome]:
-///  * barcode → `/api/analyze` (anonymous-friendly fast path)
-///  * label photos → presigned S3 upload → `/api/scans` → `/api/analyze` (auth)
+/// Orchestrates the two scan paths into a single [AnalyzeOutcome]. Both require
+/// auth — the API returns 401 for anonymous scan/analyze (the app gates before
+/// calling):
+///  * barcode → `/api/analyze`
+///  * label photos → presigned S3 upload → `/api/scans` → `/api/analyze`
 class ScanService {
   const ScanService(this._api);
 

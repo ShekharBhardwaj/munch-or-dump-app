@@ -7,6 +7,7 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 const List<({String key, String label})> _dietaryFilters =
     <({String key, String label})>[
@@ -161,13 +162,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final showGated = result.gated && result.total > result.items.length;
     return ListView.separated(
       itemCount: result.items.length + (showGated ? 1 : 0),
-      separatorBuilder: (_, _) => const Divider(height: 1),
+      separatorBuilder: (_, i) => showGated && i == result.items.length - 1
+          ? const SizedBox.shrink()
+          : const Divider(height: 1),
       itemBuilder: (context, i) {
         if (showGated && i == result.items.length) {
-          return ListTile(
-            leading: const Icon(Icons.lock_outline),
-            title: const Text('Sign in to see all results'),
-            subtitle: Text('${result.total} products match'),
+          return SignInGate(
+            shown: result.items.length,
+            total: result.total,
+            unit: 'products',
+            fullLabel: 'every product in the catalog',
           );
         }
         final item = result.items[i];

@@ -7,6 +7,7 @@ import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 final brandsProvider =
     FutureProvider.autoDispose<({List<BrandSummary> items, bool gated})>((ref) {
@@ -42,9 +43,18 @@ class BrandsScreen extends ConsumerWidget {
             );
           }
           return ListView.separated(
-            itemCount: data.items.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
+            itemCount: data.items.length + (data.gated ? 1 : 0),
+            separatorBuilder: (_, i) => data.gated && i == data.items.length - 1
+                ? const SizedBox.shrink()
+                : const Divider(height: 1),
             itemBuilder: (context, i) {
+              if (data.gated && i == data.items.length) {
+                return SignInGate(
+                  shown: data.items.length,
+                  unit: 'brands',
+                  fullLabel: 'the full brand leaderboard',
+                );
+              }
               final b = data.items[i];
               return BrowseHubRow(
                 label: b.name,
@@ -87,9 +97,21 @@ class BrandScreen extends ConsumerWidget {
             );
           }
           return ListView.separated(
-            itemCount: data.products.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, i) => ProductRow(item: data.products[i]),
+            itemCount: data.products.length + (data.gated ? 1 : 0),
+            separatorBuilder: (_, i) =>
+                data.gated && i == data.products.length - 1
+                ? const SizedBox.shrink()
+                : const Divider(height: 1),
+            itemBuilder: (context, i) {
+              if (data.gated && i == data.products.length) {
+                return SignInGate(
+                  shown: data.products.length,
+                  unit: 'products',
+                  fullLabel: 'every product from this brand',
+                );
+              }
+              return ProductRow(item: data.products[i]);
+            },
           );
         },
       ),

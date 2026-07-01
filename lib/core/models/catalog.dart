@@ -87,6 +87,7 @@ class BrandDetail {
     required this.slug,
     this.website,
     this.products = const <ProductListItem>[],
+    this.gated = false,
   });
 
   factory BrandDetail.fromJson(Map<String, dynamic> json) => BrandDetail(
@@ -99,12 +100,14 @@ class BrandDetail {
             .map(ProductListItem.fromJson)
             .toList() ??
         const <ProductListItem>[],
+    gated: json['gated'] == true,
   );
 
   final String name;
   final String slug;
   final String? website;
   final List<ProductListItem> products;
+  final bool gated;
 }
 
 /// A category in the `GET /api/categories` list.
@@ -144,6 +147,7 @@ class CategoryDetail {
     required this.label,
     this.avgScore,
     this.products = const <ProductListItem>[],
+    this.gated = false,
   });
 
   factory CategoryDetail.fromJson(Map<String, dynamic> json) {
@@ -160,6 +164,7 @@ class CategoryDetail {
               .map(ProductListItem.fromJson)
               .toList() ??
           const <ProductListItem>[],
+      gated: json['gated'] == true,
     );
   }
 
@@ -167,6 +172,7 @@ class CategoryDetail {
   final String label;
   final int? avgScore;
   final List<ProductListItem> products;
+  final bool gated;
 }
 
 /// `GET /api/ingredients/:slug` detail (the endpoint returns a single-item array).
@@ -181,6 +187,7 @@ class IngredientDetail {
     this.healthEffects = const <String>[],
     this.avoidIf = const <String>[],
     this.products = const <ProductListItem>[],
+    this.gated = false,
   });
 
   factory IngredientDetail.fromJson(Map<String, dynamic> json) =>
@@ -207,6 +214,7 @@ class IngredientDetail {
                 .map(ProductListItem.fromJson)
                 .toList() ??
             const <ProductListItem>[],
+        gated: json['gated'] == true,
       );
 
   final String name;
@@ -218,4 +226,5 @@ class IngredientDetail {
   final List<String> healthEffects;
   final List<String> avoidIf;
   final List<ProductListItem> products;
+  final bool gated;
 }

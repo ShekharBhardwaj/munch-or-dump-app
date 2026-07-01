@@ -92,9 +92,11 @@ class MunchApi {
 
   // ── Scan pipeline ─────────────────────────────────────────────────────────────
 
-  /// POST `/api/analyze` — the verdict. Pass a barcode (anonymous-friendly fast
-  /// path) and/or OCR `ingredients` + `fileUrls`. Returns [AnalyzeNotFound] when
-  /// a barcode isn't in Open Food Facts, or [AnalyzeUnsupported] for non-food.
+  /// POST `/api/analyze` — the verdict. Pass a barcode and/or OCR `ingredients`
+  /// + `fileUrls`. Requires auth — the API returns 401 for anonymous scan /
+  /// analyze (gate before calling; see scan_screen). Returns [AnalyzeNotFound]
+  /// when a barcode isn't in Open Food Facts, or [AnalyzeUnsupported] for
+  /// non-food.
   Future<AnalyzeOutcome> analyze({
     String? barcode,
     List<String>? ingredients,

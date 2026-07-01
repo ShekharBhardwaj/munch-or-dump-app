@@ -6,6 +6,7 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 final ingredientProvider = FutureProvider.autoDispose
     .family<IngredientDetail?, String>((ref, slug) {
@@ -117,6 +118,12 @@ class _IngredientBody extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           for (final p in ingredient.products) ProductRow(item: p),
+          if (ingredient.gated)
+            SignInGate(
+              shown: ingredient.products.length,
+              unit: 'products',
+              fullLabel: 'every product with this ingredient',
+            ),
         ],
       ],
     );

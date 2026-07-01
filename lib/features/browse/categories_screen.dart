@@ -7,6 +7,7 @@ import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
+import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 final categoriesProvider =
     FutureProvider.autoDispose<({List<CategorySummary> items, bool gated})>((
@@ -42,9 +43,18 @@ class CategoriesScreen extends ConsumerWidget {
             );
           }
           return ListView.separated(
-            itemCount: data.items.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
+            itemCount: data.items.length + (data.gated ? 1 : 0),
+            separatorBuilder: (_, i) => data.gated && i == data.items.length - 1
+                ? const SizedBox.shrink()
+                : const Divider(height: 1),
             itemBuilder: (context, i) {
+              if (data.gated && i == data.items.length) {
+                return SignInGate(
+                  shown: data.items.length,
+                  unit: 'categories',
+                  fullLabel: 'the full category list',
+                );
+              }
               final c = data.items[i];
               return BrowseHubRow(
                 label: c.label,
@@ -87,9 +97,21 @@ class CategoryScreen extends ConsumerWidget {
             );
           }
           return ListView.separated(
-            itemCount: data.products.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, i) => ProductRow(item: data.products[i]),
+            itemCount: data.products.length + (data.gated ? 1 : 0),
+            separatorBuilder: (_, i) =>
+                data.gated && i == data.products.length - 1
+                ? const SizedBox.shrink()
+                : const Divider(height: 1),
+            itemBuilder: (context, i) {
+              if (data.gated && i == data.products.length) {
+                return SignInGate(
+                  shown: data.products.length,
+                  unit: 'products',
+                  fullLabel: 'every product in this category',
+                );
+              }
+              return ProductRow(item: data.products[i]);
+            },
           );
         },
       ),
