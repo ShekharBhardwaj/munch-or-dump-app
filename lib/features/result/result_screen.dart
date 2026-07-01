@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -406,36 +404,32 @@ class _ForYouCard extends ConsumerWidget {
   Widget _gated(BuildContext context, {required bool loggedIn}) {
     return Column(
       children: <Widget>[
-        Stack(
-          alignment: Alignment.center,
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ImageFiltered(
-              imageFilter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-              child: const IgnorePointer(
-                child: Text(
-                  'Based on your goals and the conditions you track, here’s '
-                  'exactly how this product fits your day.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xE6FDE68A),
-                  ),
-                ),
+            Icon(Icons.auto_awesome, size: 16, color: _amber),
+            SizedBox(width: 8),
+            Text(
+              'FOR YOU',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2.5,
+                color: _amber,
               ),
-            ),
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0x1FFBBF24),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0x4DFBBF24)),
-              ),
-              child: const Icon(Icons.lock_outline, size: 16, color: _amber),
             ),
           ],
+        ),
+        const SizedBox(height: 18),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0x1FFBBF24),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0x4DFBBF24)),
+          ),
+          child: const Icon(Icons.lock_outline, size: 18, color: _amber),
         ),
         const SizedBox(height: 16),
         Text(
