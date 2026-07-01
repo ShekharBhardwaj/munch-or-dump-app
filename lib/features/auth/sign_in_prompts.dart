@@ -142,8 +142,6 @@ class SignInGate extends StatelessWidget {
   final String unit;
   final String? fullLabel;
 
-  static const Color _amber = Color(0xFFFBBF24);
-
   String get _singular {
     if (unit.endsWith('ies')) return '${unit.substring(0, unit.length - 3)}y';
     if (unit.endsWith('s')) return unit.substring(0, unit.length - 1);
@@ -153,142 +151,67 @@ class SignInGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final more = (total ?? 0) - shown;
-    final hasMore = more > 0;
-    final headline = hasMore ? '$more more $unit' : 'See every $_singular';
+    final headline = more > 0 ? '$more more $unit' : 'See every $_singular';
+    // A soft-paywall: the list quietly dissolves into the page, then one
+    // confident, on-brand CTA. No card, no glow — restraint reads premium.
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
       child: Column(
         children: <Widget>[
-          IgnorePointer(
-            child: Stack(
-              children: <Widget>[
-                ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Opacity(
-                    opacity: 0.6,
-                    child: Column(
-                      children: <Widget>[
-                        for (var i = 0; i < 3; i++) const _GhostRow(),
-                      ],
+          ClipRect(
+            child: SizedBox(
+              height: 84,
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  IgnorePointer(
+                    child: ImageFiltered(
+                      imageFilter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                      child: const Opacity(
+                        opacity: 0.5,
+                        child: Column(
+                          children: <Widget>[_GhostRow(), _GhostRow()],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const Positioned.fill(
-                  child: DecoratedBox(
+                  const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: <Color>[Colors.transparent, AppColors.canvas],
+                        stops: <double>[0.0, 0.9],
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0x4D78350F)),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[
-                  Color(0xFF1C1710),
-                  Color(0xFF2A1E0D),
-                  Color(0xFF1A1508),
                 ],
               ),
-              boxShadow: const <BoxShadow>[
-                BoxShadow(color: Color(0x14FBBF24), blurRadius: 24),
-                BoxShadow(
-                  color: Color(0x4D000000),
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                ),
-              ],
             ),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0x1FFBBF24),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0x4DFBBF24)),
-                  ),
-                  child: const Icon(
-                    Icons.lock_outline,
-                    size: 16,
-                    color: _amber,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  headline,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFFFDE68A),
-                  ),
-                ),
-                if (hasMore) ...<Widget>[
-                  const SizedBox(height: 2),
-                  const Text(
-                    'a free account away',
-                    style: TextStyle(fontSize: 12, color: Color(0xCCFDE68A)),
-                  ),
-                ],
-                const SizedBox(height: 8),
-                Text(
-                  'Unlock ${fullLabel ?? 'the full list'}. It’s free — and we '
-                  'don’t sell your data.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.5,
-                    color: Color(0xB3FDE68A),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                InkWell(
-                  onTap: () => context.pushNamed(Routes.login),
-                  borderRadius: BorderRadius.circular(999),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      gradient: const LinearGradient(
-                        colors: <Color>[Color(0xFFF59E0B), Color(0xFFD97706)],
-                      ),
-                      boxShadow: const <BoxShadow>[
-                        BoxShadow(
-                          color: Color(0x66F59E0B),
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Text(
-                      'Sign in — it’s free',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          ),
+          Text(
+            headline,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+              color: AppColors.inkPrimary,
             ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            fullLabel == null
+                ? 'Free — and we don’t sell your data.'
+                : 'Sign in to unlock ${fullLabel!}. It’s free.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13.5, color: AppColors.inkFaint),
+          ),
+          const SizedBox(height: 18),
+          BlackCtaButton(
+            label: 'Sign in — it’s free',
+            trailingIcon: null,
+            onTap: () => context.pushNamed(Routes.login),
           ),
         ],
       ),

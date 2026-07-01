@@ -28,10 +28,8 @@ class _SignedOutYou extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+          padding: const EdgeInsets.fromLTRB(24, 48, 24, 32),
           children: <Widget>[
-            Text('You', style: Theme.of(context).textTheme.displaySmall),
-            const SizedBox(height: 40),
             Center(
               child: Container(
                 width: 64,
