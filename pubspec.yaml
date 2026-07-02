@@ -23,6 +23,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.15.0
+  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
@@ -30,3 +31,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+# App icon generation — regenerate with: dart run flutter_launcher_icons
+# Source is assets/icon/app_icon.png (1024x1024, the "MoD" brand mark).
+flutter_launcher_icons:
+  image_path: "assets/icon/app_icon.png"
+  remove_alpha_ios: true
+  ios: true
+  android: true
