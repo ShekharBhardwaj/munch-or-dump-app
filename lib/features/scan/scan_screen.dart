@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -104,53 +106,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
       await _promptSignInToScan();
       return;
     }
-    final source = await _pickImageSource();
-    if (source == null) return; // dismissed the chooser
-    final file = await ImagePicker().pickImage(
-      source: source,
-      maxWidth: 2000,
-      imageQuality: 85,
-    );
-    if (file == null) return;
-    await _run(
-      () => ref.read(scanServiceProvider).analyzePhotos(<XFile>[file]),
-    );
-  }
-
-  /// Ask whether to take a new photo or pick an existing one — the standard iOS
-  /// pattern so a label can be captured on the spot, not just chosen from the
-  /// library.
-  Future<ImageSource?> _pickImageSource() {
-    return showModalBottomSheet<ImageSource>(
+    // Build a photo set first (front label, ingredients, nutrition…). Analysis
+    // starts only when the user taps Analyze — never on the first photo.
+    final photos = await showModalBottomSheet<List<XFile>>(
       context: context,
       showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Eyebrow('Scan a label', spacing: 3.6),
-              const SizedBox(height: 4),
-              NavRow(
-                icon: Icons.photo_camera_outlined,
-                label: 'Take a photo',
-                trailing: const SizedBox.shrink(),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
-              ),
-              const Divider(height: 1),
-              NavRow(
-                icon: Icons.photo_library_outlined,
-                label: 'Choose from library',
-                trailing: const SizedBox.shrink(),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
-              ),
-            ],
-          ),
-        ),
-      ),
+      isScrollControlled: true,
+      builder: (sheetContext) => const _PhotoSetSheet(),
     );
+    if (photos == null || photos.isEmpty) return; // dismissed
+    await _run(() => ref.read(scanServiceProvider).analyzePhotos(photos));
   }
 
   Future<void> _run(Future<AnalyzeOutcome> Function() op) async {
@@ -324,6 +289,193 @@ class _ScanScreenState extends ConsumerState<ScanScreen>
           if (_busy) const Positioned.fill(child: AnalysisLoader()),
         ],
       ),
+    );
+  }
+}
+
+/// Builds a set of label photos (up to [_PhotoSetSheetState._maxPhotos], the
+/// web's cap) before analysis: take photos one at a time or multi-pick from the
+/// library, review thumbnails, remove strays, then explicitly tap Analyze.
+/// Pops with the chosen files, or null when dismissed.
+class _PhotoSetSheet extends StatefulWidget {
+  const _PhotoSetSheet();
+
+  @override
+  State<_PhotoSetSheet> createState() => _PhotoSetSheetState();
+}
+
+class _PhotoSetSheetState extends State<_PhotoSetSheet> {
+  static const int _maxPhotos = 4; // matches the web scan page
+  final List<XFile> _photos = <XFile>[];
+  final ImagePicker _picker = ImagePicker();
+  bool _picking = false;
+
+  int get _remaining => _maxPhotos - _photos.length;
+
+  Future<void> _takePhoto() async {
+    if (_picking || _remaining == 0) return;
+    setState(() => _picking = true);
+    try {
+      final file = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 2000,
+        imageQuality: 85,
+      );
+      if (file != null && mounted) setState(() => _photos.add(file));
+    } on Object catch (_) {
+      // Camera denied/unavailable — leave the set as-is.
+    } finally {
+      if (mounted) setState(() => _picking = false);
+    }
+  }
+
+  Future<void> _pickFromLibrary() async {
+    if (_picking || _remaining == 0) return;
+    setState(() => _picking = true);
+    try {
+      final files = await _picker.pickMultiImage(
+        maxWidth: 2000,
+        imageQuality: 85,
+        limit: _remaining,
+      );
+      if (files.isNotEmpty && mounted) {
+        // `limit` is best-effort on some OS versions — enforce the cap here.
+        setState(() => _photos.addAll(files.take(_remaining)));
+      }
+    } on Object catch (_) {
+      // Library denied — leave the set as-is.
+    } finally {
+      if (mounted) setState(() => _picking = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: 16 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Eyebrow('Scan a label', spacing: 3.6),
+            const SizedBox(height: 8),
+            const Text(
+              'Snap the front, the ingredients list, and the nutrition panel — '
+              'up to 4 photos. More angles, better verdict.',
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.45,
+                color: AppColors.inkSecondary,
+              ),
+            ),
+            if (_photos.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 84,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _photos.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
+                  itemBuilder: (context, i) => _PhotoThumb(
+                    file: _photos[i],
+                    onRemove: () => setState(() => _photos.removeAt(i)),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+            NavRow(
+              icon: Icons.photo_camera_outlined,
+              label: _photos.isEmpty ? 'Take a photo' : 'Take another photo',
+              trailing: const SizedBox.shrink(),
+              onTap: _remaining == 0 || _picking ? () {} : _takePhoto,
+            ),
+            const Divider(height: 1, color: AppColors.hairlineFaint),
+            NavRow(
+              icon: Icons.photo_library_outlined,
+              label: 'Choose from library',
+              trailing: const SizedBox.shrink(),
+              onTap: _remaining == 0 || _picking ? () {} : _pickFromLibrary,
+            ),
+            if (_remaining == 0) ...<Widget>[
+              const SizedBox(height: 4),
+              const Text(
+                'That’s the limit — 4 photos per scan.',
+                style: TextStyle(fontSize: 12.5, color: AppColors.inkFaint),
+              ),
+            ],
+            const SizedBox(height: 16),
+            BlackCtaButton(
+              label: _photos.length <= 1
+                  ? 'Analyze'
+                  : 'Analyze ${_photos.length} photos',
+              expand: true,
+              trailingIcon: null,
+              enabled: _photos.isNotEmpty && !_picking,
+              onTap: () => Navigator.pop(context, List<XFile>.of(_photos)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One removable thumbnail in the photo-set sheet.
+class _PhotoThumb extends StatelessWidget {
+  const _PhotoThumb({required this.file, required this.onRemove});
+
+  final XFile file;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(
+            File(file.path),
+            width: 84,
+            height: 84,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              width: 84,
+              height: 84,
+              color: AppColors.surfaceAlt,
+              child: const Icon(
+                Icons.broken_image_outlined,
+                color: AppColors.inkFaint,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Semantics(
+              label: 'Remove photo',
+              button: true,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
