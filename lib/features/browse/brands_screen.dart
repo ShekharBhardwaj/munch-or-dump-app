@@ -5,7 +5,6 @@ import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
-import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
@@ -30,7 +29,7 @@ class BrandsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Brands')),
       body: brands.when(
-        loading: () => const PageLoader(),
+        loading: () => const SkeletonList(rows: 10, showLeading: false),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(brandsProvider),
@@ -84,7 +83,7 @@ class BrandScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(brand.valueOrNull?.name ?? 'Brand')),
       body: brand.when(
-        loading: () => const PageLoader(),
+        loading: () => const SkeletonList(showLeading: false),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(brandProvider(slug)),

@@ -7,6 +7,7 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
@@ -48,7 +49,8 @@ const Map<Verdict, String> _verdictDef = <Verdict, String>{
   Verdict.treat: 'Enjoyable now and then — just not everyday fuel.',
   Verdict.engineered: 'A formula assembled from additives, not a recipe.',
   Verdict.dump: 'Red-flag ingredients you’re better off without.',
-  Verdict.bullshit: 'The label promises one thing; the ingredients say another.',
+  Verdict.bullshit:
+      'The label promises one thing; the ingredients say another.',
 };
 
 /// The verdict scale, explained — one card per verdict with its meaning and a
@@ -116,6 +118,8 @@ class _VerdictExampleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tone = verdictToneFor(verdict);
     final ex = example;
+    final country = ex?.countryOfOrigin?.trim() ?? '';
+    final flag = countryFlag(country);
     return AccentTopBorderCard(
       accent: tone.bar,
       padding: const EdgeInsets.all(20),
@@ -161,7 +165,26 @@ class _VerdictExampleCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Eyebrow('Example', size: 10, spacing: 2),
+                      Row(
+                        children: <Widget>[
+                          if (flag != null) ...<Widget>[
+                            Semantics(
+                              label: country,
+                              child: ExcludeSemantics(
+                                child: Text(
+                                  flag,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    height: 1.2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          const Eyebrow('Example', size: 10, spacing: 2),
+                        ],
+                      ),
                       const SizedBox(height: 6),
                       Text(
                         ex.name,

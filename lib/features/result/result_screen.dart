@@ -215,7 +215,7 @@ class _VerdictHeroState extends State<_VerdictHero>
     final result = widget.result;
     final tone = widget.tone;
     final pills = _metaPills(result);
-    return DecoratedBox(
+    final panel = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.hairline),
@@ -280,8 +280,8 @@ class _VerdictHeroState extends State<_VerdictHero>
                   AnimatedBuilder(
                     animation: _count,
                     builder: (BuildContext context, Widget? child) {
-                      final int shown =
-                          (result.verdictScore * _count.value).round();
+                      final int shown = (result.verdictScore * _count.value)
+                          .round();
                       return Text(
                         'SCORE $shown / 90',
                         style: TextStyle(
@@ -322,6 +322,13 @@ class _VerdictHeroState extends State<_VerdictHero>
           ],
         ),
       ),
+    );
+    final slug = result.productSlug?.trim() ?? '';
+    if (slug.isEmpty) return panel;
+    // Same tag as the list cards, so a tapped card morphs into this panel.
+    return Hero(
+      tag: 'product-hero-$slug',
+      child: Material(type: MaterialType.transparency, child: panel),
     );
   }
 }
@@ -1014,8 +1021,7 @@ class _AlternativesList extends StatelessWidget {
           const SizedBox(height: 6),
         ],
         for (var i = 0; i < alts.length; i++) ...<Widget>[
-          if (i > 0)
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+          if (i > 0) const Divider(height: 1, color: AppColors.hairlineFaint),
           _AlternativeRow(alt: alts[i]),
         ],
       ],

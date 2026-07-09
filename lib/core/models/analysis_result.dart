@@ -50,6 +50,7 @@ class AnalysisResult {
     required this.productName,
     this.brandName,
     this.category,
+    this.countryOfOrigin,
     this.productSlug,
     this.confidence,
     this.shortExplanation,
@@ -89,6 +90,7 @@ class AnalysisResult {
   final String productName;
   final String? brandName;
   final String? category;
+  final String? countryOfOrigin;
   final String? productSlug;
   final String? confidence;
   final String? shortExplanation;

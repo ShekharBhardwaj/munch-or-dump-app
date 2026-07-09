@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// A tappable product list row in the editorial style: name + brand on the left,
@@ -19,7 +20,9 @@ class ProductRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final verdict = item.verdict;
     final brand = item.brandName?.trim() ?? '';
-    return InkWell(
+    final country = item.countryOfOrigin?.trim() ?? '';
+    final flag = countryFlag(country);
+    final row = InkWell(
       onTap:
           onTap ??
           (item.slug.isEmpty
@@ -47,16 +50,38 @@ class ProductRow extends StatelessWidget {
                       color: AppColors.inkPrimary,
                     ),
                   ),
-                  if (brand.isNotEmpty) ...<Widget>[
+                  if (brand.isNotEmpty || flag != null) ...<Widget>[
                     const SizedBox(height: 2),
-                    Text(
-                      brand,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.inkFaint,
-                      ),
+                    Row(
+                      children: <Widget>[
+                        if (flag != null) ...<Widget>[
+                          Semantics(
+                            label: country,
+                            child: ExcludeSemantics(
+                              child: Text(
+                                flag,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                        if (brand.isNotEmpty)
+                          Flexible(
+                            child: Text(
+                              brand,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.inkFaint,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ],
@@ -69,6 +94,13 @@ class ProductRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+    // Only the default tap navigates to the product route — a custom [onTap]
+    // (e.g. the compare picker) has no matching hero on its destination.
+    if (onTap != null || item.slug.isEmpty) return row;
+    return Hero(
+      tag: 'product-hero-${item.slug}',
+      child: Material(type: MaterialType.transparency, child: row),
     );
   }
 }

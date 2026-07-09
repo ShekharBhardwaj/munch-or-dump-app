@@ -6,7 +6,6 @@ import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
-import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/verdict_badge.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
@@ -66,7 +65,8 @@ class WatchlistScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Saved & following')),
       body: library.when(
-        loading: () => const PageLoader(),
+        loading: () =>
+            const SkeletonList(rows: 7, padding: EdgeInsets.only(top: 12)),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(libraryProvider),

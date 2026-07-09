@@ -13,6 +13,7 @@ class ProductListItem {
     this.brandName,
     this.imageUrl,
     this.category,
+    this.countryOfOrigin,
   });
 
   factory ProductListItem.fromJson(Map<String, dynamic> json) {
@@ -25,6 +26,7 @@ class ProductListItem {
       brandName: json['brand_name'] as String?,
       imageUrl: json['image_url'] as String?,
       category: json['category'] as String?,
+      countryOfOrigin: json['country_of_origin'] as String?,
     );
   }
 
@@ -35,6 +37,7 @@ class ProductListItem {
   final String? brandName;
   final String? imageUrl;
   final String? category;
+  final String? countryOfOrigin;
 }
 
 /// `GET /api/products` search/list envelope.

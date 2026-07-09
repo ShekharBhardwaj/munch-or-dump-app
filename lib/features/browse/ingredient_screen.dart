@@ -25,7 +25,7 @@ class IngredientScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(ingredient.valueOrNull?.name ?? 'Ingredient')),
       body: ingredient.when(
-        loading: () => const PageLoader(),
+        loading: () => const _IngredientSkeleton(),
         error: (error, _) => ErrorRetry(
           message: errorMessage(error),
           onRetry: () => ref.invalidate(ingredientProvider(slug)),
@@ -39,6 +39,56 @@ class IngredientScreen extends ConsumerWidget {
           }
           return _IngredientBody(ingredient: data);
         },
+      ),
+    );
+  }
+}
+
+/// Shimmering placeholder shaped like [_IngredientBody]: the safety-tier
+/// header card, a few description lines, then "found in" product rows.
+class _IngredientSkeleton extends StatelessWidget {
+  const _IngredientSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Loading',
+      child: ExcludeSemantics(
+        child: Shimmer(
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+            children: const <Widget>[
+              ShimmerBox(height: 148, radius: 16),
+              SizedBox(height: 24),
+              ShimmerBox(height: 14, radius: 7),
+              SizedBox(height: 10),
+              ShimmerBox(height: 14, radius: 7),
+              SizedBox(height: 10),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: 0.62,
+                child: ShimmerBox(height: 14, radius: 7),
+              ),
+              SizedBox(height: 32),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: 0.34,
+                child: ShimmerBox(height: 11, radius: 6),
+              ),
+              SizedBox(height: 16),
+              ShimmerBox(height: 12, radius: 6),
+              SizedBox(height: 14),
+              ShimmerBox(height: 12, radius: 6),
+              SizedBox(height: 14),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: 0.72,
+                child: ShimmerBox(height: 12, radius: 6),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

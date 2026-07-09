@@ -6,6 +6,7 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// A handful of recently-analyzed products for the home feed.
@@ -302,7 +303,9 @@ class _RecentCard extends StatelessWidget {
         : verdictToneFor(verdict).bar;
     final category = product.category?.trim() ?? '';
     final brand = product.brandName?.trim() ?? '';
-    return AccentTopBorderCard(
+    final country = product.countryOfOrigin?.trim() ?? '';
+    final flag = countryFlag(country);
+    final card = AccentTopBorderCard(
       accent: accent,
       padding: const EdgeInsets.all(20),
       onTap: product.slug.isEmpty
@@ -318,10 +321,28 @@ class _RecentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Expanded(
-                child: Eyebrow(
-                  category.isEmpty ? 'Product' : category,
-                  size: 10,
-                  spacing: 3,
+                child: Row(
+                  children: <Widget>[
+                    if (flag != null) ...<Widget>[
+                      Semantics(
+                        label: country,
+                        child: ExcludeSemantics(
+                          child: Text(
+                            flag,
+                            style: const TextStyle(fontSize: 13, height: 1.2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    Flexible(
+                      child: Eyebrow(
+                        category.isEmpty ? 'Product' : category,
+                        size: 10,
+                        spacing: 3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (verdict != null) WebVerdictBadge(verdict: verdict, size: 11),
@@ -353,6 +374,13 @@ class _RecentCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+    if (product.slug.isEmpty) return card;
+    // Same tag as the result screen's verdict panel, so the card morphs into
+    // the verdict on push.
+    return Hero(
+      tag: 'product-hero-${product.slug}',
+      child: Material(type: MaterialType.transparency, child: card),
     );
   }
 }

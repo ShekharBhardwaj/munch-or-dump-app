@@ -5,7 +5,6 @@ import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
-import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
@@ -143,7 +142,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildResults(ThemeData theme) {
     if (_busy && _result == null) {
-      return const PageLoader();
+      return const SkeletonList(showLeading: false);
     }
     if (_error != null) {
       return ErrorRetry(message: _error!, onRetry: _search);
