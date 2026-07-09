@@ -397,23 +397,34 @@ class _RoundView extends StatelessWidget {
           Text(sub, style: TextStyle(fontSize: 13, color: palette.inkFaint)),
         ],
         const SizedBox(height: 20),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.92,
-          children: <Widget>[
-            for (final option in round.options)
-              _OptionCard(
-                option: option,
-                revealed: revealed,
-                selected: option.optionId == selectedId,
-                onTap: revealed ? null : () => onGuess(option),
-              ),
-          ],
-        ),
+        // 2×2 board, but rows size to their content (a fixed aspect ratio
+        // clipped long ingredient lists) — IntrinsicHeight keeps card pairs
+        // equal-height so the board still reads as a grid.
+        for (var i = 0; i < round.options.length; i += 2) ...<Widget>[
+          if (i > 0) const SizedBox(height: 12),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                for (
+                  var j = i;
+                  j < i + 2 && j < round.options.length;
+                  j++
+                ) ...<Widget>[
+                  if (j > i) const SizedBox(width: 12),
+                  Expanded(
+                    child: _OptionCard(
+                      option: round.options[j],
+                      revealed: revealed,
+                      selected: round.options[j].optionId == selectedId,
+                      onTap: revealed ? null : () => onGuess(round.options[j]),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
         if (revealed) ...<Widget>[
           const SizedBox(height: 20),
           _RevealPanel(
@@ -591,7 +602,9 @@ class _OptionCard extends StatelessWidget {
                           padding: const EdgeInsets.only(bottom: 3),
                           child: Text(
                             shown[i],
-                            maxLines: 1,
+                            // Long names ("high fructose corn syrup") must stay
+                            // readable — they ARE the game's signal.
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12.5,
