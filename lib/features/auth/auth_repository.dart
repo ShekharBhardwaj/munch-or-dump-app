@@ -47,6 +47,11 @@ class AuthRepository {
     return _establishSession(token);
   }
 
+  Future<User> signInWithApple(String identityToken, {String? fullName}) async {
+    final token = await _api.signInWithApple(identityToken, fullName: fullName);
+    return _establishSession(token);
+  }
+
   /// Persist [token] (the request interceptor reads it from storage) and resolve
   /// the full user. If resolving fails for any reason — a non-401 transient
   /// error or a parse failure — clear the token so we never leave a valid

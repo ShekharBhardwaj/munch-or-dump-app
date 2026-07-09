@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/user.dart';
+import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
@@ -86,6 +88,8 @@ class AccountScreen extends ConsumerWidget {
             _SignOutButton(
               onTap: () => ref.read(authControllerProvider.notifier).signOut(),
             ),
+            const SizedBox(height: 36),
+            const _DangerZone(),
             const SizedBox(height: 28),
             const SatireFooter(),
           ],
@@ -283,6 +287,142 @@ class _ProfileCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Restrained destructive area at the very bottom of the account screen.
+/// Apple 5.1.1(v) requires account deletion to be reachable in-app: one quiet
+/// concern-toned row that opens an explicit confirmation before anything
+/// irreversible happens.
+class _DangerZone extends ConsumerStatefulWidget {
+  const _DangerZone();
+
+  @override
+  ConsumerState<_DangerZone> createState() => _DangerZoneState();
+}
+
+class _DangerZoneState extends ConsumerState<_DangerZone> {
+  bool _deleting = false;
+
+  Future<void> _confirmAndDelete() async {
+    if (_deleting) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: _buildConfirmDialog,
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    // Resolve before the async gap — on success the sign-out flips the session
+    // to null and the router redirect disposes this screen, but the app-level
+    // messenger and router outlive it.
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    try {
+      await ref.read(munchApiProvider).deleteAccount();
+    } on ApiException catch (e) {
+      // Deletion failed — the account still exists, so keep the session.
+      if (mounted) setState(() => _deleting = false);
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      return;
+    }
+    // Server side is gone; run the existing full sign-out path (best-effort
+    // logout + token clear + Google session + auth state).
+    await ref.read(authControllerProvider.notifier).signOut();
+    router.goNamed(Routes.home);
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Your account has been deleted.')),
+    );
+  }
+
+  Widget _buildConfirmDialog(BuildContext dialogContext) {
+    final palette = dialogContext.palette;
+    return AlertDialog(
+      backgroundColor: palette.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: palette.hairline),
+      ),
+      title: Text(
+        'Delete your account?',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+          color: palette.inkPrimary,
+        ),
+      ),
+      content: Text(
+        'This permanently deletes your account, scan history, votes, '
+        'watchlist, and saved lists. There is no undo.',
+        style: TextStyle(
+          fontSize: 14.5,
+          height: 1.5,
+          color: palette.inkSecondary,
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          style: TextButton.styleFrom(foregroundColor: palette.inkSecondary),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          style: TextButton.styleFrom(foregroundColor: palette.concernHigh),
+          child: const Text(
+            'Delete account',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        const SectionLabel('Danger zone'),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: _deleting ? null : _confirmAndDelete,
+          icon: _deleting
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: palette.concernHigh,
+                  ),
+                )
+              : const Icon(Icons.delete_outline, size: 18),
+          label: Text(_deleting ? 'Deleting…' : 'Delete account'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            foregroundColor: palette.concernHigh,
+            backgroundColor: palette.surface,
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: palette.concernHigh.withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Permanently removes your account, scan history, votes, watchlist, '
+          'and saved lists.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12.5,
+            height: 1.5,
+            color: palette.inkFaint,
+          ),
+        ),
+      ],
     );
   }
 }

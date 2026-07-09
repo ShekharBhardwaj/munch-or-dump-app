@@ -81,8 +81,34 @@ class MunchApi {
     return _requireToken(res);
   }
 
+  /// POST `/auth/apple` — exchanges an Apple identity token for the JWT.
+  /// [fullName] rides along on first authorization (Apple only provides it
+  /// once). Same `{token, user}` response shape as [googleAuth].
+  Future<String> signInWithApple(
+    String identityToken, {
+    String? fullName,
+  }) async {
+    final body = <String, dynamic>{'identity_token': identityToken};
+    if (fullName != null && fullName.isNotEmpty) body['full_name'] = fullName;
+    final res = await _post('/auth/apple', body);
+    return _requireToken(res);
+  }
+
   /// POST `/auth/logout` — revokes the session server-side (bumps token_version).
   Future<void> logout() => _post('/auth/logout', const <String, dynamic>{});
+
+  /// DELETE `/auth/me` — permanently deletes the account and everything tied
+  /// to it (scans, votes, watches, saved lists). The backend confirms with
+  /// `{deleted: true}`; anything else is treated as a failure so the caller
+  /// never signs the user out on a deletion that didn't happen.
+  Future<void> deleteAccount() async {
+    final res = await _delete('/auth/me', const <String, dynamic>{});
+    if (res['deleted'] != true) {
+      throw const ApiException(
+        'We couldn’t delete your account. Please try again.',
+      );
+    }
+  }
 
   /// PATCH `/auth/profile` — updates the personalization profile.
   Future<UserProfile> updateProfile(ProfileUpdate update) async {

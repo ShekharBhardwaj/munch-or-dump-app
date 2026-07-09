@@ -35,6 +35,12 @@ class AuthController extends AsyncNotifier<User?> {
     return user;
   }
 
+  Future<User> signInWithApple(String identityToken, {String? fullName}) async {
+    final user = await _repo.signInWithApple(identityToken, fullName: fullName);
+    state = AsyncData<User?>(user);
+    return user;
+  }
+
   Future<void> register(String email, String password) =>
       _repo.register(email, password);
 

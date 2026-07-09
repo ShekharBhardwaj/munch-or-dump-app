@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,13 +10,17 @@ import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/forms.dart';
+import 'package:munch_or_dump/features/auth/apple_auth_service.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/auth_navigation.dart';
 import 'package:munch_or_dump/features/auth/google_auth_service.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Sign in / create account against the Munch or Dump API (email + password).
-/// Google sign-in is shown only when a server client ID is configured (Phase 1
-/// ships the gate; the native flow is wired once the iOS client ID exists).
+/// Sign in with Apple is shown on iOS (App Store requirement — equal-or-greater
+/// prominence than Google, hence listed first). Google sign-in is shown only
+/// when a server client ID is configured (Phase 1 ships the gate; the native
+/// flow is wired once the iOS client ID exists).
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
@@ -112,6 +117,31 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  Future<void> _appleSignIn() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final credential = await ref.read(appleAuthServiceProvider).signIn();
+      final user = await ref
+          .read(authControllerProvider.notifier)
+          .signInWithApple(
+            credential.identityToken,
+            fullName: credential.fullName,
+          );
+      if (!mounted) return;
+      goAfterAuth(context, user);
+    } on AppleSignInCancelled {
+      // User dismissed the Apple sheet — no error.
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final showGoogle = AppConfig.googleSignInEnabled;
@@ -165,6 +195,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           trailingIcon: null,
           onTap: _submit,
         ),
+        // Apple first — App Store guideline 4.8 requires equal-or-greater
+        // prominence for Sign in with Apple; the package button keeps Apple's
+        // branding rules, restyled to the screen's 48px pill.
+        if (Platform.isIOS) ...<Widget>[
+          const SizedBox(height: 12),
+          SignInWithAppleButton(
+            onPressed: _appleSignIn,
+            style: Theme.of(context).brightness == Brightness.dark
+                ? SignInWithAppleButtonStyle.white
+                : SignInWithAppleButtonStyle.black,
+            height: 48,
+            borderRadius: const BorderRadius.all(Radius.circular(999)),
+          ),
+        ],
         if (showGoogle) ...<Widget>[
           const SizedBox(height: 12),
           _GoogleButton(onTap: _busy ? null : _googleSignIn),
