@@ -6,8 +6,10 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
+import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
+import 'package:munch_or_dump/features/browse/brand_report_card.dart';
 
 final brandsProvider =
     FutureProvider.autoDispose<({List<BrandSummary> items, bool gated})>((ref) {
@@ -98,22 +100,21 @@ class BrandScreen extends ConsumerWidget {
               message: 'No products for this brand yet.',
             );
           }
-          return ListView.separated(
-            itemCount: data.products.length + (data.gated ? 1 : 0),
-            separatorBuilder: (_, i) =>
-                data.gated && i == data.products.length - 1
-                ? const SizedBox.shrink()
-                : const Divider(height: 1),
-            itemBuilder: (context, i) {
-              if (data.gated && i == data.products.length) {
-                return SignInGate(
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+            children: <Widget>[
+              BrandReportCard(brand: data),
+              const SizedBox(height: 28),
+              Eyebrow('All products (${data.products.length})', spacing: 4.2),
+              const SizedBox(height: 8),
+              for (final p in data.products) ProductRow(item: p),
+              if (data.gated)
+                SignInGate(
                   shown: data.products.length,
                   unit: 'products',
                   fullLabel: 'every product from this brand',
-                );
-              }
-              return ProductRow(item: data.products[i]);
-            },
+                ),
+            ],
           );
         },
       ),

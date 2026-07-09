@@ -8,6 +8,7 @@ import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/core/widgets/nutrition_insight.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/result/result_actions.dart';
 
@@ -100,6 +101,12 @@ class ResultScreen extends StatelessWidget {
               if (data.ingredientsDetected.isNotEmpty) ...<Widget>[
                 const SizedBox(height: 16),
                 _IngredientBreakdown(ingredients: data.ingredientsDetected),
+              ],
+              if (NutritionInsight.hasData(data.nutritionSummary)) ...<Widget>[
+                const SizedBox(height: 16),
+                const Eyebrow('Nutrition', spacing: 4.2),
+                const SizedBox(height: 12),
+                NutritionInsight(nutrition: data.nutritionSummary),
               ],
               if (data.marketingClaims.isNotEmpty) ...<Widget>[
                 const SizedBox(height: 16),

@@ -9,10 +9,20 @@ import 'package:munch_or_dump/features/result/result_screen.dart';
 
 /// Canonical product detail by slug. The response shares the analyze verdict
 /// fields, so it renders through the same [ResultScreen].
+///
+/// The product endpoint emits its slug as `slug`, not the analyze response's
+/// `product_slug`, so [AnalysisResult.productSlug] comes back null — which
+/// hides Save/Follow in `ResultActions` and drops the share link. Patch the
+/// route's slug in so the product page gets the full action row.
 final productProvider = FutureProvider.autoDispose
-    .family<AnalysisResult, String>((ref, slug) {
+    .family<AnalysisResult, String>((ref, slug) async {
       ref.cacheFor(const Duration(minutes: 5));
-      return ref.watch(munchApiProvider).getProduct(slug);
+      final result = await ref.watch(munchApiProvider).getProduct(slug);
+      if (result.productSlug?.trim().isNotEmpty ?? false) return result;
+      return AnalysisResult.fromJson(<String, dynamic>{
+        ...result.toJson(),
+        'product_slug': slug,
+      });
     });
 
 class ProductScreen extends ConsumerWidget {
