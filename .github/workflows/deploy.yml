@@ -6,9 +6,12 @@ name: Deploy to TestFlight
 #   - triggered manually from the Actions tab.
 # Build number = workflow run number + 100 (always ascending; no local bumps needed).
 #
-# Secrets (repo settings): ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the .p8 contents).
-# The API key must have the App Manager role — cloud signing (creating the
-# distribution certificate on the runner) is not permitted for Developer-role keys.
+# Secrets (repo settings):
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 — App Store Connect API key (App Manager role).
+#   DIST_CERT_P12 (base64 of the Apple Distribution .p12), DIST_CERT_PASSWORD.
+# Apple won't let an API key create a *distribution* certificate on the fly, so we
+# ship a pre-made one via DIST_CERT_P12 and import it into a throwaway keychain.
+# The API key still auto-manages the provisioning profile (that part is permitted).
 
 on:
   push:
@@ -44,6 +47,25 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           printf '%s' "$ASC_KEY_P8" > ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8
           chmod 600 ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8
+
+      - name: Import Apple Distribution certificate
+        env:
+          DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
+          DIST_CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/build.keychain"
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          echo "$DIST_CERT_P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/dist.p12" -k "$KEYCHAIN" -P "$DIST_CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/xcodebuild
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          # Make the temp keychain searchable alongside the default one.
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/dist.p12"
+          security find-identity -v -p codesigning "$KEYCHAIN"
 
       - name: Install dependencies
         run: flutter pub get
