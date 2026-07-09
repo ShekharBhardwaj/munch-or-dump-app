@@ -67,45 +67,46 @@ jobs:
           rm -f "$RUNNER_TEMP/dist.p12"
           security find-identity -v -p codesigning "$KEYCHAIN"
 
+      - name: Install App Store provisioning profile
+        env:
+          PROVISIONING_PROFILE_B64: ${{ secrets.PROVISIONING_PROFILE_B64 }}
+        run: |
+          PROFILES=~/Library/MobileDevice/Provisioning\ Profiles
+          mkdir -p "$PROFILES"
+          echo "$PROVISIONING_PROFILE_B64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          UUID=$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" | plutil -extract UUID raw -)
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$PROFILES/$UUID.mobileprovision"
+          echo "Installed profile UUID: $UUID"
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Build archive (cloud-signed via ASC API key)
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      - name: Build archive (manual signing)
         run: |
           BUILD_NUMBER=$(( ${{ github.run_number }} + 100 ))
           echo "Build number: $BUILD_NUMBER"
-          # Generate Flutter's xcconfig (dart-defines + build number) without building —
-          # the runner has no Apple account, so signing must happen in xcodebuild itself,
-          # where -allowProvisioningUpdates + the App Manager API key can mint the
-          # distribution cert and provisioning profile on the fly.
           # This app uses Swift Package Manager, not CocoaPods — no `pod install`.
           flutter build ios --config-only --release \
             --dart-define-from-file=dart_defines.json \
             --build-number="$BUILD_NUMBER"
+          # Manual signing with the imported Apple Distribution cert + installed
+          # App Store profile — nothing is created on the fly, so no API/cloud calls.
           xcodebuild archive \
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath build/ios/archive/Runner.xcarchive \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CODE_SIGN_STYLE=Manual \
             DEVELOPMENT_TEAM=66BV6SH279 \
-            CODE_SIGN_STYLE=Automatic
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="Munch or Dump App Store"
           test -d build/ios/archive/Runner.xcarchive
 
-      - name: Export signed IPA (cloud signing via ASC API key)
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      - name: Export signed IPA (manual signing)
         run: |
           cat > build/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -115,20 +116,23 @@ jobs:
           	<key>method</key>
           	<string>app-store-connect</string>
           	<key>signingStyle</key>
-          	<string>automatic</string>
+          	<string>manual</string>
           	<key>teamID</key>
           	<string>66BV6SH279</string>
+          	<key>signingCertificate</key>
+          	<string>Apple Distribution</string>
+          	<key>provisioningProfiles</key>
+          	<dict>
+          		<key>com.munchordump.app</key>
+          		<string>Munch or Dump App Store</string>
+          	</dict>
           </dict>
           </plist>
           EOF
           xcodebuild -exportArchive \
             -archivePath build/ios/archive/Runner.xcarchive \
             -exportPath build/ios/ipa \
-            -exportOptionsPlist build/ExportOptions.plist \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
-            -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+            -exportOptionsPlist build/ExportOptions.plist
 
       - name: Upload to TestFlight
         env:
