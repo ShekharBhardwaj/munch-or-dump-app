@@ -62,10 +62,10 @@ jobs:
           # the runner has no Apple account, so signing must happen in xcodebuild itself,
           # where -allowProvisioningUpdates + the App Manager API key can mint the
           # distribution cert and provisioning profile on the fly.
+          # This app uses Swift Package Manager, not CocoaPods — no `pod install`.
           flutter build ios --config-only --release \
             --dart-define-from-file=dart_defines.json \
             --build-number="$BUILD_NUMBER"
-          cd ios && pod install && cd ..
           xcodebuild archive \
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
