@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
@@ -181,6 +182,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _guess(GameOption option) {
     if (_phase != _Phase.playing) return;
     _roundTimer?.cancel();
+    if (option.isCorrect) {
+      HapticFeedback.mediumImpact();
+    } else {
+      HapticFeedback.heavyImpact();
+    }
     setState(() {
       _selectedId = option.optionId;
       _phase = _Phase.revealed;

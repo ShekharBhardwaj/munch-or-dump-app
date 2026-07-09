@@ -12,6 +12,7 @@ import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 import 'package:munch_or_dump/features/watchlist/watchlist_screen.dart'
     show libraryProvider;
+import 'package:share_plus/share_plus.dart';
 
 /// Community munch/dump split for a product (anonymous-readable).
 final voteSummaryProvider = FutureProvider.autoDispose
@@ -112,6 +113,20 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
     (List<SavedItem> l) => l.any((SavedItem i) => i.productSlug == slug),
   );
 
+  void _share() {
+    final AnalysisResult r = widget.result;
+    final Verdict v = r.verdict;
+    final StringBuffer msg = StringBuffer(
+      'Munch or Dump says ${r.productName} is a '
+      '${v.label.toUpperCase()} ${v.emoji} — ${r.verdictScore}/90.',
+    );
+    final String? slug = _slug;
+    if (slug != null && slug.isNotEmpty) {
+      msg.write('\nhttps://munchordump.com/p/$slug');
+    }
+    SharePlus.instance.share(ShareParams(text: msg.toString()));
+  }
+
   @override
   Widget build(BuildContext context) {
     final slug = _slug;
@@ -155,7 +170,14 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
               ),
             ],
           ),
-        ],
+          const SizedBox(height: 12),
+        ] else
+          const SizedBox(height: 24),
+        OutlinedButton.icon(
+          onPressed: _share,
+          icon: const Icon(Icons.ios_share),
+          label: const Text('Share this verdict'),
+        ),
         if (name.isNotEmpty)
           _CommunityVote(
             productName: name,

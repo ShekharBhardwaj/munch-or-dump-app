@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
@@ -140,14 +141,79 @@ class ResultScreen extends StatelessWidget {
   }
 }
 
-class _VerdictHero extends StatelessWidget {
+class _VerdictHero extends StatefulWidget {
   const _VerdictHero({required this.result, required this.tone});
 
   final AnalysisResult result;
   final VerdictTone tone;
 
   @override
+  State<_VerdictHero> createState() => _VerdictHeroState();
+}
+
+class _VerdictHeroState extends State<_VerdictHero>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  late final Animation<double> _fade;
+  late final Animation<double> _scale;
+  late final Animation<double> _count;
+  bool _buzzed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 720),
+    )..addListener(_maybeBuzz);
+    _fade = CurvedAnimation(
+      parent: _c,
+      curve: const Interval(0, 0.6, curve: Curves.easeOut),
+    );
+    _scale = Tween<double>(begin: 0.94, end: 1).animate(
+      CurvedAnimation(
+        parent: _c,
+        curve: const Interval(0, 0.7, curve: Curves.easeOutBack),
+      ),
+    );
+    _count = CurvedAnimation(
+      parent: _c,
+      curve: const Interval(0.15, 1, curve: Curves.easeOutCubic),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+        _c.value = 1;
+        _buzzed = true;
+      } else {
+        _c.forward();
+      }
+    });
+  }
+
+  // Fires once as the verdict word lands. Harsh verdicts land harder.
+  void _maybeBuzz() {
+    if (_buzzed || _c.value < 0.55) return;
+    _buzzed = true;
+    if (widget.result.verdictScore <= 20) {
+      HapticFeedback.heavyImpact();
+    } else {
+      HapticFeedback.mediumImpact();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c
+      ..removeListener(_maybeBuzz)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final result = widget.result;
+    final tone = widget.tone;
     final pills = _metaPills(result);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -179,40 +245,53 @@ class _VerdictHero extends StatelessWidget {
                     align: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        ExcludeSemantics(
-                          child: Text(
-                            result.verdict.emoji,
-                            style: const TextStyle(fontSize: 40),
-                          ),
+                  FadeTransition(
+                    opacity: _fade,
+                    child: ScaleTransition(
+                      scale: _scale,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ExcludeSemantics(
+                              child: Text(
+                                result.verdict.emoji,
+                                style: const TextStyle(fontSize: 40),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              result.verdict.label.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 72,
+                                height: 1,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -1.5,
+                                color: tone.word,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          result.verdict.label.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 72,
-                            height: 1,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -1.5,
-                            color: tone.word,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    'SCORE ${result.verdictScore} / 90',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 3,
-                      color: tone.mid,
-                    ),
+                  AnimatedBuilder(
+                    animation: _count,
+                    builder: (BuildContext context, Widget? child) {
+                      final int shown =
+                          (result.verdictScore * _count.value).round();
+                      return Text(
+                        'SCORE $shown / 90',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 3,
+                          color: tone.mid,
+                        ),
+                      );
+                    },
                   ),
                   if (pills.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 20),
