@@ -61,5 +61,7 @@ String labelForValue(String value, List<LabeledOption> options) {
 }
 
 /// [labelForValue] mapped over a list of stored values.
-List<String> labelsForValues(List<String> values, List<LabeledOption> options) =>
-    <String>[for (final v in values) labelForValue(v, options)];
+List<String> labelsForValues(
+  List<String> values,
+  List<LabeledOption> options,
+) => <String>[for (final v in values) labelForValue(v, options)];

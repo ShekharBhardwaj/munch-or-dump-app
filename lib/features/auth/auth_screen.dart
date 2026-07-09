@@ -203,9 +203,7 @@ class _GoogleButton extends StatelessWidget {
         minimumSize: const Size.fromHeight(48),
         foregroundColor: AppColors.inkPrimary,
         backgroundColor: AppColors.surface,
-        shape: const StadiumBorder(
-          side: BorderSide(color: AppColors.hairline),
-        ),
+        shape: const StadiumBorder(side: BorderSide(color: AppColors.hairline)),
       ),
     );
   }

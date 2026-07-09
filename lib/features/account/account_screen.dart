@@ -83,8 +83,7 @@ class AccountScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 28),
             _SignOutButton(
-              onTap: () =>
-                  ref.read(authControllerProvider.notifier).signOut(),
+              onTap: () => ref.read(authControllerProvider.notifier).signOut(),
             ),
             const SizedBox(height: 28),
             const SatireFooter(),
@@ -297,9 +296,7 @@ class _SignOutButton extends StatelessWidget {
         minimumSize: const Size.fromHeight(48),
         foregroundColor: AppColors.inkSecondary,
         backgroundColor: AppColors.surface,
-        shape: const StadiumBorder(
-          side: BorderSide(color: AppColors.hairline),
-        ),
+        shape: const StadiumBorder(side: BorderSide(color: AppColors.hairline)),
       ),
     );
   }

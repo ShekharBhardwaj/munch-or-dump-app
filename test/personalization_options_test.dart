@@ -7,8 +7,10 @@ void main() {
       expect(labelForValue('gluten_free', dietaryOptions), 'Gluten-free');
       expect(labelForValue('weight_loss', goalOptions), 'Weight loss');
       expect(labelForValue('parent', personaOptions), 'A parent / my family');
-      expect(labelForValue('high_cholesterol', conditionOptions),
-          'High cholesterol');
+      expect(
+        labelForValue('high_cholesterol', conditionOptions),
+        'High cholesterol',
+      );
     });
 
     test('humanizes an unknown code instead of showing the raw value', () {
