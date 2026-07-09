@@ -1,0 +1,98 @@
+name: Deploy to TestFlight
+
+# Ships to TestFlight when:
+#   - pubspec.yaml is changed on main (bump the version = ship), or
+#   - a v* tag is pushed, or
+#   - triggered manually from the Actions tab.
+# Build number = workflow run number + 100 (always ascending; no local bumps needed).
+#
+# Secrets (repo settings): ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the .p8 contents).
+# The API key must have the App Manager role — cloud signing (creating the
+# distribution certificate on the runner) is not permitted for Developer-role keys.
+
+on:
+  push:
+    branches: [main]
+    paths: [pubspec.yaml]
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-testflight
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    name: Build · Sign · Upload
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install App Store Connect API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          printf '%s' "$ASC_KEY_P8" > ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8
+          chmod 600 ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build archive
+        run: |
+          BUILD_NUMBER=$(( ${{ github.run_number }} + 100 ))
+          echo "Build number: $BUILD_NUMBER"
+          # flutter's own export step fails without a local cert — the archive is what we need.
+          flutter build ipa --dart-define-from-file=dart_defines.json --build-number="$BUILD_NUMBER" || true
+          test -d build/ios/archive/Runner.xcarchive
+
+      - name: Export signed IPA (cloud signing via ASC API key)
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          cat > build/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+          	<key>method</key>
+          	<string>app-store-connect</string>
+          	<key>signingStyle</key>
+          	<string>automatic</string>
+          	<key>teamID</key>
+          	<string>66BV6SH279</string>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist build/ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: Upload to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app --type ios \
+            -f build/ios/ipa/*.ipa \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
