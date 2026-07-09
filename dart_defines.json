@@ -1,0 +1,5 @@
+{
+  "_comment": "Compile-time defines for release builds. These Google OAuth client IDs are PUBLIC identifiers (embedded in the shipped binary / web bundle by design) — safe to commit. Build with: flutter build ipa --dart-define-from-file=dart_defines.json",
+  "GOOGLE_SERVER_CLIENT_ID": "740062486876-appp16ngjbvtfk5eincahu86ufj16d31.apps.googleusercontent.com",
+  "GOOGLE_IOS_CLIENT_ID": "740062486876-f0pjpasre5upp4627rhksf814u5m9jmm.apps.googleusercontent.com"
+}
