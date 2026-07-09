@@ -5,7 +5,7 @@ import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
@@ -60,6 +60,7 @@ class ExamplesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final examples = ref.watch(verdictExamplesProvider);
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
@@ -84,14 +85,14 @@ class ExamplesScreen extends ConsumerWidget {
                   align: TextAlign.left,
                 ),
                 const SizedBox(height: 14),
-                const Text(
+                Text(
                   'Every product lands on one of six verdicts — from real food '
                   'to pure marketing. Here’s what each one means, with a real '
                   'product that earned it.',
                   style: TextStyle(
                     fontSize: 15,
                     height: 1.55,
-                    color: AppColors.inkSecondary,
+                    color: palette.inkSecondary,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -116,6 +117,7 @@ class _VerdictExampleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final tone = verdictToneFor(verdict);
     final ex = example;
     final country = ex?.countryOfOrigin?.trim() ?? '';
@@ -149,15 +151,15 @@ class _VerdictExampleCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             _verdictDef[verdict] ?? '',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: AppColors.inkSecondary,
+              color: palette.inkSecondary,
             ),
           ),
           if (ex != null) ...<Widget>[
             const SizedBox(height: 16),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             const SizedBox(height: 14),
             Row(
               children: <Widget>[
@@ -190,10 +192,10 @@ class _VerdictExampleCard extends StatelessWidget {
                         ex.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.inkPrimary,
+                          color: palette.inkPrimary,
                         ),
                       ),
                       if (_caption(ex).isNotEmpty) ...<Widget>[
@@ -202,9 +204,9 @@ class _VerdictExampleCard extends StatelessWidget {
                           _caption(ex),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.inkFaint,
+                            color: palette.inkFaint,
                           ),
                         ),
                       ],
@@ -212,11 +214,7 @@ class _VerdictExampleCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 18,
-                  color: AppColors.inkGhost,
-                ),
+                Icon(Icons.chevron_right, size: 18, color: palette.inkGhost),
               ],
             ),
           ],

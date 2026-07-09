@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/about/about_screens.dart';
 import 'package:munch_or_dump/features/account/account_screen.dart';
@@ -25,6 +25,7 @@ class _SignedOutYou extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -35,37 +36,37 @@ class _SignedOutYou extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceAlt,
+                  color: palette.surfaceAlt,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.hairline),
+                  border: Border.all(color: palette.hairline),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_outline,
                   size: 30,
-                  color: AppColors.inkSecondary,
+                  color: palette.inkSecondary,
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Sign in to Munch or Dump',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Scan products, save your verdicts, follow the ones you care '
               'about, and get a read tailored to you.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
                 height: 1.5,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
             const SizedBox(height: 24),
@@ -84,25 +85,25 @@ class _SignedOutYou extends StatelessWidget {
               label: 'About Munch or Dump',
               onTap: () => context.pushNamed(Routes.about),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             _LinkTile(
               icon: Icons.science_outlined,
               label: 'How it works',
               onTap: () => context.pushNamed(Routes.howItWorks),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             _LinkTile(
               icon: Icons.auto_stories_outlined,
               label: 'Our story',
               onTap: () => context.pushNamed(Routes.ourStory),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             _LinkTile(
               icon: Icons.gavel_outlined,
               label: 'Disclaimers & terms',
               onTap: () => context.pushNamed(Routes.legal),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             _LinkTile(
               icon: Icons.lock_outline,
               label: 'Privacy policy',
@@ -130,28 +131,22 @@ class _LinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
           children: <Widget>[
-            Icon(icon, size: 20, color: AppColors.inkSecondary),
+            Icon(icon, size: 20, color: palette.inkSecondary),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppColors.inkPrimary,
-                ),
+                style: TextStyle(fontSize: 16, color: palette.inkPrimary),
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: AppColors.inkGhost,
-            ),
+            Icon(Icons.chevron_right, size: 20, color: palette.inkGhost),
           ],
         ),
       ),

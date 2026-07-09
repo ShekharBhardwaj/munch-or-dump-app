@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 
 /// User-facing text for a provider/async error — unwraps [ApiException] so the
 /// UI never shows a raw "ApiException(404): ..." string.
@@ -93,6 +93,7 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.disableAnimationsOf(context)) return widget.child;
+    final palette = context.palette;
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) => ShaderMask(
@@ -100,10 +101,10 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
         shaderCallback: (bounds) => LinearGradient(
           begin: const Alignment(-1, -0.2),
           end: const Alignment(1, 0.2),
-          colors: const <Color>[
-            AppColors.hairline,
-            AppColors.surfaceAlt,
-            AppColors.hairline,
+          colors: <Color>[
+            palette.hairline,
+            palette.surfaceAlt,
+            palette.hairline,
           ],
           stops: const <double>[0.35, 0.5, 0.65],
           transform: _SlidingGradientTransform(_controller.value),
@@ -130,7 +131,7 @@ class ShimmerBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.hairline,
+        color: context.palette.hairline,
         borderRadius: BorderRadius.circular(radius),
       ),
     );

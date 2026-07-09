@@ -9,7 +9,7 @@ import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/game.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:share_plus/share_plus.dart';
@@ -363,6 +363,7 @@ class _RoundView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final target = round.target;
     final sub = <String>[
       if ((target.brandName ?? '').trim().isNotEmpty) target.brandName!.trim(),
@@ -383,20 +384,17 @@ class _RoundView extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           target.name,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 26,
             height: 1.1,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.4,
-            color: AppColors.inkPrimary,
+            color: palette.inkPrimary,
           ),
         ),
         if (sub.isNotEmpty) ...<Widget>[
           const SizedBox(height: 4),
-          Text(
-            sub,
-            style: const TextStyle(fontSize: 13, color: AppColors.inkFaint),
-          ),
+          Text(sub, style: TextStyle(fontSize: 13, color: palette.inkFaint)),
         ],
         const SizedBox(height: 20),
         GridView.count(
@@ -440,6 +438,7 @@ class _Hud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -455,7 +454,7 @@ class _Hud extends StatelessWidget {
                       child: Icon(
                         i < lives ? Icons.favorite : Icons.favorite_border,
                         size: 18,
-                        color: i < lives ? _red : AppColors.inkGhost,
+                        color: i < lives ? _red : palette.inkGhost,
                       ),
                     ),
                 ],
@@ -468,11 +467,11 @@ class _Hud extends StatelessWidget {
             const Eyebrow('Score', size: 10, spacing: 2),
             Text(
               '$score',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: AppColors.inkPrimary,
-                fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                color: palette.inkPrimary,
+                fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
               ),
             ),
           ],
@@ -494,7 +493,7 @@ class _Hud extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: streak > 0 ? _flame : AppColors.inkGhost,
+                  color: streak > 0 ? _flame : palette.inkGhost,
                 ),
               ),
             ],
@@ -512,13 +511,14 @@ class _TimerBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final f = fraction.clamp(0.0, 1.0);
     final color = f > 0.55 ? _emerald : (f > 0.28 ? _amber : _red);
     return ClipRRect(
       borderRadius: BorderRadius.circular(999),
       child: Stack(
         children: <Widget>[
-          Container(height: 8, color: AppColors.hairline),
+          Container(height: 8, color: palette.hairline),
           AnimatedFractionallySizedBox(
             duration: const Duration(milliseconds: 400),
             widthFactor: f,
@@ -545,7 +545,8 @@ class _OptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color border = AppColors.hairline;
+    final palette = context.palette;
+    Color border = palette.hairline;
     double opacity = 1;
     Widget? badge;
     if (revealed) {
@@ -564,18 +565,18 @@ class _OptionCard extends StatelessWidget {
     return Opacity(
       opacity: opacity,
       child: Material(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: Ink(
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: palette.surface,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: border,
-                width: border == AppColors.hairline ? 1 : 2,
+                width: border == palette.hairline ? 1 : 2,
               ),
             ),
             child: Stack(
@@ -599,17 +600,17 @@ class _OptionCard extends StatelessWidget {
                                   ? FontWeight.w700
                                   : FontWeight.w400,
                               color: i == 0
-                                  ? AppColors.inkPrimary
-                                  : AppColors.inkSecondary,
+                                  ? palette.inkPrimary
+                                  : palette.inkSecondary,
                             ),
                           ),
                         ),
                       if (extra > 0)
                         Text(
                           '+$extra more',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.inkFaint,
+                            color: palette.inkFaint,
                           ),
                         ),
                     ],
@@ -659,17 +660,18 @@ class _RevealPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final quipColor = wasCorrect
         ? _emerald
-        : (timedOut ? AppColors.inkSecondary : _red);
+        : (timedOut ? palette.inkSecondary : _red);
     final explanation = target.shortExplanation?.trim() ?? '';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -715,10 +717,10 @@ class _RevealPanel extends StatelessWidget {
               explanation,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
           ],
@@ -729,12 +731,12 @@ class _RevealPanel extends StatelessWidget {
                 Routes.product,
                 pathParameters: <String, String>{'slug': target.slug!},
               ),
-              child: const Text(
+              child: Text(
                 'Full analysis →',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.brand,
+                  color: palette.brand,
                 ),
               ),
             ),
@@ -753,6 +755,7 @@ class _StartView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
       children: <Widget>[
@@ -761,7 +764,7 @@ class _StartView extends StatelessWidget {
         const SizedBox(height: 20),
         const Eyebrow('Can you tell?', spacing: 4, align: TextAlign.center),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'Read the label\nbetter than the AI.',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -769,18 +772,18 @@ class _StartView extends StatelessWidget {
             height: 1.1,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.6,
-            color: AppColors.inkPrimary,
+            color: palette.inkPrimary,
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'Guess the verdict from the ingredients, beat the clock, and climb '
           'the board.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
             height: 1.5,
-            color: AppColors.inkSecondary,
+            color: palette.inkSecondary,
           ),
         ),
         const SizedBox(height: 28),
@@ -823,6 +826,7 @@ class _GameOver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
       children: <Widget>[
@@ -834,20 +838,20 @@ class _GameOver extends StatelessWidget {
         Center(
           child: Text(
             '$score',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 56,
               height: 1,
               fontWeight: FontWeight.w900,
               letterSpacing: -2,
-              color: AppColors.inkPrimary,
-              fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+              color: palette.inkPrimary,
+              fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
             ),
           ),
         ),
-        const Center(
+        Center(
           child: Text(
             'points',
-            style: TextStyle(fontSize: 13, color: AppColors.inkFaint),
+            style: TextStyle(fontSize: 13, color: palette.inkFaint),
           ),
         ),
         const SizedBox(height: 8),
@@ -857,7 +861,7 @@ class _GameOver extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: isNewBest ? const Color(0xFF047857) : AppColors.inkFaint,
+              color: isNewBest ? const Color(0xFF047857) : palette.inkFaint,
             ),
           ),
         ),
@@ -870,7 +874,7 @@ class _GameOver extends StatelessWidget {
               width: 1,
               height: 32,
               margin: const EdgeInsets.symmetric(horizontal: 24),
-              color: AppColors.hairline,
+              color: palette.hairline,
             ),
             _Stat(label: 'Rounds', value: '$rounds'),
           ],
@@ -881,10 +885,7 @@ class _GameOver extends StatelessWidget {
             child: Text(
               'You’re ${result!.name}'
               '${result!.rank != null ? ' — ranked #${result!.rank}' : ''}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.inkSecondary,
-              ),
+              style: TextStyle(fontSize: 13, color: palette.inkSecondary),
             ),
           ),
         ],
@@ -923,21 +924,19 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Column(
       children: <Widget>[
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: AppColors.inkPrimary,
+            color: palette.inkPrimary,
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: AppColors.inkFaint),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: palette.inkFaint)),
       ],
     );
   }
@@ -951,12 +950,13 @@ class _LeaderboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final top = entries.take(6).toList();
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         children: <Widget>[
@@ -968,9 +968,7 @@ class _LeaderboardCard extends StatelessWidget {
                     : null,
                 border: i == 0
                     ? null
-                    : const Border(
-                        top: BorderSide(color: AppColors.hairlineFaint),
-                      ),
+                    : Border(top: BorderSide(color: palette.hairlineFaint)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -979,10 +977,10 @@ class _LeaderboardCard extends StatelessWidget {
                     width: 28,
                     child: Text(
                       '#${top[i].rank ?? i + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.inkFaint,
+                        color: palette.inkFaint,
                       ),
                     ),
                   ),
@@ -992,20 +990,22 @@ class _LeaderboardCard extends StatelessWidget {
                       top[i].name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.inkPrimary,
+                        color: palette.inkPrimary,
                       ),
                     ),
                   ),
                   Text(
                     '${top[i].score}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.inkSecondary,
-                      fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                      color: palette.inkSecondary,
+                      fontFeatures: const <FontFeature>[
+                        FontFeature.tabularFigures(),
+                      ],
                     ),
                   ),
                 ],
@@ -1022,11 +1022,12 @@ class _TrophyCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       width: 64,
       height: 64,
-      decoration: const BoxDecoration(
-        color: AppColors.inkPrimary,
+      decoration: BoxDecoration(
+        color: palette.inkPrimary,
         shape: BoxShape.circle,
       ),
       child: const Icon(Icons.emoji_events, size: 30, color: _amber),
@@ -1041,26 +1042,27 @@ class _NotEnoughView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Text(
+            Text(
               'Not enough products to play yet.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Scan a few products first, then come back.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppColors.inkSecondary),
+              style: TextStyle(fontSize: 14, color: palette.inkSecondary),
             ),
             const SizedBox(height: 20),
             BlackCtaButton(label: 'Scan a product', onTap: onScan),

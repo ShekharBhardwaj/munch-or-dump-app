@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
@@ -24,6 +24,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     return Scaffold(
       body: GridBackground(
         child: SafeArea(
@@ -48,14 +49,14 @@ class HomeScreen extends ConsumerWidget {
                       muted: 'really eating.',
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Scan what you’re actually putting in your body — not '
                       'what the label wants you to think.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
                         height: 1.5,
-                        color: AppColors.inkSecondary,
+                        color: palette.inkSecondary,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -69,10 +70,10 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Text(
+                    Text(
                       'Photo · Barcode · Search — verdict in seconds',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: AppColors.inkFaint),
+                      style: TextStyle(fontSize: 12, color: palette.inkFaint),
                     ),
                     const SizedBox(height: 28),
                     const _TrustLine(),
@@ -113,19 +114,20 @@ class _Wordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const bold = TextStyle(
+    final palette = context.palette;
+    final bold = TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.4,
-      color: AppColors.inkPrimary,
+      color: palette.inkPrimary,
     );
-    const light = TextStyle(
+    final light = TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.w300,
       letterSpacing: -0.4,
-      color: AppColors.inkFaint,
+      color: palette.inkFaint,
     );
-    return const Text.rich(
+    return Text.rich(
       TextSpan(
         children: <TextSpan>[
           TextSpan(text: 'Munch', style: bold),
@@ -142,20 +144,21 @@ class _BetaBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.inkGhost),
+        border: Border.all(color: palette.inkGhost),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Text(
+      child: Text(
         'BETA',
         style: TextStyle(
           fontSize: 9,
           height: 1,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.5,
-          color: AppColors.inkFaint,
+          color: palette.inkFaint,
         ),
       ),
     );
@@ -169,23 +172,24 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: palette.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.hairline),
+          border: Border.all(color: palette.hairline),
         ),
-        child: const Row(
+        child: Row(
           children: <Widget>[
-            Icon(Icons.search, color: AppColors.inkFaint, size: 20),
-            SizedBox(width: 12),
+            Icon(Icons.search, color: palette.inkFaint, size: 20),
+            const SizedBox(width: 12),
             Text(
               'Search a product or brand…',
-              style: TextStyle(fontSize: 14, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 14, color: palette.inkFaint),
             ),
           ],
         ),
@@ -219,20 +223,21 @@ class _Trust extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Text.rich(
       TextSpan(
         children: <TextSpan>[
           TextSpan(
             text: bold,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.ctaPressed,
+              color: palette.ctaPressed,
             ),
           ),
           TextSpan(
             text: rest,
-            style: const TextStyle(fontSize: 12, color: AppColors.inkSecondary),
+            style: TextStyle(fontSize: 12, color: palette.inkSecondary),
           ),
         ],
       ),
@@ -271,6 +276,7 @@ class _FeedSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Column(
       children: <Widget>[
         for (var i = 0; i < 2; i++)
@@ -279,9 +285,9 @@ class _FeedSkeleton extends StatelessWidget {
             child: Container(
               height: 96,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: palette.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.hairline),
+                border: Border.all(color: palette.hairline),
               ),
             ),
           ),
@@ -297,9 +303,10 @@ class _RecentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final verdict = product.verdict;
     final accent = verdict == null
-        ? AppColors.inkGhost
+        ? palette.inkGhost
         : verdictToneFor(verdict).bar;
     final category = product.category?.trim() ?? '';
     final brand = product.brandName?.trim() ?? '';
@@ -353,11 +360,11 @@ class _RecentCard extends StatelessWidget {
             product.name.trim().isEmpty ? 'Unknown product' : product.name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               height: 1.25,
               fontWeight: FontWeight.w700,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
           if (brand.isNotEmpty) ...<Widget>[
@@ -366,10 +373,7 @@ class _RecentCard extends StatelessWidget {
               brand,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.inkSecondary,
-              ),
+              style: TextStyle(fontSize: 13, color: palette.inkSecondary),
             ),
           ],
         ],

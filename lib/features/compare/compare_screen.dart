@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/browse/search_screen.dart';
@@ -114,24 +114,25 @@ class _CompareHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final palette = context.palette;
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Eyebrow('Head to head'),
-        SizedBox(height: 6),
+        const Eyebrow('Head to head'),
+        const SizedBox(height: 6),
         Text(
           'Compare',
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.8,
-            color: AppColors.inkPrimary,
+            color: palette.inkPrimary,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           'Pick two products and see which wins.',
-          style: TextStyle(fontSize: 14, color: AppColors.inkFaint),
+          style: TextStyle(fontSize: 14, color: palette.inkFaint),
         ),
       ],
     );
@@ -149,20 +150,24 @@ class _PickerSlot extends StatelessWidget {
   final AsyncValue<AnalysisResult>? async;
   final VoidCallback onPick;
 
-  BoxDecoration get _cardDecoration => BoxDecoration(
-    color: AppColors.surface,
-    borderRadius: BorderRadius.circular(16),
-    border: Border.all(color: AppColors.hairline),
-  );
+  BoxDecoration _cardDecoration(BuildContext context) {
+    final palette = context.palette;
+    return BoxDecoration(
+      color: palette.surface,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: palette.hairline),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final value = async;
     if (value == null) return _empty(context);
     return value.when(
       loading: () => Container(
         height: 128,
-        decoration: _cardDecoration,
+        decoration: _cardDecoration(context),
         alignment: Alignment.center,
         child: const SizedBox(
           width: 20,
@@ -171,20 +176,21 @@ class _PickerSlot extends StatelessWidget {
         ),
       ),
       error: (_, _) => _tappable(
-        child: const Column(
+        context,
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.refresh, size: 20, color: AppColors.inkSecondary),
-            SizedBox(height: 6),
+            Icon(Icons.refresh, size: 20, color: palette.inkSecondary),
+            const SizedBox(height: 6),
             Text(
               'Tap to pick another',
-              style: TextStyle(fontSize: 13, color: AppColors.inkSecondary),
+              style: TextStyle(fontSize: 13, color: palette.inkSecondary),
             ),
           ],
         ),
       ),
       data: (result) => Container(
-        decoration: _cardDecoration,
+        decoration: _cardDecoration(context),
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,11 +202,11 @@ class _PickerSlot extends StatelessWidget {
               result.productName,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 height: 1.2,
                 fontWeight: FontWeight.w700,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
             if (result.brand != null && result.brand!.isNotEmpty)
@@ -208,22 +214,22 @@ class _PickerSlot extends StatelessWidget {
                 result.brand!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, color: AppColors.inkFaint),
+                style: TextStyle(fontSize: 12, color: palette.inkFaint),
               ),
             const SizedBox(height: 10),
             InkWell(
               onTap: onPick,
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Icon(Icons.close, size: 12, color: AppColors.inkFaint),
-                  SizedBox(width: 4),
+                  Icon(Icons.close, size: 12, color: palette.inkFaint),
+                  const SizedBox(width: 4),
                   Text(
                     'change',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.inkFaint,
+                      color: palette.inkFaint,
                     ),
                   ),
                 ],
@@ -235,32 +241,36 @@ class _PickerSlot extends StatelessWidget {
     );
   }
 
-  Widget _empty(BuildContext context) => _tappable(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Eyebrow(label, size: 10, spacing: 3),
-        const SizedBox(height: 10),
-        const Icon(Icons.add, size: 20, color: AppColors.inkGhost),
-        const SizedBox(height: 6),
-        const Text(
-          'Add product',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.inkSecondary,
+  Widget _empty(BuildContext context) {
+    final palette = context.palette;
+    return _tappable(
+      context,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Eyebrow(label, size: 10, spacing: 3),
+          const SizedBox(height: 10),
+          Icon(Icons.add, size: 20, color: palette.inkGhost),
+          const SizedBox(height: 6),
+          Text(
+            'Add product',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: palette.inkSecondary,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
-  Widget _tappable({required Widget child}) => InkWell(
+  Widget _tappable(BuildContext context, {required Widget child}) => InkWell(
     onTap: onPick,
     borderRadius: BorderRadius.circular(16),
     child: Container(
       height: 128,
-      decoration: _cardDecoration,
+      decoration: _cardDecoration(context),
       alignment: Alignment.center,
       child: child,
     ),
@@ -275,28 +285,25 @@ class _EmptyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Center(
         child: Column(
           children: <Widget>[
-            const Icon(
-              Icons.compare_arrows,
-              size: 40,
-              color: AppColors.inkGhost,
-            ),
+            Icon(Icons.compare_arrows, size: 40, color: palette.inkGhost),
             const SizedBox(height: 12),
             Text(
               bothEmpty
                   ? 'Add two products to compare them.'
                   : 'Add one more product to see the comparison.',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 14, color: palette.inkFaint),
             ),
             const SizedBox(height: 14),
             InkWell(
               onTap: onBrowse,
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
@@ -304,14 +311,14 @@ class _EmptyHint extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkSecondary,
+                      color: palette.inkSecondary,
                     ),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Icon(
                     Icons.arrow_forward,
                     size: 15,
-                    color: AppColors.inkSecondary,
+                    color: palette.inkSecondary,
                   ),
                 ],
               ),
@@ -364,6 +371,7 @@ class _ComparisonSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final best = _betterOf(a, b);
     final side = best.side;
 
@@ -377,6 +385,7 @@ class _ComparisonSheet extends StatelessWidget {
 
     final rows = <Widget>[
       _row(
+        context,
         'Score',
         a: _ScoreCell(result: a),
         b: _ScoreCell(result: b),
@@ -384,6 +393,7 @@ class _ComparisonSheet extends StatelessWidget {
         first: true,
       ),
       _row(
+        context,
         'Verdict',
         a: _VerdictCell(result: a),
         b: _VerdictCell(result: b),
@@ -391,25 +401,35 @@ class _ComparisonSheet extends StatelessWidget {
       ),
       if (showNova)
         _row(
+          context,
           'Processing',
           a: _NovaCell(a.novaGroup),
           b: _NovaCell(b.novaGroup),
           side: side,
         ),
-      _row('Vegan', a: _YesNo(a.isVegan), b: _YesNo(b.isVegan), side: side),
       _row(
+        context,
+        'Vegan',
+        a: _YesNo(a.isVegan),
+        b: _YesNo(b.isVegan),
+        side: side,
+      ),
+      _row(
+        context,
         'Gluten-free',
         a: _YesNo(a.isGlutenFree),
         b: _YesNo(b.isGlutenFree),
         side: side,
       ),
       _row(
+        context,
         'Dairy-free',
         a: _YesNo(a.isDairyFree),
         b: _YesNo(b.isDairyFree),
         side: side,
       ),
       _row(
+        context,
         'Nut-free',
         a: _YesNo(!a.containsNuts),
         b: _YesNo(!b.containsNuts),
@@ -417,6 +437,7 @@ class _ComparisonSheet extends StatelessWidget {
       ),
       if (showSoy)
         _row(
+          context,
           'Soy-free',
           a: _YesNo(!a.containsSoy),
           b: _YesNo(!b.containsSoy),
@@ -424,6 +445,7 @@ class _ComparisonSheet extends StatelessWidget {
         ),
       if (showEggs)
         _row(
+          context,
           'Egg-free',
           a: _YesNo(!a.containsEggs),
           b: _YesNo(!b.containsEggs),
@@ -431,6 +453,7 @@ class _ComparisonSheet extends StatelessWidget {
         ),
       if (showIngredients)
         _row(
+          context,
           'Ingredients',
           a: _CountCell(a.ingredientsDetected.length),
           b: _CountCell(b.ingredientsDetected.length),
@@ -438,6 +461,7 @@ class _ComparisonSheet extends StatelessWidget {
         ),
       if (showIngredients)
         _row(
+          context,
           'Flagged',
           a: _FlaggedCell(_flaggedCount(a)),
           b: _FlaggedCell(_flaggedCount(b)),
@@ -445,6 +469,7 @@ class _ComparisonSheet extends StatelessWidget {
         ),
       if (showHonesty)
         _row(
+          context,
           'Marketing',
           a: _HonestyCell(_misleadingCount(a)),
           b: _HonestyCell(_misleadingCount(b)),
@@ -458,14 +483,14 @@ class _ComparisonSheet extends StatelessWidget {
         const SizedBox(height: 24),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: palette.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.hairline),
-            boxShadow: const <BoxShadow>[
+            border: Border.all(color: palette.hairline),
+            boxShadow: <BoxShadow>[
               BoxShadow(
-                color: Color(0x0A1C1917),
+                color: palette.shadow,
                 blurRadius: 8,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -473,7 +498,7 @@ class _ComparisonSheet extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             child: Column(
               children: <Widget>[
-                _headerRow(a: a, b: b, side: side),
+                _headerRow(context, a: a, b: b, side: side),
                 ...rows,
               ],
             ),
@@ -483,7 +508,8 @@ class _ComparisonSheet extends StatelessWidget {
     );
   }
 
-  Widget _headerRow({
+  Widget _headerRow(
+    BuildContext context, {
     required AnalysisResult a,
     required AnalysisResult b,
     required String side,
@@ -492,7 +518,7 @@ class _ComparisonSheet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Container(width: 84, color: AppColors.surfaceAlt),
+          Container(width: 84, color: context.palette.surfaceAlt),
           Expanded(
             child: _NameCell(result: a, winner: side == 'a'),
           ),
@@ -505,17 +531,19 @@ class _ComparisonSheet extends StatelessWidget {
   }
 
   Widget _row(
+    BuildContext context,
     String label, {
     required Widget a,
     required Widget b,
     required String side,
     bool first = false,
   }) {
+    final palette = context.palette;
     return DecoratedBox(
       decoration: BoxDecoration(
         border: first
             ? null
-            : const Border(top: BorderSide(color: AppColors.hairlineFaint)),
+            : Border(top: BorderSide(color: palette.hairlineFaint)),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -523,27 +551,32 @@ class _ComparisonSheet extends StatelessWidget {
           children: <Widget>[
             Container(
               width: 84,
-              color: AppColors.surfaceAlt,
+              color: palette.surfaceAlt,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               alignment: Alignment.centerLeft,
               child: Eyebrow(label, size: 10, spacing: 1.5),
             ),
-            Expanded(child: _cell(a, side == 'a')),
-            Expanded(child: _cell(b, side == 'b', left: true)),
+            Expanded(child: _cell(context, a, side == 'a')),
+            Expanded(child: _cell(context, b, side == 'b', left: true)),
           ],
         ),
       ),
     );
   }
 
-  Widget _cell(Widget child, bool win, {bool left = false}) {
+  Widget _cell(
+    BuildContext context,
+    Widget child,
+    bool win, {
+    bool left = false,
+  }) {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
         color: win ? _winTint : null,
         border: left
-            ? const Border(left: BorderSide(color: AppColors.hairlineFaint))
+            ? Border(left: BorderSide(color: context.palette.hairlineFaint))
             : null,
       ),
       child: child,
@@ -559,18 +592,19 @@ class _Callout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     if (best.side.isEmpty) {
-      return const Column(
+      return Column(
         children: <Widget>[
-          Eyebrow('Evenly matched', align: TextAlign.center),
-          SizedBox(height: 8),
+          const Eyebrow('Evenly matched', align: TextAlign.center),
+          const SizedBox(height: 8),
           Text(
             'A genuine toss-up — identical on every measure.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.inkSecondary,
+              color: palette.inkSecondary,
             ),
           ),
         ],
@@ -585,12 +619,12 @@ class _Callout extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             height: 1.1,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
-            color: AppColors.inkPrimary,
+            color: palette.inkPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -619,13 +653,14 @@ class _NameCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
       decoration: BoxDecoration(
-        color: winner ? _winTint : AppColors.surface,
+        color: winner ? _winTint : palette.surface,
         border: left
-            ? const Border(left: BorderSide(color: AppColors.hairlineFaint))
+            ? Border(left: BorderSide(color: palette.hairlineFaint))
             : null,
       ),
       child: Column(
@@ -646,11 +681,11 @@ class _NameCell extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               height: 1.2,
               fontWeight: FontWeight.w700,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
           if (result.brand != null && result.brand!.isNotEmpty)
@@ -659,7 +694,7 @@ class _NameCell extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 11, color: palette.inkFaint),
             ),
         ],
       ),
@@ -687,12 +722,12 @@ class _ScoreCell extends StatelessWidget {
               fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
             ),
           ),
-          const TextSpan(
+          TextSpan(
             text: ' /90',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.inkGhost,
+              color: context.palette.inkGhost,
             ),
           ),
         ],
@@ -722,9 +757,10 @@ class _NovaCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final n = nova;
     if (n == null || n < 1 || n > 4) {
-      return const Icon(Icons.remove, size: 14, color: AppColors.inkGhost);
+      return Icon(Icons.remove, size: 14, color: palette.inkGhost);
     }
     final color = n == 4
         ? const Color(0xFFEF4444)
@@ -736,10 +772,10 @@ class _NovaCell extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           'NOVA $n',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: AppColors.inkSecondary,
+            color: palette.inkSecondary,
           ),
         ),
       ],
@@ -755,7 +791,7 @@ class _YesNo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!value) {
-      return const Icon(Icons.remove, size: 16, color: AppColors.inkGhost);
+      return Icon(Icons.remove, size: 16, color: context.palette.inkGhost);
     }
     return Container(
       width: 24,
@@ -777,15 +813,16 @@ class _CountCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     if (count == 0) {
-      return const Icon(Icons.remove, size: 16, color: AppColors.inkGhost);
+      return Icon(Icons.remove, size: 16, color: palette.inkGhost);
     }
     return Text(
       '$count',
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w700,
-        color: AppColors.inkPrimary,
+        color: palette.inkPrimary,
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// The Browse tab: a search entry + a grouped list of the catalog surfaces.
@@ -71,23 +71,24 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: palette.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.hairline),
+          border: Border.all(color: palette.hairline),
         ),
-        child: const Row(
+        child: Row(
           children: <Widget>[
-            Icon(Icons.search, color: AppColors.inkFaint, size: 20),
-            SizedBox(width: 12),
+            Icon(Icons.search, color: palette.inkFaint, size: 20),
+            const SizedBox(width: 12),
             Text(
               'Search a product or brand…',
-              style: TextStyle(fontSize: 14, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 14, color: palette.inkFaint),
             ),
           ],
         ),
@@ -104,19 +105,20 @@ class _GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         children: <Widget>[
           for (var i = 0; i < tiles.length; i++) ...<Widget>[
             if (i > 0)
-              const Padding(
-                padding: EdgeInsets.only(left: 64),
-                child: Divider(height: 1, color: AppColors.hairlineFaint),
+              Padding(
+                padding: const EdgeInsets.only(left: 64),
+                child: Divider(height: 1, color: palette.hairlineFaint),
               ),
             tiles[i],
           ],
@@ -141,6 +143,7 @@ class _BrowseTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -151,10 +154,10 @@ class _BrowseTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.surfaceAlt,
+                color: palette.surfaceAlt,
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(icon, size: 20, color: AppColors.inkPrimary),
+              child: Icon(icon, size: 20, color: palette.inkPrimary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -163,28 +166,21 @@ class _BrowseTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkPrimary,
+                      color: palette.inkPrimary,
                     ),
                   ),
                   const SizedBox(height: 1),
                   Text(
                     sub,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: AppColors.inkFaint,
-                    ),
+                    style: TextStyle(fontSize: 12.5, color: palette.inkFaint),
                   ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: AppColors.inkGhost,
-            ),
+            Icon(Icons.chevron_right, size: 20, color: palette.inkGhost),
           ],
         ),
       ),

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/profile_update.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -157,6 +157,7 @@ class _ChoiceGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -164,11 +165,11 @@ class _ChoiceGroup extends StatelessWidget {
         children: <Widget>[
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
           const SizedBox(height: 12),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 
-/// The app's design system. A calm, premium, light theme — refined Inter type, a
-/// warm-paper canvas with white cards, hairline borders, soft corners, and a
-/// single emerald accent used sparingly. Carries the [VerdictPalette] extension.
+/// The app's design system. A calm, premium theme — refined Inter type, a
+/// warm-paper canvas with white cards in light mode and a dark-stone canvas in
+/// dark mode, hairline borders, soft corners, and a single emerald accent used
+/// sparingly. Carries the [Palette] and [VerdictPalette] extensions.
 abstract final class AppTheme {
   static ThemeData get light {
     final scheme =
@@ -34,7 +36,10 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: AppColors.canvas,
       textTheme: text,
       splashFactory: InkSparkle.splashFactory,
-      extensions: const <ThemeExtension<dynamic>>[VerdictPalette.light],
+      extensions: const <ThemeExtension<dynamic>>[
+        VerdictPalette.light,
+        Palette.light,
+      ],
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.canvas,
         surfaceTintColor: Colors.transparent,
@@ -127,28 +132,143 @@ abstract final class AppTheme {
     );
   }
 
-  /// Dark theme kept minimal — the redesign targets the light experience.
+  /// Dark theme — full parity with [light], built on the dark-stone [Palette].
+  /// The primary CTA inverts (light pill, near-black label) and every surface
+  /// steps through the stone scale instead of naive inversion.
   static ThemeData get dark {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.brand,
-      brightness: Brightness.dark,
-    );
+    const palette = Palette.dark;
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: AppColors.brand,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: palette.brand,
+          onPrimary: palette.ctaForeground,
+          surface: palette.surface,
+          onSurface: palette.inkPrimary,
+          onSurfaceVariant: palette.inkSecondary,
+          surfaceContainerHighest: palette.surfaceAlt,
+          surfaceContainerHigh: palette.surfaceAlt,
+          surfaceContainer: palette.surfaceAlt,
+          outline: palette.hairline,
+          outlineVariant: palette.hairline,
+          error: const Color(0xFFF87171),
+        );
+
+    final text = _textTheme(Brightness.dark);
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      textTheme: _textTheme(Brightness.dark),
-      extensions: const <ThemeExtension<dynamic>>[VerdictPalette.dark],
-      appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
+      scaffoldBackgroundColor: palette.canvas,
+      textTheme: text,
+      splashFactory: InkSparkle.splashFactory,
+      extensions: const <ThemeExtension<dynamic>>[
+        VerdictPalette.dark,
+        Palette.dark,
+      ],
+      appBarTheme: AppBarTheme(
+        backgroundColor: palette.canvas,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: palette.inkPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: text.titleLarge,
+        iconTheme: IconThemeData(color: palette.inkPrimary),
+      ),
+      cardTheme: CardThemeData(
+        color: palette.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: palette.hairline,
+        thickness: 1,
+        space: 1,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: palette.brand,
+          foregroundColor: palette.ctaForeground,
+          disabledBackgroundColor: palette.surfaceAlt,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: text.labelLarge,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: palette.inkPrimary,
+          backgroundColor: palette.surface,
+          side: BorderSide(color: palette.hairline),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: text.labelLarge,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: palette.brand,
+          textStyle: text.labelLarge,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: palette.surface,
+        hintStyle: text.bodyLarge?.copyWith(color: palette.inkMuted),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: _inputBorder(palette.hairline),
+        enabledBorder: _inputBorder(palette.hairline),
+        focusedBorder: _inputBorder(palette.brand, width: 1.5),
+        errorBorder: _inputBorder(scheme.error),
+        focusedErrorBorder: _inputBorder(scheme.error, width: 1.5),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: palette.surfaceAlt,
+        side: BorderSide.none,
+        labelStyle: text.labelMedium,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: palette.inkSecondary,
+        titleTextStyle: TextStyle(
+          color: palette.inkPrimary,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        // Inverted, like light mode: a light snackbar on the dark canvas.
+        backgroundColor: palette.inkPrimary,
+        contentTextStyle: text.bodyMedium?.copyWith(
+          color: palette.ctaForeground,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
   }
 
   static TextTheme _textTheme(Brightness brightness) {
     final ink = brightness == Brightness.light
         ? AppColors.inkPrimary
-        : Colors.white;
+        : Palette.dark.inkPrimary;
     final secondary = brightness == Brightness.light
         ? AppColors.inkSecondary
-        : const Color(0xFFB7BCC4);
+        : Palette.dark.inkSecondary;
     final base = GoogleFonts.interTextTheme(
       brightness == Brightness.light
           ? ThemeData.light().textTheme

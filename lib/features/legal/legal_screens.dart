@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// One titled section of a legal document.
@@ -32,6 +32,7 @@ class _LegalDoc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Scaffold(
       appBar: AppBar(title: Text(appBarTitle)),
       body: ListView(
@@ -41,27 +42,27 @@ class _LegalDoc extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 30,
               height: 1.1,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.6,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             lastUpdated,
-            style: const TextStyle(fontSize: 13, color: AppColors.inkFaint),
+            style: TextStyle(fontSize: 13, color: palette.inkFaint),
           ),
           if (intro != null) ...<Widget>[
             const SizedBox(height: 16),
             Text(
               intro!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 height: 1.5,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
           ],
@@ -74,20 +75,20 @@ class _LegalDoc extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(
                   paragraph,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14.5,
                     height: 1.55,
-                    color: AppColors.inkSecondary,
+                    color: palette.inkSecondary,
                   ),
                 ),
               ),
             const SizedBox(height: 18),
           ],
           if (footer != null) ...<Widget>[
-            const Divider(color: AppColors.hairline, height: 32),
+            Divider(color: palette.hairline, height: 32),
             Text(
               footer!,
-              style: const TextStyle(fontSize: 12, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 12, color: palette.inkFaint),
             ),
           ],
         ],

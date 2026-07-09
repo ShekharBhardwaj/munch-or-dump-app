@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
@@ -101,6 +101,7 @@ class _IngredientBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final rating = SafetyRating.fromApi(ingredient.safetyRating);
     final color = _safetyColor(rating);
     final desc = ingredient.description ?? '';
@@ -124,41 +125,41 @@ class _IngredientBody extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     rating.label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
-                      color: AppColors.inkPrimary,
+                      color: palette.inkPrimary,
                     ),
                   ),
                   const Spacer(),
                   if (ingredient.eNumber != null)
                     MetaPill(
                       text: ingredient.eNumber!,
-                      fg: AppColors.inkSecondary,
-                      bg: AppColors.surfaceAlt,
-                      border: AppColors.hairline,
+                      fg: palette.inkSecondary,
+                      bg: palette.surfaceAlt,
+                      border: palette.hairline,
                     ),
                 ],
               ),
               const SizedBox(height: 10),
               Text(
                 _safetyBlurb(rating),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
                   height: 1.45,
-                  color: AppColors.inkSecondary,
+                  color: palette.inkSecondary,
                 ),
               ),
               if (ingredient.isAdditive) ...<Widget>[
                 const SizedBox(height: 12),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: MetaPill(
                     text: 'Additive',
-                    fg: AppColors.inkSecondary,
-                    bg: AppColors.surfaceAlt,
-                    border: AppColors.hairline,
+                    fg: palette.inkSecondary,
+                    bg: palette.surfaceAlt,
+                    border: palette.hairline,
                   ),
                 ),
               ],
@@ -169,10 +170,10 @@ class _IngredientBody extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             desc,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               height: 1.55,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
         ],
@@ -194,9 +195,9 @@ class _IngredientBody extends StatelessWidget {
               for (final a in ingredient.avoidIf)
                 MetaPill(
                   text: a,
-                  fg: AppColors.concernHigh,
-                  bg: AppColors.concernHighTint,
-                  border: AppColors.concernHighTint,
+                  fg: palette.concernHigh,
+                  bg: palette.concernHighTint,
+                  border: palette.concernHighTint,
                 ),
             ],
           ),
@@ -226,6 +227,7 @@ class _EffectBullet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -238,10 +240,10 @@ class _EffectBullet extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14.5,
                 height: 1.5,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
           ),

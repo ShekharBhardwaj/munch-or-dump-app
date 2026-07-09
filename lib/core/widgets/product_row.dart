@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
@@ -18,6 +18,7 @@ class ProductRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final verdict = item.verdict;
     final brand = item.brandName?.trim() ?? '';
     final country = item.countryOfOrigin?.trim() ?? '';
@@ -43,11 +44,11 @@ class ProductRow extends StatelessWidget {
                     item.name.isEmpty ? item.slug : item.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       height: 1.3,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkPrimary,
+                      color: palette.inkPrimary,
                     ),
                   ),
                   if (brand.isNotEmpty || flag != null) ...<Widget>[
@@ -75,9 +76,9 @@ class ProductRow extends StatelessWidget {
                               brand,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.inkFaint,
+                                color: palette.inkFaint,
                               ),
                             ),
                           ),
@@ -123,6 +124,7 @@ class BrowseHubRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -137,19 +139,16 @@ class BrowseHubRow extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkPrimary,
+                      color: palette.inkPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     sub,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.inkFaint,
-                    ),
+                    style: TextStyle(fontSize: 13, color: palette.inkFaint),
                   ),
                 ],
               ),
@@ -159,19 +158,15 @@ class BrowseHubRow extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 12, right: 8),
                 child: Text(
                   'AVG $avgScore',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
-                    color: AppColors.inkSecondary,
+                    color: palette.inkSecondary,
                   ),
                 ),
               ),
-            const Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: AppColors.inkGhost,
-            ),
+            Icon(Icons.chevron_right, size: 20, color: palette.inkGhost),
           ],
         ),
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// Shared content-page scaffold: an app bar + a padded scroll of [children].
@@ -22,13 +22,13 @@ class _ContentScaffold extends StatelessWidget {
   }
 }
 
-Widget _header(String eyebrow, String title, [String? muted]) {
-  const dark = TextStyle(
+Widget _header(Palette palette, String eyebrow, String title, [String? muted]) {
+  final dark = TextStyle(
     fontSize: 30,
     height: 1.12,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.6,
-    color: AppColors.inkPrimary,
+    color: palette.inkPrimary,
   );
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +42,7 @@ Widget _header(String eyebrow, String title, [String? muted]) {
             if (muted != null)
               TextSpan(
                 text: '\n$muted',
-                style: dark.copyWith(color: AppColors.inkFaint),
+                style: dark.copyWith(color: palette.inkFaint),
               ),
           ],
         ),
@@ -52,27 +52,19 @@ Widget _header(String eyebrow, String title, [String? muted]) {
   );
 }
 
-Widget _lead(String text) => Padding(
+Widget _lead(Palette palette, String text) => Padding(
   padding: const EdgeInsets.only(bottom: 14),
   child: Text(
     text,
-    style: const TextStyle(
-      fontSize: 17,
-      height: 1.55,
-      color: AppColors.inkSecondary,
-    ),
+    style: TextStyle(fontSize: 17, height: 1.55, color: palette.inkSecondary),
   ),
 );
 
-Widget _para(String text) => Padding(
+Widget _para(Palette palette, String text) => Padding(
   padding: const EdgeInsets.only(bottom: 12),
   child: Text(
     text,
-    style: const TextStyle(
-      fontSize: 14.5,
-      height: 1.55,
-      color: AppColors.inkSecondary,
-    ),
+    style: TextStyle(fontSize: 14.5, height: 1.55, color: palette.inkSecondary),
   ),
 );
 
@@ -87,10 +79,11 @@ class SatireFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final palette = context.palette;
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Divider(color: AppColors.hairline, height: 32),
+        Divider(color: palette.hairline, height: 32),
         Text.rich(
           TextSpan(
             children: <TextSpan>[
@@ -98,10 +91,10 @@ class SatireFooter extends StatelessWidget {
                 text: 'AI-generated satire. ',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.inkSecondary,
+                  color: palette.inkSecondary,
                 ),
               ),
-              TextSpan(
+              const TextSpan(
                 text:
                     'Verdicts are a subjective, automated opinion — not '
                     'statements of fact, and they may be inaccurate. Not '
@@ -110,16 +103,12 @@ class SatireFooter extends StatelessWidget {
               ),
             ],
           ),
-          style: TextStyle(
-            fontSize: 12,
-            height: 1.5,
-            color: AppColors.inkFaint,
-          ),
+          style: TextStyle(fontSize: 12, height: 1.5, color: palette.inkFaint),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           '© 2026 Munch or Dump · hello@munchordump.com',
-          style: TextStyle(fontSize: 12, color: AppColors.inkFaint),
+          style: TextStyle(fontSize: 12, color: palette.inkFaint),
         ),
       ],
     );
@@ -132,20 +121,24 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return _ContentScaffold(
       appBarTitle: 'About',
       children: <Widget>[
-        _header('About', 'A tool for truth', 'about products.'),
+        _header(palette, 'About', 'A tool for truth', 'about products.'),
         _lead(
+          palette,
           'Munch or Dump exists because product packaging is designed to sell, '
           'not to inform. Marketing teams spend millions making products look '
           'healthy, natural, or premium.',
         ),
         _lead(
+          palette,
           'The ingredient list tells the real story. But it’s small, dense, and '
           'deliberately hard to parse.',
         ),
         _lead(
+          palette,
           'We built a tool that reads labels like a scientist and explains them '
           'like a friend. Scan an ingredient label. Get the truth in seconds.',
         ),
@@ -202,11 +195,17 @@ class HowItWorksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return _ContentScaffold(
       appBarTitle: 'How it works',
       children: <Widget>[
-        _header('How it works', 'From label to verdict, in under 30 seconds.'),
+        _header(
+          palette,
+          'How it works',
+          'From label to verdict, in under 30 seconds.',
+        ),
         _lead(
+          palette,
           'No jargon. No guesswork. Just an honest read of what’s actually in '
           'the product.',
         ),
@@ -236,9 +235,9 @@ class HowItWorksScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: palette.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.hairline),
+            border: Border.all(color: palette.hairline),
           ),
           child: Column(
             children: <Widget>[
@@ -255,9 +254,9 @@ class HowItWorksScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           entry.value,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.inkSecondary,
+                            color: palette.inkSecondary,
                           ),
                         ),
                       ),
@@ -268,18 +267,19 @@ class HowItWorksScreen extends StatelessWidget {
           ),
         ),
         _sectionEyebrow('How a verdict is made'),
-        const Text(
+        Text(
           'One automated opinion, generated in seconds.',
           style: TextStyle(
             fontSize: 20,
             height: 1.2,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.3,
-            color: AppColors.inkPrimary,
+            color: palette.inkPrimary,
           ),
         ),
         const SizedBox(height: 10),
         _para(
+          palette,
           'Every product is fed to an AI model along with its available label '
           'and nutrition data. The model returns one of six verdicts. That is '
           'the whole process — one automated opinion, generated in seconds, '
@@ -288,11 +288,13 @@ class HowItWorksScreen extends StatelessWidget {
         ),
         _sectionEyebrow('Disclaimer'),
         _para(
+          palette,
           'Munch or Dump is satire and entertainment. Every verdict is '
           'generated by an AI model and reflects a subjective, automated '
           'opinion, not a factual assessment of any product, brand, or company.',
         ),
         _para(
+          palette,
           'AI makes mistakes. Verdicts may contain errors, including wrong '
           'ingredients, outdated information, or invented details. Nothing here '
           'is a substitute for reading the actual product label, nutrition '
@@ -300,6 +302,7 @@ class HowItWorksScreen extends StatelessWidget {
           'dietary, allergy, or safety decisions.',
         ),
         _para(
+          palette,
           'Found something wrong? Email hello@munchordump.com and we’ll review '
           'or remove it promptly.',
         ),
@@ -316,11 +319,18 @@ class OurStoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return _ContentScaffold(
       appBarTitle: 'Our story',
       children: <Widget>[
-        _header('Our story', 'We built this so you’d', 'stop being lied to.'),
+        _header(
+          palette,
+          'Our story',
+          'We built this so you’d',
+          'stop being lied to.',
+        ),
         _lead(
+          palette,
           'Munch or Dump exists because food packaging is designed to deceive. '
           '“Natural.” “Wholesome.” “Clean.” All marketing. None of it '
           'regulated. We got tired of it.',
@@ -329,10 +339,10 @@ class OurStoryScreen extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(bottom: 20),
           padding: const EdgeInsets.only(left: 16),
-          decoration: const Border(
-            left: BorderSide(color: AppColors.inkGhost, width: 2),
+          decoration: Border(
+            left: BorderSide(color: palette.inkGhost, width: 2),
           ).toBoxDecoration(),
-          child: const Text(
+          child: Text(
             '“So we built something that reads the label like a scientist and '
             'explains it like a friend. No agenda. No sponsors. Just the truth '
             'about what’s in your food.”',
@@ -340,7 +350,7 @@ class OurStoryScreen extends StatelessWidget {
               fontSize: 15,
               height: 1.55,
               fontStyle: FontStyle.italic,
-              color: AppColors.inkSecondary,
+              color: palette.inkSecondary,
             ),
           ),
         ),
@@ -366,10 +376,12 @@ class OurStoryScreen extends StatelessWidget {
         ),
         _sectionEyebrow('Why it’s free'),
         _para(
+          palette,
           'No ads. No selling your data. No brand money. The verdicts stay '
           'honest because nobody’s paying us to say otherwise.',
         ),
         _para(
+          palette,
           'The best thing you can do is simple: keep scanning, and tell a '
           'friend who’s tired of being lied to. That’s what this is for.',
         ),
@@ -388,29 +400,30 @@ class _Principle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: const Border(
-        top: BorderSide(color: AppColors.hairline),
+      decoration: Border(
+        top: BorderSide(color: palette.hairline),
       ).toBoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             detail,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: AppColors.inkSecondary,
+              color: palette.inkSecondary,
             ),
           ),
         ],
@@ -427,11 +440,12 @@ class _DarkQuote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.ctaBlack,
+        color: palette.ctaBlack,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -439,18 +453,21 @@ class _DarkQuote extends StatelessWidget {
         children: <Widget>[
           Text(
             quote,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               height: 1.2,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.4,
-              color: Colors.white,
+              color: palette.ctaForeground,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             '— $attribution',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF9CA0A8)),
+            style: TextStyle(
+              fontSize: 13,
+              color: palette.ctaForeground.withValues(alpha: 0.62),
+            ),
           ),
         ],
       ),
@@ -473,6 +490,7 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,25 +500,25 @@ class _Step extends StatelessWidget {
               Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(
-                  color: AppColors.inkPrimary,
+                decoration: BoxDecoration(
+                  color: palette.inkPrimary,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   number,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: palette.ctaForeground,
                   ),
                 ),
               ),
               if (!last)
-                const Expanded(
+                Expanded(
                   child: SizedBox(
                     width: 1,
-                    child: ColoredBox(color: AppColors.hairline),
+                    child: ColoredBox(color: palette.hairline),
                   ),
                 ),
             ],
@@ -514,19 +532,19 @@ class _Step extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkPrimary,
+                      color: palette.inkPrimary,
                     ),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       height: 1.5,
-                      color: AppColors.inkSecondary,
+                      color: palette.inkSecondary,
                     ),
                   ),
                 ],
@@ -552,13 +570,14 @@ class _HonestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,18 +587,15 @@ class _HonestCard extends StatelessWidget {
               children: <TextSpan>[
                 TextSpan(
                   text: stat,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.inkPrimary,
+                    color: palette.inkPrimary,
                   ),
                 ),
                 TextSpan(
                   text: '  $label',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.inkFaint,
-                  ),
+                  style: TextStyle(fontSize: 13, color: palette.inkFaint),
                 ),
               ],
             ),
@@ -587,10 +603,10 @@ class _HonestCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             detail,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: AppColors.inkSecondary,
+              color: palette.inkSecondary,
             ),
           ),
         ],

@@ -10,7 +10,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -353,6 +353,7 @@ class _PhotoSetSheetState extends State<_PhotoSetSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -366,13 +367,13 @@ class _PhotoSetSheetState extends State<_PhotoSetSheet> {
           children: <Widget>[
             const Eyebrow('Scan a label', spacing: 3.6),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Snap the front, the ingredients list, and the nutrition panel — '
               'up to 4 photos. More angles, better verdict.',
               style: TextStyle(
                 fontSize: 13.5,
                 height: 1.45,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
             if (_photos.isNotEmpty) ...<Widget>[
@@ -397,7 +398,7 @@ class _PhotoSetSheetState extends State<_PhotoSetSheet> {
               trailing: const SizedBox.shrink(),
               onTap: _remaining == 0 || _picking ? () {} : _takePhoto,
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             NavRow(
               icon: Icons.photo_library_outlined,
               label: 'Choose from library',
@@ -406,9 +407,9 @@ class _PhotoSetSheetState extends State<_PhotoSetSheet> {
             ),
             if (_remaining == 0) ...<Widget>[
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'That’s the limit — 4 photos per scan.',
-                style: TextStyle(fontSize: 12.5, color: AppColors.inkFaint),
+                style: TextStyle(fontSize: 12.5, color: palette.inkFaint),
               ),
             ],
             const SizedBox(height: 16),
@@ -437,6 +438,7 @@ class _PhotoThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Stack(
       children: <Widget>[
         ClipRRect(
@@ -449,11 +451,8 @@ class _PhotoThumb extends StatelessWidget {
             errorBuilder: (_, _, _) => Container(
               width: 84,
               height: 84,
-              color: AppColors.surfaceAlt,
-              child: const Icon(
-                Icons.broken_image_outlined,
-                color: AppColors.inkFaint,
-              ),
+              color: palette.surfaceAlt,
+              child: Icon(Icons.broken_image_outlined, color: palette.inkFaint),
             ),
           ),
         ),

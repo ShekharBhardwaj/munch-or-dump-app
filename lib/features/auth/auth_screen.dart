@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/config/app_config.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -195,15 +195,16 @@ class _GoogleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: const Icon(Icons.account_circle_outlined, size: 18),
       label: const Text('Continue with Google'),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
-        foregroundColor: AppColors.inkPrimary,
-        backgroundColor: AppColors.surface,
-        shape: const StadiumBorder(side: BorderSide(color: AppColors.hairline)),
+        foregroundColor: palette.inkPrimary,
+        backgroundColor: palette.surface,
+        shape: StadiumBorder(side: BorderSide(color: palette.hairline)),
       ),
     );
   }
@@ -216,8 +217,9 @@ class _TermsLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final link = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: AppColors.brand,
+      color: palette.brand,
       fontWeight: FontWeight.w600,
     );
     return Text.rich(
@@ -243,7 +245,7 @@ class _TermsLine extends StatelessWidget {
         ],
       ),
       textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 12, color: AppColors.inkFaint),
+      style: TextStyle(fontSize: 12, color: palette.inkFaint),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/features/account/you_screen.dart';
 import 'package:munch_or_dump/features/browse/browse_screen.dart';
 import 'package:munch_or_dump/features/game/game_screen.dart';
@@ -53,15 +53,16 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.hairline)),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.hairline)),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0A000000),
+            color: palette.shadow,
             blurRadius: 12,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -125,7 +126,8 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.brand : AppColors.inkFaint;
+    final palette = context.palette;
+    final color = selected ? palette.brand : palette.inkFaint;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -156,6 +158,7 @@ class _ScanItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -166,7 +169,7 @@ class _ScanItem extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.ctaBlack,
+                color: palette.ctaBlack,
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: const <BoxShadow>[
                   BoxShadow(
@@ -176,19 +179,19 @@ class _ScanItem extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.qr_code_scanner,
                 size: 22,
-                color: Colors.white,
+                color: palette.ctaForeground,
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
+            Text(
               'Scan',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
           ],

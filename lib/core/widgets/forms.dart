@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// Shared editorial form chrome: a graph-paper page with a back button, an
@@ -43,10 +43,10 @@ class FormScaffold extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   subtitle!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     height: 1.55,
-                    color: AppColors.inkSecondary,
+                    color: context.palette.inkSecondary,
                   ),
                 ),
               ],
@@ -74,10 +74,10 @@ class LabeledField extends StatelessWidget {
       children: <Widget>[
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.inkSecondary,
+            color: context.palette.inkSecondary,
           ),
         ),
         const SizedBox(height: 8),
@@ -96,6 +96,7 @@ class FormMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Text(
@@ -104,7 +105,7 @@ class FormMessage extends StatelessWidget {
           fontSize: 13.5,
           height: 1.4,
           fontWeight: FontWeight.w500,
-          color: error ? AppColors.concernHigh : AppColors.brandDeep,
+          color: error ? palette.concernHigh : palette.brandDeep,
         ),
       ),
     );
@@ -127,6 +128,7 @@ class SelectChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     // Selection is conveyed by fill/border/text color; expose it non-visually
     // too so screen readers announce "selected" (and color-blind users aren't
     // left guessing) — matching the ChoiceChip/FilterChip this replaces.
@@ -146,12 +148,10 @@ class SelectChip extends StatelessWidget {
               duration: const Duration(milliseconds: 120),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: selected
-                    ? const Color(0xFFECFDF5)
-                    : AppColors.surfaceAlt,
+                color: selected ? const Color(0xFFECFDF5) : palette.surfaceAlt,
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(
-                  color: selected ? AppColors.brand : AppColors.hairline,
+                  color: selected ? palette.brand : palette.hairline,
                 ),
               ),
               child: Text(
@@ -159,9 +159,7 @@ class SelectChip extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  color: selected
-                      ? AppColors.brandDeep
-                      : AppColors.inkSecondary,
+                  color: selected ? palette.brandDeep : palette.inkSecondary,
                 ),
               ),
             ),
@@ -190,29 +188,23 @@ class NavRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
           children: <Widget>[
-            Icon(icon, size: 20, color: AppColors.inkSecondary),
+            Icon(icon, size: 20, color: palette.inkSecondary),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppColors.inkPrimary,
-                ),
+                style: TextStyle(fontSize: 16, color: palette.inkPrimary),
               ),
             ),
             trailing ??
-                const Icon(
-                  Icons.chevron_right,
-                  size: 20,
-                  color: AppColors.inkGhost,
-                ),
+                Icon(Icons.chevron_right, size: 20, color: palette.inkGhost),
           ],
         ),
       ),

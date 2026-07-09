@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 
 /// The editorial design language ported from munchordump.com: a graph-paper
@@ -12,14 +12,21 @@ import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 /// Faint square grid behind hero content. 60px cells, black @ 2.2% — the
 /// website's "lab paper" texture.
 class GraphPaperPainter extends CustomPainter {
-  const GraphPaperPainter({this.cell = 60});
+  const GraphPaperPainter({
+    this.cell = 60,
+    this.color = const Color.fromRGBO(0, 0, 0, 0.022),
+  });
 
   final double cell;
+
+  /// Line color — pass `context.palette.gridLine` so the texture adapts to
+  /// dark mode. Defaults to the light-mode value for backwards compatibility.
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color.fromRGBO(0, 0, 0, 0.022)
+      ..color = color
       ..strokeWidth = 1
       ..isAntiAlias = false;
     for (double x = 0; x <= size.width; x += cell) {
@@ -31,7 +38,8 @@ class GraphPaperPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(GraphPaperPainter oldDelegate) => oldDelegate.cell != cell;
+  bool shouldRepaint(GraphPaperPainter oldDelegate) =>
+      oldDelegate.cell != cell || oldDelegate.color != color;
 }
 
 /// Stacks the graph-paper grid under [child]. With [fade], the grid dissolves
@@ -44,8 +52,10 @@ class GridBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget grid = const Positioned.fill(
-      child: IgnorePointer(child: CustomPaint(painter: GraphPaperPainter())),
+    final palette = context.palette;
+    final painter = GraphPaperPainter(color: palette.gridLine);
+    Widget grid = Positioned.fill(
+      child: IgnorePointer(child: CustomPaint(painter: painter)),
     );
     if (fade) {
       grid = Positioned.fill(
@@ -58,7 +68,7 @@ class GridBackground extends StatelessWidget {
               stops: <double>[0.5, 1],
             ).createShader(rect),
             blendMode: BlendMode.dstIn,
-            child: const CustomPaint(painter: GraphPaperPainter()),
+            child: CustomPaint(painter: painter),
           ),
         ),
       );
@@ -73,7 +83,7 @@ class Eyebrow extends StatelessWidget {
     this.text, {
     this.size = 12,
     this.spacing = 5.5,
-    this.color = AppColors.inkFaint,
+    this.color,
     this.align = TextAlign.start,
     super.key,
   });
@@ -81,7 +91,9 @@ class Eyebrow extends StatelessWidget {
   final String text;
   final double size;
   final double spacing;
-  final Color color;
+
+  /// Override color; defaults to the theme's `inkFaint`.
+  final Color? color;
   final TextAlign align;
 
   @override
@@ -93,7 +105,7 @@ class Eyebrow extends StatelessWidget {
         fontSize: size,
         fontWeight: FontWeight.w600,
         letterSpacing: spacing,
-        color: color,
+        color: color ?? context.palette.inkFaint,
         height: 1.2,
       ),
     );
@@ -118,6 +130,7 @@ class TwoToneHeadline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final base = TextStyle(
       fontSize: size,
       fontWeight: FontWeight.w800,
@@ -129,12 +142,12 @@ class TwoToneHeadline extends StatelessWidget {
         children: <TextSpan>[
           TextSpan(
             text: dark,
-            style: base.copyWith(color: AppColors.inkPrimary),
+            style: base.copyWith(color: palette.inkPrimary),
           ),
           const TextSpan(text: ' '),
           TextSpan(
             text: muted,
-            style: base.copyWith(color: AppColors.inkFaint),
+            style: base.copyWith(color: palette.inkFaint),
           ),
         ],
       ),
@@ -176,6 +189,7 @@ class _BlackCtaButtonState extends State<BlackCtaButton> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final disabled = widget.busy || !widget.enabled;
     return Semantics(
       button: true,
@@ -196,7 +210,7 @@ class _BlackCtaButtonState extends State<BlackCtaButton> {
             decoration: BoxDecoration(
               color: !widget.enabled
                   ? const Color(0xFF9C968F)
-                  : (_pressed ? AppColors.ctaPressed : AppColors.ctaBlack),
+                  : (_pressed ? palette.ctaPressed : palette.ctaBlack),
               borderRadius: BorderRadius.circular(999),
               boxShadow: disabled
                   ? null
@@ -209,12 +223,14 @@ class _BlackCtaButtonState extends State<BlackCtaButton> {
                     ],
             ),
             child: widget.busy
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        palette.ctaForeground,
+                      ),
                     ),
                   )
                 : Row(
@@ -224,13 +240,17 @@ class _BlackCtaButtonState extends State<BlackCtaButton> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       if (widget.leadingIcon != null) ...<Widget>[
-                        Icon(widget.leadingIcon, size: 16, color: Colors.white),
+                        Icon(
+                          widget.leadingIcon,
+                          size: 16,
+                          color: palette.ctaForeground,
+                        ),
                         const SizedBox(width: 10),
                       ],
                       Text(
                         widget.label,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: palette.ctaForeground,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -243,7 +263,7 @@ class _BlackCtaButtonState extends State<BlackCtaButton> {
                           child: Icon(
                             widget.trailingIcon,
                             size: 15,
-                            color: Colors.white,
+                            color: palette.ctaForeground,
                           ),
                         ),
                       ],
@@ -327,16 +347,17 @@ class AccentTopBorderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final card = DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: palette.hairline),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0A1C1917),
+            color: palette.shadow,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -437,13 +458,14 @@ class ImpactScore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (score.abs() < 2) return const SizedBox.shrink();
+    final palette = context.palette;
     return Text(
       score > 0 ? '+$score' : '$score',
       style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-        color: score > 0 ? AppColors.impactPositive : AppColors.impactNegative,
+        color: score > 0 ? palette.impactPositive : palette.impactNegative,
       ),
     );
   }
@@ -457,14 +479,15 @@ class SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Row(
       children: <Widget>[
-        const Expanded(child: Divider(color: AppColors.hairline, thickness: 1)),
+        Expanded(child: Divider(color: palette.hairline, thickness: 1)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Eyebrow(text, spacing: 4.2),
         ),
-        const Expanded(child: Divider(color: AppColors.hairline, thickness: 1)),
+        Expanded(child: Divider(color: palette.hairline, thickness: 1)),
       ],
     );
   }
@@ -563,8 +586,9 @@ class PageLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Material(
-      color: AppColors.canvas,
+      color: palette.canvas,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -573,10 +597,10 @@ class PageLoader extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'LOADING ${label.toUpperCase()}…',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 letterSpacing: 3.6,
-                color: AppColors.inkFaint,
+                color: palette.inkFaint,
               ),
             ),
           ],
@@ -620,9 +644,10 @@ class _AnalysisLoaderState extends State<AnalysisLoader> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final name = widget.productName?.trim() ?? '';
     return Material(
-      color: AppColors.canvas,
+      color: palette.canvas,
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -636,10 +661,10 @@ class _AnalysisLoaderState extends State<AnalysisLoader> {
                 name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.inkSecondary,
+                  color: palette.inkSecondary,
                 ),
               ),
             ],
@@ -650,10 +675,10 @@ class _AnalysisLoaderState extends State<AnalysisLoader> {
                 '${_analysisSteps[_step].toUpperCase()}…',
                 key: ValueKey<int>(_step),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   letterSpacing: 3.6,
-                  color: AppColors.inkFaint,
+                  color: palette.inkFaint,
                 ),
               ),
             ),

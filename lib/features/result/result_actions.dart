@@ -5,7 +5,7 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/providers.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -208,15 +208,16 @@ class _CommunityVote extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final summary = ref.watch(voteSummaryProvider(productName));
     return Container(
       margin: const EdgeInsets.only(top: 24),
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,9 +225,9 @@ class _CommunityVote extends ConsumerWidget {
           const Eyebrow('Community verdict', spacing: 4.2),
           const SizedBox(height: 14),
           summary.when(
-            loading: () => const Text(
+            loading: () => Text(
               'Tallying the community…',
-              style: TextStyle(fontSize: 13, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 13, color: palette.inkFaint),
             ),
             error: (_, _) => const SizedBox.shrink(),
             data: (s) => _VoteSplit(summary: s),
@@ -330,10 +331,11 @@ class _VoteSplit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     if (summary.totalVotes == 0) {
-      return const Text(
+      return Text(
         'No votes yet — be the first.',
-        style: TextStyle(fontSize: 13.5, color: AppColors.inkFaint),
+        style: TextStyle(fontSize: 13.5, color: palette.inkFaint),
       );
     }
     final munchPct = summary.communityMunchPct.clamp(0, 100);
@@ -382,7 +384,7 @@ class _VoteSplit extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           '${summary.totalVotes} ${summary.totalVotes == 1 ? "vote" : "votes"}',
-          style: const TextStyle(fontSize: 12, color: AppColors.inkFaint),
+          style: TextStyle(fontSize: 12, color: palette.inkFaint),
         ),
       ],
     );

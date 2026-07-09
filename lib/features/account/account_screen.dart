@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/forms.dart';
 import 'package:munch_or_dump/features/about/about_screens.dart';
@@ -23,6 +23,7 @@ class AccountScreen extends ConsumerWidget {
       return const Scaffold(body: PageLoader());
     }
 
+    final palette = context.palette;
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: SafeArea(
@@ -43,7 +44,7 @@ class AccountScreen extends ConsumerWidget {
               label: 'Scan history',
               onTap: () => context.pushNamed(Routes.history),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             NavRow(
               icon: Icons.bookmark_outline,
               label: 'Saved & following',
@@ -57,25 +58,25 @@ class AccountScreen extends ConsumerWidget {
               label: 'About Munch or Dump',
               onTap: () => context.pushNamed(Routes.about),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             NavRow(
               icon: Icons.science_outlined,
               label: 'How it works',
               onTap: () => context.pushNamed(Routes.howItWorks),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             NavRow(
               icon: Icons.auto_stories_outlined,
               label: 'Our story',
               onTap: () => context.pushNamed(Routes.ourStory),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             NavRow(
               icon: Icons.gavel_outlined,
               label: 'Disclaimers & terms',
               onTap: () => context.pushNamed(Routes.legal),
             ),
-            const Divider(height: 1, color: AppColors.hairlineFaint),
+            Divider(height: 1, color: palette.hairlineFaint),
             NavRow(
               icon: Icons.lock_outline,
               label: 'Privacy policy',
@@ -101,6 +102,7 @@ class _Identity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final initial = user.email.isNotEmpty ? user.email[0].toUpperCase() : '?';
     return Row(
       children: <Widget>[
@@ -111,14 +113,14 @@ class _Identity extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFECFDF5),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.brand),
+            border: Border.all(color: palette.brand),
           ),
           child: Text(
             initial,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: AppColors.brandDeep,
+              color: palette.brandDeep,
             ),
           ),
         ),
@@ -131,10 +133,10 @@ class _Identity extends StatelessWidget {
                 user.email,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.inkPrimary,
+                  color: palette.inkPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -143,34 +145,34 @@ class _Identity extends StatelessWidget {
                 runSpacing: 6,
                 children: <Widget>[
                   if (user.isPremium)
-                    const MetaPill(
+                    MetaPill(
                       text: 'Premium',
-                      fg: AppColors.brandDeep,
-                      bg: Color(0xFFECFDF5),
-                      border: AppColors.brand,
+                      fg: palette.brandDeep,
+                      bg: const Color(0xFFECFDF5),
+                      border: palette.brand,
                       upper: true,
                     )
                   else
-                    const MetaPill(
+                    MetaPill(
                       text: 'Free',
-                      fg: AppColors.inkSecondary,
-                      bg: AppColors.surfaceAlt,
-                      border: AppColors.hairline,
+                      fg: palette.inkSecondary,
+                      bg: palette.surfaceAlt,
+                      border: palette.hairline,
                       upper: true,
                     ),
                   if (user.tier != null)
                     MetaPill(
                       text: _prettyTier(user.tier!),
-                      fg: AppColors.inkSecondary,
-                      bg: AppColors.surfaceAlt,
-                      border: AppColors.hairline,
+                      fg: palette.inkSecondary,
+                      bg: palette.surfaceAlt,
+                      border: palette.hairline,
                     ),
                   if (user.isAdmin)
-                    const MetaPill(
+                    MetaPill(
                       text: 'Admin',
-                      fg: AppColors.inkSecondary,
-                      bg: AppColors.surfaceAlt,
-                      border: AppColors.hairline,
+                      fg: palette.inkSecondary,
+                      bg: palette.surfaceAlt,
+                      border: palette.hairline,
                       upper: true,
                     ),
                 ],
@@ -194,6 +196,7 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final profile = user.profile;
     final persona = profile?.persona;
     final personaLabel = (persona == null || persona.isEmpty)
@@ -216,9 +219,9 @@ class _ProfileCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,28 +233,32 @@ class _ProfileCard extends StatelessWidget {
               GestureDetector(
                 onTap: () => context.pushNamed(Routes.onboarding),
                 behavior: HitTestBehavior.opaque,
-                child: const Text(
+                child: Text(
                   'Edit',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.brand,
+                    color: palette.brand,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _row('Shopping for', personaLabel),
-          _row('Goals', goals.isEmpty ? '—' : goals.join(', ')),
-          _row('Dietary', dietary.isEmpty ? '—' : dietary.join(', ')),
-          _row('Conditions', conditions.isEmpty ? '—' : conditions.join(', ')),
+          _row(palette, 'Shopping for', personaLabel),
+          _row(palette, 'Goals', goals.isEmpty ? '—' : goals.join(', ')),
+          _row(palette, 'Dietary', dietary.isEmpty ? '—' : dietary.join(', ')),
+          _row(
+            palette,
+            'Conditions',
+            conditions.isEmpty ? '—' : conditions.join(', '),
+          ),
         ],
       ),
     );
   }
 
-  Widget _row(String label, String value) {
+  Widget _row(Palette palette, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
@@ -261,16 +268,16 @@ class _ProfileCard extends StatelessWidget {
             width: 96,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 12.5, color: AppColors.inkFaint),
+              style: TextStyle(fontSize: 12.5, color: palette.inkFaint),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 height: 1.4,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
           ),
@@ -288,15 +295,16 @@ class _SignOutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: const Icon(Icons.logout, size: 18),
       label: const Text('Sign out'),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
-        foregroundColor: AppColors.inkSecondary,
-        backgroundColor: AppColors.surface,
-        shape: const StadiumBorder(side: BorderSide(color: AppColors.hairline)),
+        foregroundColor: palette.inkSecondary,
+        backgroundColor: palette.surface,
+        shape: StadiumBorder(side: BorderSide(color: palette.hairline)),
       ),
     );
   }

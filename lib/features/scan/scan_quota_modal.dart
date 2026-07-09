@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 const List<String> _perks = <String>[
@@ -14,9 +14,10 @@ const List<String> _perks = <String>[
 /// Bottom sheet shown when a logged-out user tries to scan. Scanning requires an
 /// account (the API returns 401 for anonymous analyze), so this is the gate.
 Future<void> showSignInToScanSheet(BuildContext context) {
+  final palette = context.palette;
   return showModalBottomSheet<void>(
     context: context,
-    backgroundColor: AppColors.surface,
+    backgroundColor: palette.surface,
     showDragHandle: true,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -29,23 +30,23 @@ Future<void> showSignInToScanSheet(BuildContext context) {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text(
+            Text(
               'Sign in to scan',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Create a free account to scan products and get an instant, '
               'honest verdict.',
               style: TextStyle(
                 fontSize: 15,
                 height: 1.5,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
             const SizedBox(height: 20),
@@ -54,14 +55,14 @@ Future<void> showSignInToScanSheet(BuildContext context) {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: <Widget>[
-                    const Icon(Icons.check, size: 18, color: AppColors.brand),
+                    Icon(Icons.check, size: 18, color: palette.brand),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         perk,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.inkPrimary,
+                          color: palette.inkPrimary,
                         ),
                       ),
                     ),

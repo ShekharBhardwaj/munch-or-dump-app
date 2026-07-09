@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
@@ -30,6 +30,7 @@ class ResultScreen extends StatelessWidget {
       );
     }
 
+    final palette = context.palette;
     final tone = verdictToneFor(data.verdict);
     final category = (data.category ?? 'Food').trim();
     final lead = data.shortExplanation ?? '';
@@ -50,22 +51,19 @@ class ResultScreen extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 data.productName.isEmpty ? 'Verdict' : data.productName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 30,
                   height: 1.1,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.6,
-                  color: AppColors.inkPrimary,
+                  color: palette.inkPrimary,
                 ),
               ),
               if (data.brand != null && data.brand!.isNotEmpty) ...<Widget>[
                 const SizedBox(height: 6),
                 Text(
                   data.brand!,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.inkFaint,
-                  ),
+                  style: TextStyle(fontSize: 13, color: palette.inkFaint),
                 ),
               ],
               const SizedBox(height: 20),
@@ -76,11 +74,11 @@ class ResultScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   lead,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     height: 1.5,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.inkPrimary,
+                    color: palette.inkPrimary,
                   ),
                 ),
               ],
@@ -212,18 +210,19 @@ class _VerdictHeroState extends State<_VerdictHero>
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final result = widget.result;
     final tone = widget.tone;
     final pills = _metaPills(result);
     final panel = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(color: palette.hairline),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0A1C1917),
+            color: palette.shadow,
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -302,19 +301,16 @@ class _VerdictHeroState extends State<_VerdictHero>
                       children: pills,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'AI estimate — always read the label for allergens.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11, color: AppColors.inkMuted),
+                      style: TextStyle(fontSize: 11, color: palette.inkMuted),
                     ),
                   ],
                   const SizedBox(height: 12),
                   Text(
                     result.cacheHit ? '⚡ Instant verdict' : '✨ Fresh analysis',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.inkFaint,
-                    ),
+                    style: TextStyle(fontSize: 11, color: palette.inkFaint),
                   ),
                 ],
               ),
@@ -340,10 +336,11 @@ class _VerdictDisclaimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
+    final palette = context.palette;
+    return Text(
       'An AI opinion — not fact, and not medical advice.',
       textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 12, color: AppColors.inkFaint),
+      style: TextStyle(fontSize: 12, color: palette.inkFaint),
     );
   }
 }
@@ -603,44 +600,44 @@ class _Concern {
   final Color? badgeBg;
   final Color? badgeFg;
 
-  static _Concern of(SafetyRating r) => switch (r) {
-    SafetyRating.harmful => const _Concern(
+  static _Concern of(SafetyRating r, Palette palette) => switch (r) {
+    SafetyRating.harmful => _Concern(
       level: 'High concern',
-      dot: AppColors.concernHigh,
-      tint: AppColors.concernHighTint,
-      name: Color(0xFF7F1D1D),
+      dot: palette.concernHigh,
+      tint: palette.concernHighTint,
+      name: const Color(0xFF7F1D1D),
       nameWeight: FontWeight.w600,
-      expanded: Color(0xFF991B1B),
+      expanded: const Color(0xFF991B1B),
       badge: 'High concern',
-      badgeBg: Color(0xFFFEE2E2),
-      badgeFg: Color(0xFFB91C1C),
+      badgeBg: const Color(0xFFFEE2E2),
+      badgeFg: const Color(0xFFB91C1C),
     ),
-    SafetyRating.concerning => const _Concern(
+    SafetyRating.concerning => _Concern(
       level: 'Concerning',
-      dot: AppColors.concernMid,
-      tint: AppColors.concernMidTint,
-      name: Color(0xFF7C2D12),
+      dot: palette.concernMid,
+      tint: palette.concernMidTint,
+      name: const Color(0xFF7C2D12),
       nameWeight: FontWeight.w600,
-      expanded: Color(0xFF9A3412),
+      expanded: const Color(0xFF9A3412),
       badge: 'Concerning',
-      badgeBg: Color(0xFFFFEDD5),
-      badgeFg: Color(0xFFB45309),
+      badgeBg: const Color(0xFFFFEDD5),
+      badgeFg: const Color(0xFFB45309),
     ),
-    SafetyRating.moderate => const _Concern(
+    SafetyRating.moderate => _Concern(
       level: 'Moderate',
-      dot: AppColors.concernModerate,
+      dot: palette.concernModerate,
       tint: null,
-      name: Color(0xFF44403C),
+      name: const Color(0xFF44403C),
       nameWeight: FontWeight.w500,
-      expanded: Color(0xFF57534E),
+      expanded: const Color(0xFF57534E),
     ),
-    SafetyRating.safe => const _Concern(
+    SafetyRating.safe => _Concern(
       level: 'Safe',
-      dot: AppColors.concernSafe,
+      dot: palette.concernSafe,
       tint: null,
-      name: AppColors.inkFaint,
+      name: palette.inkFaint,
       nameWeight: FontWeight.w500,
-      expanded: AppColors.inkSecondary,
+      expanded: palette.inkSecondary,
     ),
   };
 }
@@ -668,6 +665,7 @@ class _IngredientBreakdownState extends State<_IngredientBreakdown> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final sorted = <AnalyzedIngredient>[...widget.ingredients]
       ..sort((a, b) {
         final byRank = _severityRank(
@@ -691,9 +689,9 @@ class _IngredientBreakdownState extends State<_IngredientBreakdown> {
       children: <Widget>[
         DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: palette.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.hairline),
+            border: Border.all(color: palette.hairline),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -709,10 +707,7 @@ class _IngredientBreakdownState extends State<_IngredientBreakdown> {
                       const SizedBox(width: 12),
                       Text(
                         '${sorted.length} total',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.inkGhost,
-                        ),
+                        style: TextStyle(fontSize: 11, color: palette.inkGhost),
                       ),
                       if (flagCount > 0)
                         Text(
@@ -748,10 +743,10 @@ class _IngredientBreakdownState extends State<_IngredientBreakdown> {
                       child: Text(
                         'Show $hidden more clean '
                         'ingredient${hidden == 1 ? '' : 's'} →',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.inkSecondary,
+                          color: palette.inkSecondary,
                         ),
                       ),
                     ),
@@ -782,14 +777,15 @@ class _IngredientRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = _Concern.of(ingredient.rating);
+    final palette = context.palette;
+    final c = _Concern.of(ingredient.rating, palette);
     final explanation = ingredient.explanation ?? '';
     final canExpand = explanation.isNotEmpty;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: c.tint,
         border: divider
-            ? const Border(bottom: BorderSide(color: AppColors.hairlineFaint))
+            ? Border(bottom: BorderSide(color: palette.hairlineFaint))
             : null,
       ),
       child: Column(
@@ -848,10 +844,10 @@ class _IngredientRow extends StatelessWidget {
                     AnimatedRotation(
                       turns: expanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 200),
-                      child: const Icon(
+                      child: Icon(
                         Icons.keyboard_arrow_down,
                         size: 16,
-                        color: AppColors.inkFaint,
+                        color: palette.inkFaint,
                       ),
                     ),
                   ],
@@ -887,25 +883,23 @@ class _ConcernLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     Widget item(Color color, String label) => Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         ConcernDot(color: color, size: 6),
         const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 10, color: AppColors.inkFaint),
-        ),
+        Text(label, style: TextStyle(fontSize: 10, color: palette.inkFaint)),
       ],
     );
     return Wrap(
       spacing: 20,
       runSpacing: 8,
       children: <Widget>[
-        item(AppColors.concernHigh, 'High concern'),
-        item(AppColors.concernMid, 'Concerning'),
-        item(AppColors.concernModerate, 'Moderate'),
-        item(AppColors.concernSafe, 'Safe'),
+        item(palette.concernHigh, 'High concern'),
+        item(palette.concernMid, 'Concerning'),
+        item(palette.concernModerate, 'Moderate'),
+        item(palette.concernSafe, 'Safe'),
       ],
     );
   }
@@ -918,11 +912,12 @@ class _ClaimCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final misleading = claim.isMisleading;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: misleading ? const Color(0xCCFECACA) : const Color(0x99E7E5E4),
@@ -957,10 +952,10 @@ class _ClaimCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '“${claim.claim}”',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.ctaPressed,
+                    color: palette.ctaPressed,
                   ),
                 ),
                 if ((claim.reality ?? '').isNotEmpty) ...<Widget>[
@@ -1004,6 +999,7 @@ class _AlternativesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final alts = alternatives.take(5).toList();
     final subtext = _altSubtext[verdict];
     return Column(
@@ -1012,16 +1008,16 @@ class _AlternativesList extends StatelessWidget {
         if (subtext != null) ...<Widget>[
           Text(
             subtext,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13.5,
               height: 1.5,
-              color: AppColors.inkSecondary,
+              color: palette.inkSecondary,
             ),
           ),
           const SizedBox(height: 6),
         ],
         for (var i = 0; i < alts.length; i++) ...<Widget>[
-          if (i > 0) const Divider(height: 1, color: AppColors.hairlineFaint),
+          if (i > 0) Divider(height: 1, color: palette.hairlineFaint),
           _AlternativeRow(alt: alts[i]),
         ],
       ],
@@ -1036,6 +1032,7 @@ class _AlternativeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final verdict = alt.verdict;
     final delta = alt.scoreDelta;
     final brand = alt.brandName;
@@ -1064,10 +1061,10 @@ class _AlternativeRow extends StatelessWidget {
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkPrimary,
+                      color: palette.inkPrimary,
                     ),
                   ),
                 ],
@@ -1077,21 +1074,17 @@ class _AlternativeRow extends StatelessWidget {
             if (delta != null && delta > 0) ...<Widget>[
               Text(
                 '+$delta',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.impactPositive,
+                  color: palette.impactPositive,
                 ),
               ),
               const SizedBox(width: 8),
             ],
             if (verdict != null) WebVerdictBadge(verdict: verdict, size: 9),
             const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right,
-              size: 18,
-              color: AppColors.inkGhost,
-            ),
+            Icon(Icons.chevron_right, size: 18, color: palette.inkGhost),
           ],
         ),
       ),
@@ -1108,13 +1101,14 @@ class _ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.hairline),
+        border: Border.all(color: palette.hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
-import 'package:munch_or_dump/core/theme/app_colors.dart';
+import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// Full-screen sign-in wall for a gated feature (history, watchlist). Matches
@@ -24,6 +24,7 @@ class SignInWall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -34,14 +35,14 @@ class SignInWall extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: AppColors.surfaceAlt,
+                color: palette.surfaceAlt,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.hairline),
+                border: Border.all(color: palette.hairline),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.lock_outline,
                 size: 24,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
             const SizedBox(height: 20),
@@ -52,21 +53,21 @@ class SignInWall extends StatelessWidget {
             Text(
               heading,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
-                color: AppColors.inkPrimary,
+                color: palette.inkPrimary,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               body,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 height: 1.5,
-                color: AppColors.inkSecondary,
+                color: palette.inkSecondary,
               ),
             ),
             const SizedBox(height: 24),
@@ -98,6 +99,7 @@ class SignInInline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: () => context.pushNamed(Routes.login),
       borderRadius: BorderRadius.circular(8),
@@ -108,16 +110,16 @@ class SignInInline extends StatelessWidget {
             children: <TextSpan>[
               TextSpan(
                 text: action,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.brand,
+                  color: palette.brand,
                 ),
               ),
               TextSpan(text: rest),
             ],
           ),
           textAlign: align,
-          style: const TextStyle(fontSize: 13, color: AppColors.inkSecondary),
+          style: TextStyle(fontSize: 13, color: palette.inkSecondary),
         ),
       ),
     );
@@ -150,6 +152,7 @@ class SignInGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final more = (total ?? 0) - shown;
     final headline = more > 0 ? '$more more $unit' : 'See every $_singular';
     // A soft-paywall: the list quietly dissolves into the page, then one
@@ -175,13 +178,13 @@ class SignInGate extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const DecoratedBox(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: <Color>[Colors.transparent, AppColors.canvas],
-                        stops: <double>[0.0, 0.9],
+                        colors: <Color>[Colors.transparent, palette.canvas],
+                        stops: const <double>[0.0, 0.9],
                       ),
                     ),
                   ),
@@ -192,11 +195,11 @@ class SignInGate extends StatelessWidget {
           Text(
             headline,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 19,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.3,
-              color: AppColors.inkPrimary,
+              color: palette.inkPrimary,
             ),
           ),
           const SizedBox(height: 6),
@@ -205,7 +208,7 @@ class SignInGate extends StatelessWidget {
                 ? 'Free — and we don’t sell your data.'
                 : 'Sign in to unlock ${fullLabel!}. It’s free.',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13.5, color: AppColors.inkFaint),
+            style: TextStyle(fontSize: 13.5, color: palette.inkFaint),
           ),
           const SizedBox(height: 18),
           BlackCtaButton(
@@ -225,6 +228,7 @@ class _GhostRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -237,7 +241,7 @@ class _GhostRow extends StatelessWidget {
                   height: 13,
                   width: 180,
                   decoration: BoxDecoration(
-                    color: AppColors.hairline,
+                    color: palette.hairline,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -246,7 +250,7 @@ class _GhostRow extends StatelessWidget {
                   height: 11,
                   width: 110,
                   decoration: BoxDecoration(
-                    color: AppColors.hairlineFaint,
+                    color: palette.hairlineFaint,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -257,7 +261,7 @@ class _GhostRow extends StatelessWidget {
             height: 22,
             width: 64,
             decoration: BoxDecoration(
-              color: AppColors.surfaceAlt,
+              color: palette.surfaceAlt,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
