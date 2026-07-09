@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:munch_or_dump/core/models/cart.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
@@ -9,6 +10,7 @@ import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
+import 'package:munch_or_dump/features/cart/cart_controller.dart';
 
 /// A handful of recently-analyzed products for the home feed.
 final recentProductsProvider =
@@ -103,9 +105,75 @@ class _Navbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+      padding: EdgeInsets.fromLTRB(20, 12, 12, 0),
       child: Row(
-        children: <Widget>[_Wordmark(), SizedBox(width: 8), _BetaBadge()],
+        children: <Widget>[
+          _Wordmark(),
+          SizedBox(width: 8),
+          _BetaBadge(),
+          Spacer(),
+          _CartButton(),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cart Intelligence entry: a cart glyph with a live item-count badge.
+class _CartButton extends ConsumerWidget {
+  const _CartButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
+    final count = ref.watch(
+      cartControllerProvider.select((CartState s) => s.count),
+    );
+    return Semantics(
+      button: true,
+      label: count == 0 ? 'Cart' : 'Cart, $count item${count == 1 ? '' : 's'}',
+      child: ExcludeSemantics(
+        child: InkWell(
+          onTap: () => context.pushNamed(Routes.cart),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: <Widget>[
+                Icon(
+                  Icons.shopping_cart_outlined,
+                  size: 22,
+                  color: palette.inkPrimary,
+                ),
+                if (count > 0)
+                  Positioned(
+                    top: -5,
+                    right: -7,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: palette.ctaBlack,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        count > 99 ? '99+' : '$count',
+                        style: TextStyle(
+                          fontSize: 10,
+                          height: 1,
+                          fontWeight: FontWeight.w700,
+                          color: palette.ctaForeground,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -4,16 +4,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
+import 'package:munch_or_dump/core/models/cart.dart';
 import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
 import 'package:munch_or_dump/core/providers.dart';
+import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
+import 'package:munch_or_dump/features/cart/cart_controller.dart';
 import 'package:munch_or_dump/features/result/share_card.dart';
 import 'package:munch_or_dump/features/watchlist/watchlist_screen.dart'
     show libraryProvider;
@@ -130,6 +134,33 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
     (List<SavedItem> l) => l.any((SavedItem i) => i.productSlug == slug),
   );
 
+  /// Toggle this product in the local cart (anonymous-friendly — the cart is
+  /// device-local, so no sign-in gate). Dedup is by [CartItem.key].
+  void _toggleCart(String cartKey, bool inCart) {
+    unawaited(HapticFeedback.selectionClick());
+    final cart = ref.read(cartControllerProvider.notifier);
+    if (inCart) {
+      cart.removeByKey(cartKey);
+      _snack('Removed from cart.');
+      return;
+    }
+    cart.addItem(CartItem.fromAnalysis(widget.result));
+    if (!mounted) return;
+    // The snackbar outlives this screen (a back-swipe within its 4s window
+    // disposes us) — resolve the router now so the action never dereferences
+    // a defunct context.
+    final router = GoRouter.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Added to cart.'),
+        action: SnackBarAction(
+          label: 'View cart',
+          onPressed: () => router.pushNamed(Routes.cart),
+        ),
+      ),
+    );
+  }
+
   /// Share the verdict as the branded card image + an on-brand caption with
   /// the product link. If the card render fails for any reason we share
   /// text-only — the tap never dead-ends.
@@ -204,6 +235,12 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
     final saved = _savedOverride ?? serverSaved;
     final watched = _watchedOverride ?? serverWatched;
 
+    final cartKey = CartItem.fromAnalysis(widget.result).key;
+    final cartable = cartKey != 'name:';
+    final inCart =
+        cartable &&
+        ref.watch(cartControllerProvider.select((s) => s.contains(cartKey)));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -231,6 +268,16 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
           const SizedBox(height: 12),
         ] else
           const SizedBox(height: 24),
+        if (cartable) ...<Widget>[
+          OutlinedButton.icon(
+            onPressed: () => _toggleCart(cartKey, inCart),
+            icon: Icon(
+              inCart ? Icons.shopping_cart : Icons.add_shopping_cart_outlined,
+            ),
+            label: Text(inCart ? 'In cart — remove' : 'Add to cart'),
+          ),
+          const SizedBox(height: 12),
+        ],
         OutlinedButton.icon(
           onPressed: _sharing ? null : _share,
           icon: _sharing

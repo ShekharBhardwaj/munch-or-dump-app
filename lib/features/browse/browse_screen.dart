@@ -26,6 +26,12 @@ class BrowseScreen extends StatelessWidget {
             _GroupCard(
               tiles: <_BrowseTile>[
                 _BrowseTile(
+                  icon: Icons.shopping_cart_outlined,
+                  label: 'Cart Intelligence',
+                  sub: 'Score a whole shopping trip',
+                  onTap: () => context.pushNamed(Routes.cart),
+                ),
+                _BrowseTile(
                   icon: Icons.category_outlined,
                   label: 'Categories',
                   sub: 'Every food category, ranked',

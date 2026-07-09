@@ -13,6 +13,9 @@ import 'package:munch_or_dump/features/browse/brands_screen.dart';
 import 'package:munch_or_dump/features/browse/categories_screen.dart';
 import 'package:munch_or_dump/features/browse/ingredient_screen.dart';
 import 'package:munch_or_dump/features/browse/search_screen.dart';
+import 'package:munch_or_dump/features/cart/cart_history_screen.dart';
+import 'package:munch_or_dump/features/cart/cart_screen.dart';
+import 'package:munch_or_dump/features/cart/receipt_scan_screen.dart';
 import 'package:munch_or_dump/features/compare/compare_screen.dart';
 import 'package:munch_or_dump/features/examples/examples_screen.dart';
 import 'package:munch_or_dump/features/game/game_screen.dart';
@@ -21,7 +24,6 @@ import 'package:munch_or_dump/features/legal/legal_screens.dart';
 import 'package:munch_or_dump/features/news/news_screen.dart';
 import 'package:munch_or_dump/features/onboarding/onboarding_screen.dart';
 import 'package:munch_or_dump/features/product/product_screen.dart';
-import 'package:munch_or_dump/features/receipt/receipt_screen.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
 import 'package:munch_or_dump/features/scan/scan_screen.dart';
 import 'package:munch_or_dump/features/shell/main_shell.dart';
@@ -137,10 +139,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             IngredientScreen(slug: state.pathParameters['slug'] ?? ''),
       ),
+      // Receipt scan is the sub-flow that feeds the cart; /cart is the
+      // destination ("Cart Intelligence"). Both are anonymous-routable — the
+      // cart is local-only, and receipt *scanning* gates in-place like scan.
       GoRoute(
         path: '/receipt',
         name: Routes.receipt,
-        builder: (context, state) => const ReceiptScreen(),
+        builder: (context, state) => const ReceiptScanScreen(),
+      ),
+      GoRoute(
+        path: '/cart',
+        name: Routes.cart,
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: '/cart/history',
+        name: Routes.cartHistory,
+        builder: (context, state) => const CartHistoryScreen(),
       ),
       GoRoute(
         path: '/game',

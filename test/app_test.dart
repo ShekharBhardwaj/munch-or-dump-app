@@ -4,8 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:munch_or_dump/app.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/models/user.dart';
+import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/home/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Bypasses secure storage / network in tests by resolving straight to
 /// signed-out.
@@ -14,18 +16,25 @@ class _SignedOutAuthController extends AuthController {
   Future<User?> build() async => null;
 }
 
-Widget _app() => ProviderScope(
-  overrides: <Override>[
-    authControllerProvider.overrideWith(_SignedOutAuthController.new),
-    // No network for the home "recently analyzed" feed.
-    recentProductsProvider.overrideWith((ref) async => <ProductListItem>[]),
-  ],
-  child: const MunchOrDumpApp(),
-);
+Future<Widget> _app() async {
+  // The cart hydrates synchronously from the prefs preloaded in main() — mirror
+  // that here with a mock-backed instance.
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+  final prefs = await SharedPreferences.getInstance();
+  return ProviderScope(
+    overrides: <Override>[
+      sharedPrefsProvider.overrideWithValue(prefs),
+      authControllerProvider.overrideWith(_SignedOutAuthController.new),
+      // No network for the home "recently analyzed" feed.
+      recentProductsProvider.overrideWith((ref) async => <ProductListItem>[]),
+    ],
+    child: const MunchOrDumpApp(),
+  );
+}
 
 void main() {
   testWidgets('app boots to the home screen when signed out', (tester) async {
-    await tester.pumpWidget(_app());
+    await tester.pumpWidget(await _app());
     await tester.pumpAndSettle();
 
     expect(find.text('INGREDIENT INTELLIGENCE'), findsOneWidget);
@@ -33,7 +42,7 @@ void main() {
   });
 
   testWidgets('You tab offers sign-in when signed out', (tester) async {
-    await tester.pumpWidget(_app());
+    await tester.pumpWidget(await _app());
     await tester.pumpAndSettle();
 
     // Bottom-bar "You" tab → the signed-out invitation.

@@ -5,9 +5,11 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/user.dart';
 import 'package:munch_or_dump/core/models/user_content.dart';
 import 'package:munch_or_dump/core/models/verdict.dart';
+import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/result/result_actions.dart';
 import 'package:munch_or_dump/features/result/result_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Resolves straight to signed-out — no secure storage in tests.
 class _SignedOutAuthController extends AuthController {
@@ -127,6 +129,9 @@ void main() {
     addTearDown(tester.view.reset);
 
     final result = AnalysisResult.fromJson(_sampleJson());
+    // The "Add to cart" action reads the prefs-backed cart controller.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
       ProviderScope(
         overrides: <Override>[
@@ -135,6 +140,7 @@ void main() {
             'Test Granola',
           ).overrideWith((ref) => const VoteSummary()),
           authControllerProvider.overrideWith(_SignedOutAuthController.new),
+          sharedPrefsProvider.overrideWithValue(prefs),
         ],
         child: MaterialApp(home: ResultScreen(result: result)),
       ),
