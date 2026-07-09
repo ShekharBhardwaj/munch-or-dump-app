@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:munch_or_dump/core/api/api_exception.dart';
 import 'package:munch_or_dump/core/models/analysis_result.dart';
@@ -10,6 +14,7 @@ import 'package:munch_or_dump/core/theme/verdict_palette.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/features/auth/auth_controller.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
+import 'package:munch_or_dump/features/result/share_card.dart';
 import 'package:munch_or_dump/features/watchlist/watchlist_screen.dart'
     show libraryProvider;
 import 'package:share_plus/share_plus.dart';
@@ -19,6 +24,17 @@ final voteSummaryProvider = FutureProvider.autoDispose
     .family<VoteSummary, String>((ref, productName) {
       return ref.watch(munchApiProvider).getVoteSummary(productName);
     });
+
+/// The share caption's verdict-flavored one-liner — the same satirical
+/// register as the web ShareCard.
+String _shareQuip(Verdict verdict) => switch (verdict) {
+  Verdict.munch => 'Actual food — munch away.',
+  Verdict.okay => 'Not thrilling, not threatening. Just fine.',
+  Verdict.treat => 'Delicious nonsense — ration accordingly.',
+  Verdict.engineered => 'Built in a lab, not a kitchen.',
+  Verdict.dump => 'Bin it and don’t look back.',
+  Verdict.bullshit => 'The label writes checks the ingredients can’t cash.',
+};
 
 /// Save / watch / community-vote actions for a product result.
 ///
@@ -39,6 +55,7 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
   bool? _savedOverride;
   bool? _watchedOverride;
   bool _busy = false;
+  bool _sharing = false;
 
   String? get _slug => widget.result.productSlug;
   bool get _loggedIn => ref.read(authControllerProvider).valueOrNull != null;
@@ -113,18 +130,59 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
     (List<SavedItem> l) => l.any((SavedItem i) => i.productSlug == slug),
   );
 
-  void _share() {
-    final AnalysisResult r = widget.result;
-    final Verdict v = r.verdict;
-    final StringBuffer msg = StringBuffer(
-      'Munch or Dump says ${r.productName} is a '
-      '${v.label.toUpperCase()} ${v.emoji} — ${r.verdictScore}/90.',
-    );
-    final String? slug = _slug;
-    if (slug != null && slug.isNotEmpty) {
-      msg.write('\nhttps://munchordump.com/p/$slug');
+  /// Share the verdict as the branded card image + an on-brand caption with
+  /// the product link. If the card render fails for any reason we share
+  /// text-only — the tap never dead-ends.
+  Future<void> _share() async {
+    if (_sharing) return;
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _sharing = true);
+    try {
+      final AnalysisResult r = widget.result;
+      final String slug = _slug?.trim() ?? '';
+      final String name = r.productName.trim().isEmpty
+          ? 'This product'
+          : r.productName.trim();
+      final String cta = slug.isEmpty
+          ? 'Scan it yourself: https://munchordump.com'
+          : 'See the full verdict: https://munchordump.com/p/$slug';
+      final String text =
+          '$name got ${r.verdict.apiValue} ${r.verdict.emoji} '
+          '(${r.verdictScore}/90) on Munch or Dump. '
+          '${_shareQuip(r.verdict)} $cta';
+      final XFile? card = await _renderCardFile(slug);
+      await SharePlus.instance.share(
+        card == null
+            ? ShareParams(text: text, subject: 'Munch or Dump verdict')
+            : ShareParams(
+                files: <XFile>[card],
+                text: text,
+                subject: 'Munch or Dump verdict',
+              ),
+      );
+    } catch (_) {
+      _snack('Couldn’t share right now.');
+    } finally {
+      if (mounted) setState(() => _sharing = false);
     }
-    SharePlus.instance.share(ShareParams(text: msg.toString()));
+  }
+
+  /// Render the branded card and stage it as a temp PNG; null → text-only.
+  Future<XFile?> _renderCardFile(String slug) async {
+    try {
+      final bytes = await renderShareCard(context, widget.result);
+      if (bytes == null) return null;
+      final stamp = slug.isEmpty
+          ? '${DateTime.now().millisecondsSinceEpoch}'
+          : slug;
+      final file = File(
+        '${Directory.systemTemp.path}/munch_verdict_$stamp.png',
+      );
+      await file.writeAsBytes(bytes, flush: true);
+      return XFile(file.path, mimeType: 'image/png');
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -174,8 +232,13 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
         ] else
           const SizedBox(height: 24),
         OutlinedButton.icon(
-          onPressed: _share,
-          icon: const Icon(Icons.ios_share),
+          onPressed: _sharing ? null : _share,
+          icon: _sharing
+              ? const SizedBox.square(
+                  dimension: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.ios_share),
           label: const Text('Share this verdict'),
         ),
         if (name.isNotEmpty)
