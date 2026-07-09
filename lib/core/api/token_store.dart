@@ -20,10 +20,21 @@ class TokenStore {
 
   static const String _tokenKey = 'munchordump_token';
 
-  Future<String?> read() => _storage.read(key: _tokenKey);
+  /// In-memory memo of the stored token, so the Keychain is hit once per app
+  /// launch instead of on every request. Static (there is a single Keychain
+  /// entry to mirror) so the constructor can stay `const`. [write] and [clear]
+  /// write through and keep it in sync.
+  static String? _memo;
 
-  Future<void> write(String token) =>
-      _storage.write(key: _tokenKey, value: token);
+  Future<String?> read() async => _memo ??= await _storage.read(key: _tokenKey);
 
-  Future<void> clear() => _storage.delete(key: _tokenKey);
+  Future<void> write(String token) async {
+    await _storage.write(key: _tokenKey, value: token);
+    _memo = token;
+  }
+
+  Future<void> clear() async {
+    await _storage.delete(key: _tokenKey);
+    _memo = null;
+  }
 }

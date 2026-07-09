@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
 import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 final brandsProvider =
     FutureProvider.autoDispose<({List<BrandSummary> items, bool gated})>((ref) {
+      ref.cacheFor(const Duration(minutes: 10));
       return ref.watch(munchApiProvider).getBrands();
     });
 
@@ -17,6 +19,7 @@ final brandProvider = FutureProvider.autoDispose.family<BrandDetail, String>((
   ref,
   slug,
 ) {
+  ref.cacheFor(const Duration(minutes: 5));
   return ref.watch(munchApiProvider).getBrand(slug);
 });
 

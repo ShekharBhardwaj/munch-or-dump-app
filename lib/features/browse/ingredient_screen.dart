@@ -4,6 +4,7 @@ import 'package:munch_or_dump/core/models/analysis_result.dart';
 import 'package:munch_or_dump/core/models/catalog.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
+import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 import 'package:munch_or_dump/core/widgets/product_row.dart';
@@ -11,6 +12,7 @@ import 'package:munch_or_dump/features/auth/sign_in_prompts.dart';
 
 final ingredientProvider = FutureProvider.autoDispose
     .family<IngredientDetail?, String>((ref, slug) {
+      ref.cacheFor(const Duration(minutes: 5));
       return ref.watch(munchApiProvider).getIngredient(slug);
     });
 

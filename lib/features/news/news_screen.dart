@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:munch_or_dump/core/models/news.dart';
 import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
+import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 final newsProvider = FutureProvider.autoDispose<NewsList>((ref) {
+  ref.cacheFor(const Duration(minutes: 5));
   return ref.watch(munchApiProvider).getNews();
 });
 
@@ -15,6 +17,7 @@ final newsPostProvider = FutureProvider.autoDispose.family<NewsPost, String>((
   ref,
   slug,
 ) {
+  ref.cacheFor(const Duration(minutes: 5));
   return ref.watch(munchApiProvider).getNewsPost(slug);
 });
 

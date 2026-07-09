@@ -7,6 +7,7 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/async_states.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
@@ -17,6 +18,7 @@ import 'package:munch_or_dump/core/widgets/editorial.dart';
 /// are the proof.
 final verdictExamplesProvider =
     FutureProvider.autoDispose<Map<Verdict, ProductListItem?>>((ref) async {
+      ref.cacheFor(const Duration(minutes: 10));
       final api = ref.watch(munchApiProvider);
       final entries = await Future.wait(
         Verdict.values.map((v) async {

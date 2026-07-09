@@ -6,12 +6,14 @@ import 'package:munch_or_dump/core/providers.dart';
 import 'package:munch_or_dump/core/router/routes.dart';
 import 'package:munch_or_dump/core/theme/palette.dart';
 import 'package:munch_or_dump/core/theme/verdict_palette.dart';
+import 'package:munch_or_dump/core/utils/cache_for.dart';
 import 'package:munch_or_dump/core/utils/country_flag.dart';
 import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// A handful of recently-analyzed products for the home feed.
 final recentProductsProvider =
     FutureProvider.autoDispose<List<ProductListItem>>((ref) async {
+      ref.cacheFor(const Duration(minutes: 2));
       final result = await ref.watch(munchApiProvider).searchProducts(limit: 6);
       return result.items;
     });
