@@ -51,12 +51,33 @@ jobs:
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Build archive
+      - name: Build archive (cloud-signed via ASC API key)
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           BUILD_NUMBER=$(( ${{ github.run_number }} + 100 ))
           echo "Build number: $BUILD_NUMBER"
-          # flutter's own export step fails without a local cert — the archive is what we need.
-          flutter build ipa --dart-define-from-file=dart_defines.json --build-number="$BUILD_NUMBER" || true
+          # Generate Flutter's xcconfig (dart-defines + build number) without building —
+          # the runner has no Apple account, so signing must happen in xcodebuild itself,
+          # where -allowProvisioningUpdates + the App Manager API key can mint the
+          # distribution cert and provisioning profile on the fly.
+          flutter build ios --config-only --release \
+            --dart-define-from-file=dart_defines.json \
+            --build-number="$BUILD_NUMBER"
+          cd ios && pod install && cd ..
+          xcodebuild archive \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM=66BV6SH279 \
+            CODE_SIGN_STYLE=Automatic
           test -d build/ios/archive/Runner.xcarchive
 
       - name: Export signed IPA (cloud signing via ASC API key)
