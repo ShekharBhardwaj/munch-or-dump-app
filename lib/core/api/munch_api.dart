@@ -137,8 +137,10 @@ class MunchApi {
     if (barcode != null && barcode.isNotEmpty) body['barcode'] = barcode;
     if (ingredients != null) body['ingredients'] = ingredients;
     if (scanId != null) body['scan_id'] = scanId;
-    if (productName != null) body['product_name'] = productName;
-    if (brand != null) body['brand'] = brand;
+    if (productName != null && productName.isNotEmpty) {
+      body['product_name'] = productName;
+    }
+    if (brand != null && brand.isNotEmpty) body['brand'] = brand;
     if (category != null) body['category'] = category;
     if (fileUrls != null) body['file_urls'] = fileUrls;
     if (servingSize != null) body['serving_size'] = servingSize;

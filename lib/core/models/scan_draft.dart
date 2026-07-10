@@ -7,6 +7,8 @@ class ScanDraft {
     this.ingredients = const <String>[],
     this.barcode,
     this.servingSize,
+    this.productName,
+    this.brand,
   });
 
   factory ScanDraft.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,8 @@ class ScanDraft {
           : const <String>[],
       barcode: json['barcode'] as String?,
       servingSize: json['serving_size'] as String?,
+      productName: json['product_name'] as String?,
+      brand: json['brand'] as String?,
     );
   }
 
@@ -25,4 +29,6 @@ class ScanDraft {
   final List<String> ingredients;
   final String? barcode;
   final String? servingSize;
+  final String? productName;
+  final String? brand;
 }

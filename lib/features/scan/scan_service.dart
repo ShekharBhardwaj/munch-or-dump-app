@@ -28,6 +28,8 @@ class ScanService {
       scanId: draft.scanId,
       barcode: draft.barcode,
       servingSize: draft.servingSize,
+      productName: draft.productName,
+      brand: draft.brand,
       fileUrls: fileUrls,
     );
   }
