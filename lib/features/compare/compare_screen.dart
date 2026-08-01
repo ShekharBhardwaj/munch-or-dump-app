@@ -723,7 +723,7 @@ class _ScoreCell extends StatelessWidget {
             ),
           ),
           TextSpan(
-            text: ' /90',
+            text: ' /100',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,

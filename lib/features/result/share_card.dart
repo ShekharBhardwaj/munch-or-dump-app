@@ -141,7 +141,7 @@ class ShareCardWidget extends StatelessWidget {
 }
 
 /// The tinted verdict panel — the hero treatment from the result screen:
-/// eyebrow, emoji + giant verdict word in `tone.word`, `SCORE n / 90` in
+/// eyebrow, emoji + giant verdict word in `tone.word`, `SCORE n / 100` in
 /// `tone.mid`.
 class _VerdictPanel extends StatelessWidget {
   const _VerdictPanel({required this.result, required this.tone});
@@ -197,7 +197,7 @@ class _VerdictPanel extends StatelessWidget {
           ),
           const SizedBox(height: 34),
           Text(
-            'SCORE ${result.verdictScore} / 90',
+            'SCORE ${result.verdictScore} / 100',
             style: TextStyle(
               fontSize: 34,
               fontWeight: FontWeight.w600,

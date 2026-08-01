@@ -7,7 +7,7 @@ import 'package:munch_or_dump/core/widgets/editorial.dart';
 
 /// The web's "Brand Report Card" hero (BrandPage.jsx) as an editorial card:
 /// a letter grade from the weighted verdict mix, the average product score
-/// out of 90, the product count, and a stacked verdict-mix bar with a legend.
+/// out of 100, the product count, and a stacked verdict-mix bar with a legend.
 ///
 /// Like the web, everything is computed client-side from the brand's products
 /// (`GET /api/brands/:slug` returns no aggregates).
@@ -146,7 +146,7 @@ class BrandReportCard extends StatelessWidget {
             children: <Widget>[
               _Stat(
                 value: avgScore == null ? '—' : '$avgScore',
-                suffix: avgScore == null ? null : ' /90',
+                suffix: avgScore == null ? null : ' /100',
                 label: 'Avg score',
               ),
               Container(

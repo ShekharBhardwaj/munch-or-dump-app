@@ -179,7 +179,7 @@ class _ResultActionsState extends ConsumerState<ResultActions> {
           : 'See the full verdict: https://munchordump.com/p/$slug';
       final String text =
           '$name got ${r.verdict.apiValue} ${r.verdict.emoji} '
-          '(${r.verdictScore}/90) on Munch or Dump. '
+          '(${r.verdictScore}/100) on Munch or Dump. '
           '${_shareQuip(r.verdict)} $cta';
       final XFile? card = await _renderCardFile(slug);
       await SharePlus.instance.share(

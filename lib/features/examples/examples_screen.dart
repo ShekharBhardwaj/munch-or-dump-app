@@ -229,7 +229,7 @@ class _VerdictExampleCard extends StatelessWidget {
     final parts = <String>[];
     final brand = ex.brandName?.trim();
     if (brand != null && brand.isNotEmpty) parts.add(brand);
-    if (ex.score != null) parts.add('Scored ${ex.score}/90');
+    if (ex.score != null) parts.add('Scored ${ex.score}/100');
     return parts.join(' · ');
   }
 }
