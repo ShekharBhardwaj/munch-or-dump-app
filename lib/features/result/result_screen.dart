@@ -244,11 +244,26 @@ class _VerdictHeroState extends State<_VerdictHero>
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
               child: Column(
                 children: <Widget>[
-                  const Eyebrow(
-                    'Verdict',
-                    size: 10,
-                    spacing: 4.5,
-                    align: TextAlign.center,
+                  // Emoji lives here as a small accent, not competing with the
+                  // verdict word below.
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ExcludeSemantics(
+                        child: Text(
+                          result.verdict.emoji,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Eyebrow(
+                        'Verdict',
+                        size: 10,
+                        spacing: 4.5,
+                        align: TextAlign.center,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   FadeTransition(
@@ -257,44 +272,46 @@ class _VerdictHeroState extends State<_VerdictHero>
                       scale: _scale,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ExcludeSemantics(
-                              child: Text(
-                                result.verdict.emoji,
-                                style: const TextStyle(fontSize: 40),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              result.verdict.label.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 72,
-                                height: 1,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -1.5,
-                                color: tone.word,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          result.verdict.label.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 76,
+                            height: 1,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -1.5,
+                            color: tone.word,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   AnimatedBuilder(
                     animation: _count,
                     builder: (BuildContext context, Widget? child) {
                       final int shown = (result.verdictScore * _count.value)
                           .round();
-                      return Text(
-                        'SCORE $shown / 90',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 3,
-                          color: tone.mid,
+                      return Text.rich(
+                        TextSpan(
+                          children: <InlineSpan>[
+                            TextSpan(
+                              text: '$shown',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                                color: tone.word,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' / 100',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: tone.mid,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -306,12 +323,6 @@ class _VerdictHeroState extends State<_VerdictHero>
                       runSpacing: 6,
                       alignment: WrapAlignment.center,
                       children: pills,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'AI estimate — always read the label for allergens.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11, color: palette.inkMuted),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -345,7 +356,7 @@ class _VerdictDisclaimer extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     return Text(
-      'An AI opinion — not fact, and not medical advice.',
+      'An AI opinion — read the label for allergens; not medical advice.',
       textAlign: TextAlign.center,
       style: TextStyle(fontSize: 12, color: palette.inkFaint),
     );

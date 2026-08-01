@@ -148,7 +148,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('OKAY'), findsOneWidget);
-    expect(find.text('SCORE 60 / 90'), findsOneWidget);
+    expect(find.textContaining('60'), findsWidgets); // score value
+    expect(find.textContaining('/ 100'), findsOneWidget); // score out of 100
     expect(find.text('Test Granola'), findsOneWidget); // body title
     expect(find.textContaining('All natural'), findsOneWidget);
   });
